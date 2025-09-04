@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@polkadot-api/descriptors": "file:.papi/descriptors",
+    "@tanstack/react-query": "^5.86.0",
+    "@tanstack/react-query-devtools": "^5.86.0",
     "polkadot-api": "^1.16.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
