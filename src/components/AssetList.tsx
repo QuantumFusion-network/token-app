@@ -28,9 +28,6 @@ export function AssetList() {
             id: assetId,
             asset,
             metadata,
-            name: metadata ? metadata.name.toString() : `Asset ${assetId}`,
-            symbol: metadata ? metadata.symbol.toString() : "???",
-            decimals: metadata?.decimals ?? 0,
           };
         })
       );

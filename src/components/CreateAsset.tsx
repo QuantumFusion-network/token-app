@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Binary } from "polkadot-api";
 import { MultiAddress } from "@polkadot-api/descriptors";
 import { api } from "../lib/polkadot";
-import { useWallet } from "../hooks/useWallet";
+import { useWalletContext } from "../hooks/useWalletContext";
 
 interface CreateAssetForm {
   assetId: string;
@@ -14,7 +14,7 @@ interface CreateAssetForm {
 }
 
 export function CreateAsset() {
-  const { selectedAccount } = useWallet();
+  const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState<CreateAssetForm>({
     assetId: "",

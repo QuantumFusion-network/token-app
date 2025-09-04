@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useWalletContext } from "./contexts/WalletContext";
+import { useWalletContext } from "./hooks/useWalletContext";
 import { WalletConnector } from "./components/WalletConnector";
 import { CreateAsset } from "./components/CreateAsset";
 import { AssetList } from "./components/AssetList";
@@ -12,8 +12,6 @@ type Tab = "assets" | "create" | "mint" | "transfer";
 export default function App() {
   const { isConnected, selectedAccount } = useWalletContext();
   const [activeTab, setActiveTab] = useState<Tab>("assets");
-
-  console.log("App render - isConnected:", isConnected, "selectedAccount:", selectedAccount);
 
   if (!isConnected) {
     return (

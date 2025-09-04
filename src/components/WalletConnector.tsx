@@ -1,12 +1,15 @@
-import { useWalletContext } from "../contexts/WalletContext";
+import { useWalletContext } from "../hooks/useWalletContext";
 
 export function WalletConnector() {
-  const { availableExtensions, isConnecting, connectWallet } = useWalletContext();
+  const { availableExtensions, isConnecting, connectWallet } =
+    useWalletContext();
 
   if (availableExtensions.length === 0) {
     return (
       <div className="border rounded-lg p-6 text-center">
-        <h2 className="text-xl font-semibold mb-2">No Wallet Extensions Found</h2>
+        <h2 className="text-xl font-semibold mb-2">
+          No Wallet Extensions Found
+        </h2>
         <p className="text-gray-600 mb-4">
           Please install a Polkadot wallet extension like:
         </p>

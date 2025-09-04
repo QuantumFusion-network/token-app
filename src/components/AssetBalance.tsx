@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/polkadot";
 import { formatUnits } from "../utils/format";
-import { useWallet } from "../hooks/useWallet";
+import { useWalletContext } from "../hooks/useWalletContext";
 
 interface AssetBalanceProps {
   assetId: number;
@@ -9,7 +9,7 @@ interface AssetBalanceProps {
 }
 
 export function AssetBalance({ assetId, accountId }: AssetBalanceProps) {
-  const { selectedAccount } = useWallet();
+  const { selectedAccount } = useWalletContext();
   const targetAccount = accountId || selectedAccount?.address;
 
   const {

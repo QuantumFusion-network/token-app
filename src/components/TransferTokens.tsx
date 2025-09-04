@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MultiAddress } from "@polkadot-api/descriptors";
 import { api } from "../lib/polkadot";
-import { useWallet } from "../hooks/useWallet";
+import { useWalletContext } from "../hooks/useWalletContext";
 import { parseUnits } from "../utils/format";
 
 interface TransferForm {
@@ -13,7 +13,7 @@ interface TransferForm {
 }
 
 export function TransferTokens() {
-  const { selectedAccount } = useWallet();
+  const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState<TransferForm>({
     assetId: "",

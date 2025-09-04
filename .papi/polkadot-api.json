@@ -7,6 +7,12 @@
       "metadata": ".papi/metadata/dot_asset_hub.scale",
       "genesis": "0x68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
       "codeHash": "0x8cada8f706ffc7c9bd0c31985ec4f34520914778edefaa94b624bc6adea48a1c"
+    },
+    "paseo_asset_hub": {
+      "chain": "paseo_asset_hub",
+      "metadata": ".papi/metadata/paseo_asset_hub.scale",
+      "genesis": "0xd6eec26135305a8ad257a20d003357284c8aa03d0bdb2b357ab0a22371e11ef2",
+      "codeHash": "0x6b99330eb07c2dfd4510609ae8c49d9a2732f9bef8b9c0da544828f4e1a34942"
     }
   }
 }
