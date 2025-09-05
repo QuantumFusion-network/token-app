@@ -1,8 +1,10 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MultiAddress } from "@polkadot-api/descriptors";
+import { toast } from "sonner";
 import { api } from "../lib/polkadot";
 import { useWalletContext } from "../hooks/useWalletContext";
+import { useTransactionStatus } from "../hooks/useTransactionStatus";
 import { parseUnits } from "../utils/format";
 
 interface TransferForm {
@@ -15,6 +17,8 @@ interface TransferForm {
 export function TransferTokens() {
   const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
+  const { status, trackTransaction, reset } = useTransactionStatus();
+  const transactionDetailsRef = useRef<{ amount: string; recipient: string; assetId: string } | null>(null);
   const [formData, setFormData] = useState<TransferForm>({
     assetId: "",
     recipient: "",
@@ -35,7 +39,18 @@ export function TransferTokens() {
         amount,
       });
 
-      return await tx.signAndSubmit(selectedAccount.polkadotSigner);
+      // Store transaction details for toast messages
+      transactionDetailsRef.current = {
+        amount: data.amount,
+        recipient: data.recipient,
+        assetId: data.assetId,
+      };
+
+      // Use signSubmitAndWatch for transaction tracking
+      const observable = tx.signSubmitAndWatch(selectedAccount.polkadotSigner);
+      
+      // Track the transaction through all phases
+      await trackTransaction(observable);
     },
     onSuccess: (_result, variables) => {
       // Invalidate balances for both sender and recipient
@@ -60,14 +75,52 @@ export function TransferTokens() {
         amount: "",
         decimals: 12,
       });
+      // Delay reset to allow useEffect to process finalized status
+      setTimeout(() => reset(), 100);
     },
     onError: (error) => {
       console.error("Failed to transfer tokens:", error);
+      // Toast error will be handled by transaction status tracking
     },
   });
 
+  // Toast notifications based on transaction status
+  useEffect(() => {
+    switch (status.status) {
+      case "signing":
+        toast.info("Please sign the transfer transaction in your wallet");
+        break;
+      case "broadcasting":
+        toast.info(
+          `Transfer transaction submitted. Hash: ${status.txHash?.slice(0, 16)}...`,
+          { duration: 8000 }
+        );
+        break;
+      case "inBlock":
+        toast.info("Transfer transaction included in block", { duration: 8000 });
+        break;
+      case "finalized": {
+        const details = transactionDetailsRef.current;
+        toast.success(
+          details
+            ? `${details.amount} tokens transferred successfully to ${details.recipient.slice(0, 8)}... for Asset ID ${details.assetId}!`
+            : "Tokens transferred successfully!",
+          { duration: 8000 }
+        );
+        break;
+      }
+      case "error":
+        toast.error(
+          `Transfer transaction failed: ${status.error?.message}`,
+          { duration: 8000 }
+        );
+        break;
+    }
+  }, [status]);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    reset(); // Reset status before starting new transaction
     transferMutation.mutate(formData);
   };
 
@@ -137,10 +190,16 @@ export function TransferTokens() {
 
       <button
         type="submit"
-        disabled={transferMutation.isPending}
+        disabled={transferMutation.isPending || status.status !== "idle"}
         className="w-full bg-blue-500 text-white py-2 px-4 rounded disabled:opacity-50"
       >
-        {transferMutation.isPending ? "Transferring..." : "Transfer Tokens"}
+        {status.status === "signing" && "Signing..."}
+        {status.status === "broadcasting" && "Broadcasting..."}
+        {status.status === "inBlock" && "In Block..."}
+        {status.status === "finalized" && "Finalizing..."}
+        {status.status === "error" && "Error - Try Again"}
+        {status.status === "idle" &&
+          (transferMutation.isPending ? "Transferring..." : "Transfer Tokens")}
       </button>
 
       {transferMutation.isError && (

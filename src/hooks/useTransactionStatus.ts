@@ -29,6 +29,7 @@ export function useTransactionStatus() {
     return new Promise((resolve, reject) => {
       const subscription = observable.subscribe({
         next: (event: TxBroadcastEvent) => {
+          console.log("Transaction status", event);
           switch (event.type) {
             case "signed":
               setStatus({ status: "signing" });

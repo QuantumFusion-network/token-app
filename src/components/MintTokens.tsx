@@ -1,8 +1,10 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MultiAddress } from "@polkadot-api/descriptors";
+import { toast } from "sonner";
 import { api } from "../lib/polkadot";
 import { useWalletContext } from "../hooks/useWalletContext";
+import { useTransactionStatus } from "../hooks/useTransactionStatus";
 import { parseUnits } from "../utils/format";
 
 interface MintForm {
@@ -15,6 +17,8 @@ interface MintForm {
 export function MintTokens() {
   const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
+  const { status, trackTransaction, reset } = useTransactionStatus();
+  const transactionDetailsRef = useRef<{ amount: string; recipient: string; assetId: string } | null>(null);
   const [formData, setFormData] = useState<MintForm>({
     assetId: "",
     recipient: "",
@@ -35,7 +39,18 @@ export function MintTokens() {
         amount,
       });
 
-      return await tx.signAndSubmit(selectedAccount.polkadotSigner);
+      // Store transaction details for toast messages
+      transactionDetailsRef.current = {
+        amount: data.amount,
+        recipient: data.recipient,
+        assetId: data.assetId,
+      };
+
+      // Use signSubmitAndWatch for transaction tracking
+      const observable = tx.signSubmitAndWatch(selectedAccount.polkadotSigner);
+
+      // Track the transaction through all phases
+      await trackTransaction(observable);
     },
     onSuccess: (_result, variables) => {
       // Invalidate relevant queries
@@ -57,14 +72,54 @@ export function MintTokens() {
         amount: "",
         decimals: 12,
       });
+      // Delay reset to allow useEffect to process finalized status
+      setTimeout(() => reset(), 100);
     },
     onError: (error) => {
       console.error("Failed to mint tokens:", error);
+      // Toast error will be handled by transaction status tracking
     },
   });
 
+  // Toast notifications based on transaction status
+  useEffect(() => {
+    console.log("Mint transaction status in useEffect", status.status);
+    switch (status.status) {
+      case "signing":
+        toast.info("Please sign the mint transaction in your wallet");
+        break;
+      case "broadcasting":
+        toast.info(
+          `Mint transaction submitted. Hash: ${status.txHash?.slice(0, 16)}...`,
+          { duration: 8000 }
+        );
+        break;
+      case "inBlock":
+        console.log("Mint transaction included in block", status);
+        toast.info("Mint transaction included in block", { duration: 8000 });
+        break;
+      case "finalized": {
+        console.log("Mint transaction finalized", status);
+        const details = transactionDetailsRef.current;
+        toast.success(
+          details
+            ? `${details.amount} tokens minted successfully to ${details.recipient.slice(0, 8)}... for Asset ID ${details.assetId}!`
+            : "Tokens minted successfully!",
+          { duration: 8000 }
+        );
+        break;
+      }
+      case "error":
+        toast.error(`Mint transaction failed: ${status.error?.message}`, {
+          duration: 8000,
+        });
+        break;
+    }
+  }, [status]);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    reset(); // Reset status before starting new transaction
     mintMutation.mutate(formData);
   };
 
@@ -132,10 +187,16 @@ export function MintTokens() {
 
       <button
         type="submit"
-        disabled={mintMutation.isPending}
+        disabled={mintMutation.isPending || status.status !== "idle"}
         className="w-full bg-green-500 text-white py-2 px-4 rounded disabled:opacity-50"
       >
-        {mintMutation.isPending ? "Minting..." : "Mint Tokens"}
+        {status.status === "signing" && "Signing..."}
+        {status.status === "broadcasting" && "Broadcasting..."}
+        {status.status === "inBlock" && "In Block..."}
+        {status.status === "finalized" && "Finalizing..."}
+        {status.status === "error" && "Error - Try Again"}
+        {status.status === "idle" &&
+          (mintMutation.isPending ? "Minting..." : "Mint Tokens")}
       </button>
 
       {mintMutation.isError && (
