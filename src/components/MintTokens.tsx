@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MultiAddress } from "@polkadot-api/descriptors";
-import { toast } from "sonner";
 import { api } from "../lib/polkadot";
 import { useWalletContext } from "../hooks/useWalletContext";
 import { useTransactionStatus } from "../hooks/useTransactionStatus";
+import { useTransactionToasts } from "../hooks/useTransactionToasts";
 import { parseUnits } from "../utils/format";
 
 interface MintForm {
@@ -18,7 +18,24 @@ export function MintTokens() {
   const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
   const { status, trackTransaction, reset } = useTransactionStatus();
-  const transactionDetailsRef = useRef<{ amount: string; recipient: string; assetId: string } | null>(null);
+  console.log("Mint tokens status", status);
+  const { setTransactionDetails } = useTransactionToasts(status, {
+    signing: "Please sign the mint transaction in your wallet",
+    broadcasting: (hash: string) =>
+      `Mint transaction submitted. Hash: ${hash.slice(0, 16)}...`,
+    inBlock: "Mint transaction included in block",
+    finalized: (details) => {
+      return details
+        ? `${
+            details.amount
+          } tokens minted successfully to ${details.recipient?.slice(
+            0,
+            8
+          )}... for Asset ID ${details.assetId}!`
+        : "Tokens minted successfully!";
+    },
+    error: (error: string) => `Mint transaction failed: ${error}`,
+  });
   const [formData, setFormData] = useState<MintForm>({
     assetId: "",
     recipient: "",
@@ -39,12 +56,11 @@ export function MintTokens() {
         amount,
       });
 
-      // Store transaction details for toast messages
-      transactionDetailsRef.current = {
+      setTransactionDetails({
         amount: data.amount,
         recipient: data.recipient,
         assetId: data.assetId,
-      };
+      });
 
       // Use signSubmitAndWatch for transaction tracking
       const observable = tx.signSubmitAndWatch(selectedAccount.polkadotSigner);
@@ -80,42 +96,6 @@ export function MintTokens() {
       // Toast error will be handled by transaction status tracking
     },
   });
-
-  // Toast notifications based on transaction status
-  useEffect(() => {
-    console.log("Mint transaction status in useEffect", status.status);
-    switch (status.status) {
-      case "signing":
-        toast.info("Please sign the mint transaction in your wallet");
-        break;
-      case "broadcasting":
-        toast.info(
-          `Mint transaction submitted. Hash: ${status.txHash?.slice(0, 16)}...`,
-          { duration: 8000 }
-        );
-        break;
-      case "inBlock":
-        console.log("Mint transaction included in block", status);
-        toast.info("Mint transaction included in block", { duration: 8000 });
-        break;
-      case "finalized": {
-        console.log("Mint transaction finalized", status);
-        const details = transactionDetailsRef.current;
-        toast.success(
-          details
-            ? `${details.amount} tokens minted successfully to ${details.recipient.slice(0, 8)}... for Asset ID ${details.assetId}!`
-            : "Tokens minted successfully!",
-          { duration: 8000 }
-        );
-        break;
-      }
-      case "error":
-        toast.error(`Mint transaction failed: ${status.error?.message}`, {
-          duration: 8000,
-        });
-        break;
-    }
-  }, [status]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();

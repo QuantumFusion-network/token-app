@@ -46,6 +46,7 @@ export function useTransactionStatus() {
                 txHash: event.txHash,
               });
               break;
+
             case "finalized":
               setStatus({
                 status: "finalized",

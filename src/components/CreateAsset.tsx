@@ -1,10 +1,10 @@
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MultiAddress } from "@polkadot-api/descriptors";
-import { toast } from "sonner";
 import { api } from "../lib/polkadot";
 import { useWalletContext } from "../hooks/useWalletContext";
 import { useTransactionStatus } from "../hooks/useTransactionStatus";
+import { useTransactionToasts } from "../hooks/useTransactionToasts";
 import { Binary } from "polkadot-api";
 
 interface CreateAssetForm {
@@ -19,6 +19,16 @@ export function CreateAsset() {
   const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
   const { status, trackTransaction, reset } = useTransactionStatus();
+  console.log("Create asset status", status);
+
+  const { setTransactionDetails } = useTransactionToasts(status, {
+    signing: "Please sign the transaction in your wallet",
+    broadcasting: (hash: string) =>
+      `Transaction submitted. Hash: ${hash.slice(0, 16)}...`,
+    inBlock: "Transaction included in block",
+    finalized: "Asset created successfully!",
+    error: (error: string) => `Transaction failed: ${error}`,
+  });
   const [formData, setFormData] = useState<CreateAssetForm>({
     assetId: nextAssetId?.toString() || "",
     minBalance: "1",
@@ -51,9 +61,13 @@ export function CreateAsset() {
         calls: [createCall, metadataCall],
       });
 
+      setTransactionDetails({
+        assetId: data.assetId,
+      });
+
       const obs = batch.signSubmitAndWatch(selectedAccount.polkadotSigner);
 
-      trackTransaction(obs);
+      await trackTransaction(obs);
     },
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["assets"] });
@@ -67,39 +81,14 @@ export function CreateAsset() {
         symbol: "",
         decimals: "12",
       });
-      reset(); // Reset transaction status
+      // Delay reset to allow useEffect to process finalized status
+      setTimeout(() => reset(), 500);
     },
     onError: (error) => {
       console.error("Failed to create asset:", error);
       // Toast error will be handled by transaction status tracking
     },
   });
-
-  // Toast notifications based on transaction status
-  useEffect(() => {
-    switch (status.status) {
-      case "signing":
-        toast.info("Please sign the transaction in your wallet");
-        break;
-      case "broadcasting":
-        toast.info(
-          `Transaction submitted. Hash: ${status.txHash?.slice(0, 16)}...`,
-          { duration: 8000 }
-        );
-        break;
-      case "inBlock":
-        toast.info("Transaction included in block", { duration: 8000 });
-        break;
-      case "finalized":
-        toast.success("Asset created successfully!", { duration: 8000 });
-        break;
-      case "error":
-        toast.error(`Transaction failed: ${status.error?.message}`, {
-          duration: 8000,
-        });
-        break;
-    }
-  }, [status]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
