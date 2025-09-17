@@ -5,6 +5,7 @@ interface TransactionDetails {
   amount?: string;
   recipient?: string;
   assetId?: string;
+  initialMintAmount?: string;
 }
 
 interface TransactionStatus {

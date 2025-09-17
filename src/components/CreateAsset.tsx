@@ -6,6 +6,7 @@ import { useWalletContext } from "../hooks/useWalletContext";
 import { useTransactionStatus } from "../hooks/useTransactionStatus";
 import { useTransactionToasts } from "../hooks/useTransactionToasts";
 import { Binary } from "polkadot-api";
+import { parseUnits } from "../utils/format";
 
 interface CreateAssetForm {
   assetId: string;
@@ -13,6 +14,7 @@ interface CreateAssetForm {
   name: string;
   symbol: string;
   decimals: string;
+  initialMintAmount: string;
 }
 const nextAssetId = await api.query.Assets.NextAssetId.getValue();
 export function CreateAsset() {
@@ -26,7 +28,12 @@ export function CreateAsset() {
     broadcasting: (hash: string) =>
       `Transaction submitted. Hash: ${hash.slice(0, 16)}...`,
     inBlock: "Transaction included in block",
-    finalized: "Asset created successfully!",
+    finalized: (details) => {
+      if (details?.initialMintAmount && parseFloat(details.initialMintAmount) > 0) {
+        return `Asset created and ${details.initialMintAmount} tokens minted successfully!`;
+      }
+      return "Asset created successfully!";
+    },
     error: (error: string) => `Transaction failed: ${error}`,
   });
   const [formData, setFormData] = useState<CreateAssetForm>({
@@ -35,6 +42,7 @@ export function CreateAsset() {
     name: "",
     symbol: "",
     decimals: "12",
+    initialMintAmount: "",
   });
 
   const createAssetMutation = useMutation({
@@ -57,17 +65,32 @@ export function CreateAsset() {
         decimals: parseInt(data.decimals),
       }).decodedCall;
 
+      // Create the batch with asset creation and metadata
       const batch = api.tx.Utility.batch_all({
         calls: [createCall, metadataCall],
       });
 
       setTransactionDetails({
         assetId: data.assetId,
+        initialMintAmount: data.initialMintAmount,
       });
 
+      // Execute the create+metadata batch first
       const obs = batch.signSubmitAndWatch(selectedAccount.polkadotSigner);
-
       await trackTransaction(obs);
+
+      // If initial mint amount is provided, mint tokens after asset creation
+      if (data.initialMintAmount && parseFloat(data.initialMintAmount) > 0) {
+        const mintAmount = parseUnits(data.initialMintAmount, parseInt(data.decimals));
+        const mintTx = api.tx.Assets.mint({
+          id: assetId,
+          beneficiary: MultiAddress.Id(selectedAccount.address),
+          amount: mintAmount,
+        });
+
+        const mintObs = mintTx.signSubmitAndWatch(selectedAccount.polkadotSigner);
+        await trackTransaction(mintObs);
+      }
     },
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["assets"] });
@@ -80,6 +103,7 @@ export function CreateAsset() {
         name: "",
         symbol: "",
         decimals: "12",
+        initialMintAmount: "",
       });
       // Delay reset to allow useEffect to process finalized status
       setTimeout(() => reset(), 500);
@@ -188,6 +212,29 @@ export function CreateAsset() {
           min="0.000000000001"
           step="0.000000000001"
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Initial Mint Amount (optional)
+        </label>
+        <input
+          type="number"
+          value={formData.initialMintAmount}
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              initialMintAmount: e.target.value,
+            }))
+          }
+          className="w-full border rounded px-3 py-2"
+          min="0"
+          step="0.000000000001"
+          placeholder="Amount to mint to your account"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Tokens will be minted to your connected account ({selectedAccount?.address.slice(0, 8)}...)
+        </p>
       </div>
 
       <button
