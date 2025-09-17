@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MultiAddress } from "@polkadot-api/descriptors";
+import { type TxCallData } from "polkadot-api";
 import { api } from "../lib/polkadot";
 import { useWalletContext } from "../hooks/useWalletContext";
 import { useTransactionStatus } from "../hooks/useTransactionStatus";
@@ -21,18 +22,21 @@ export function CreateAsset() {
   const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
   const { status, trackTransaction, reset } = useTransactionStatus();
-  console.log("Create asset status", status);
 
   const { setTransactionDetails } = useTransactionToasts(status, {
     signing: "Please sign the transaction in your wallet",
     broadcasting: (hash: string) =>
-      `Transaction submitted. Hash: ${hash.slice(0, 16)}...`,
+      `Transaction submitted. 
+    Hash: ${hash.slice(0, 16)}...`,
     inBlock: "Transaction included in block",
     finalized: (details) => {
-      if (details?.initialMintAmount && parseFloat(details.initialMintAmount) > 0) {
-        return `Asset created and ${details.initialMintAmount} tokens minted successfully!`;
+      if (
+        details?.initialMintAmount &&
+        parseFloat(details.initialMintAmount) > 0
+      ) {
+        return `${details.initialMintAmount} tokens minted successfully!`;
       }
-      return "Asset created successfully!";
+      return `Asset ${details?.assetId} created successfully!`;
     },
     error: (error: string) => `Transaction failed: ${error}`,
   });
@@ -65,9 +69,26 @@ export function CreateAsset() {
         decimals: parseInt(data.decimals),
       }).decodedCall;
 
-      // Create the batch with asset creation and metadata
+      const calls: TxCallData[] = [createCall, metadataCall];
+
+      // If initial mint amount is provided, mint tokens after asset creation
+      if (data.initialMintAmount && parseFloat(data.initialMintAmount) > 0) {
+        const mintAmount = parseUnits(
+          data.initialMintAmount,
+          parseInt(data.decimals)
+        );
+        const mintTx = api.tx.Assets.mint({
+          id: assetId,
+          beneficiary: MultiAddress.Id(selectedAccount.address),
+          amount: mintAmount,
+        }).decodedCall;
+
+        calls.push(mintTx);
+      }
+
+      // Create the batch with asset creation, metadata and mint
       const batch = api.tx.Utility.batch_all({
-        calls: [createCall, metadataCall],
+        calls,
       });
 
       setTransactionDetails({
@@ -78,19 +99,6 @@ export function CreateAsset() {
       // Execute the create+metadata batch first
       const obs = batch.signSubmitAndWatch(selectedAccount.polkadotSigner);
       await trackTransaction(obs);
-
-      // If initial mint amount is provided, mint tokens after asset creation
-      if (data.initialMintAmount && parseFloat(data.initialMintAmount) > 0) {
-        const mintAmount = parseUnits(data.initialMintAmount, parseInt(data.decimals));
-        const mintTx = api.tx.Assets.mint({
-          id: assetId,
-          beneficiary: MultiAddress.Id(selectedAccount.address),
-          amount: mintAmount,
-        });
-
-        const mintObs = mintTx.signSubmitAndWatch(selectedAccount.polkadotSigner);
-        await trackTransaction(mintObs);
-      }
     },
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["assets"] });
@@ -127,22 +135,6 @@ export function CreateAsset() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
       <h2 className="text-xl font-bold">Create New Asset</h2>
-
-      <div>
-        <label className="block text-sm font-medium mb-1">Asset ID</label>
-        <input
-          type="number"
-          value={formData.assetId}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              assetId: e.target.value,
-            }))
-          }
-          className="w-full border rounded px-3 py-2"
-          min="1"
-        />
-      </div>
 
       <div>
         <label className="block text-sm font-medium mb-1">Token Name</label>
@@ -233,7 +225,8 @@ export function CreateAsset() {
           placeholder="Amount to mint to your account"
         />
         <p className="text-xs text-gray-500 mt-1">
-          Tokens will be minted to your connected account ({selectedAccount?.address.slice(0, 8)}...)
+          Tokens will be minted to your connected account (
+          {selectedAccount?.address.slice(0, 8)}...)
         </p>
       </div>
 
