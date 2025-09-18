@@ -13,6 +13,12 @@
       "metadata": ".papi/metadata/paseo_asset_hub.scale",
       "genesis": "0xd6eec26135305a8ad257a20d003357284c8aa03d0bdb2b357ab0a22371e11ef2",
       "codeHash": "0x6b99330eb07c2dfd4510609ae8c49d9a2732f9bef8b9c0da544828f4e1a34942"
+    },
+    "qfn": {
+      "wsUrl": "wss://test.qfnetwork.xyz",
+      "metadata": ".papi/metadata/qfn.scale",
+      "genesis": "0xf2741047604399cf783f47197ad06f5d2761e2dab97c405e076af64d60f20faf",
+      "codeHash": "0xd3fcfb9f55c0b8d1e06a8ef177aed759e9a02de39dc0f115919b19358938470e"
     }
   }
 }
