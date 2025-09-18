@@ -1,13 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { MultiAddress } from "@polkadot-api/descriptors";
-import { type TxCallData } from "polkadot-api";
 import { api } from "../lib/polkadot";
 import { useWalletContext } from "../hooks/useWalletContext";
 import { useTransactionStatus } from "../hooks/useTransactionStatus";
 import { useTransactionToasts } from "../hooks/useTransactionToasts";
-import { Binary } from "polkadot-api";
-import { parseUnits } from "../utils/format";
+import { createAssetBatch } from "../lib/assetOperations";
+import { invalidateAssetQueries } from "../lib/queryHelpers";
 
 interface CreateAssetForm {
   assetId: string;
@@ -53,56 +51,16 @@ export function CreateAsset() {
     mutationFn: async (data: CreateAssetForm) => {
       if (!selectedAccount) throw new Error("No account selected");
 
-      const assetId = parseInt(data.assetId);
-      const minBalance = BigInt(data.minBalance) * 10n ** BigInt(data.decimals);
-
-      const createCall = api.tx.Assets.create({
-        id: assetId,
-        admin: MultiAddress.Id(selectedAccount.address),
-        min_balance: minBalance,
-      }).decodedCall;
-
-      const metadataCall = api.tx.Assets.set_metadata({
-        id: assetId,
-        name: Binary.fromText(data.name),
-        symbol: Binary.fromText(data.symbol),
-        decimals: parseInt(data.decimals),
-      }).decodedCall;
-
-      const calls: TxCallData[] = [createCall, metadataCall];
-
-      // If initial mint amount is provided, mint tokens after asset creation
-      if (data.initialMintAmount && parseFloat(data.initialMintAmount) > 0) {
-        const mintAmount = parseUnits(
-          data.initialMintAmount,
-          parseInt(data.decimals)
-        );
-        const mintTx = api.tx.Assets.mint({
-          id: assetId,
-          beneficiary: MultiAddress.Id(selectedAccount.address),
-          amount: mintAmount,
-        }).decodedCall;
-
-        calls.push(mintTx);
-      }
-
-      // Create the batch with asset creation, metadata and mint
-      const batch = api.tx.Utility.batch_all({
-        calls,
-      });
-
       setTransactionDetails({
         assetId: data.assetId,
         initialMintAmount: data.initialMintAmount,
       });
 
-      // Execute the create+metadata batch first
-      const obs = batch.signSubmitAndWatch(selectedAccount.polkadotSigner);
+      const obs = createAssetBatch(data, selectedAccount);
       await trackTransaction(obs);
     },
     onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["assets"] });
-      queryClient.invalidateQueries({ queryKey: ["assetMetadata"] });
+      invalidateAssetQueries(queryClient);
       // Reset form
       setFormData({
         assetId:

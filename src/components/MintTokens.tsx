@@ -1,11 +1,10 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { MultiAddress } from "@polkadot-api/descriptors";
-import { api } from "../lib/polkadot";
 import { useWalletContext } from "../hooks/useWalletContext";
 import { useTransactionStatus } from "../hooks/useTransactionStatus";
 import { useTransactionToasts } from "../hooks/useTransactionToasts";
-import { parseUnits } from "../utils/format";
+import { mintTokens } from "../lib/assetOperations";
+import { invalidateBalanceQueries, invalidateAssetQueries } from "../lib/queryHelpers";
 
 interface MintForm {
   assetId: string;
@@ -47,39 +46,18 @@ export function MintTokens() {
     mutationFn: async (data: MintForm) => {
       if (!selectedAccount) throw new Error("No account selected");
 
-      const assetId = parseInt(data.assetId);
-      const amount = parseUnits(data.amount, data.decimals);
-
-      const tx = api.tx.Assets.mint({
-        id: assetId,
-        beneficiary: MultiAddress.Id(data.recipient),
-        amount,
-      });
-
       setTransactionDetails({
         amount: data.amount,
         recipient: data.recipient,
         assetId: data.assetId,
       });
 
-      // Use signSubmitAndWatch for transaction tracking
-      const observable = tx.signSubmitAndWatch(selectedAccount.polkadotSigner);
-
-      // Track the transaction through all phases
+      const observable = mintTokens(data, selectedAccount);
       await trackTransaction(observable);
     },
     onSuccess: (_result, variables) => {
-      // Invalidate relevant queries
-      queryClient.invalidateQueries({
-        queryKey: [
-          "assetBalance",
-          parseInt(variables.assetId),
-          variables.recipient,
-        ],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["assets"],
-      });
+      invalidateBalanceQueries(queryClient, parseInt(variables.assetId), [variables.recipient]);
+      invalidateAssetQueries(queryClient);
 
       // Reset form
       setFormData({

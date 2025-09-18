@@ -1,11 +1,10 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { MultiAddress } from "@polkadot-api/descriptors";
-import { api } from "../lib/polkadot";
 import { useWalletContext } from "../hooks/useWalletContext";
 import { useTransactionStatus } from "../hooks/useTransactionStatus";
 import { useTransactionToasts } from "../hooks/useTransactionToasts";
-import { parseUnits } from "../utils/format";
+import { transferTokens } from "../lib/assetOperations";
+import { invalidateBalanceQueries } from "../lib/queryHelpers";
 
 interface TransferForm {
   assetId: string;
@@ -41,43 +40,21 @@ export function TransferTokens() {
     mutationFn: async (data: TransferForm) => {
       if (!selectedAccount) throw new Error("No account selected");
 
-      const assetId = parseInt(data.assetId);
-      const amount = parseUnits(data.amount, data.decimals);
-
-      const tx = api.tx.Assets.transfer({
-        id: assetId,
-        target: MultiAddress.Id(data.recipient),
-        amount,
-      });
-
       setTransactionDetails({
         amount: data.amount,
         recipient: data.recipient,
         assetId: data.assetId,
       });
 
-      // Use signSubmitAndWatch for transaction tracking
-      const observable = tx.signSubmitAndWatch(selectedAccount.polkadotSigner);
-      
-      // Track the transaction through all phases
+      const observable = transferTokens(data, selectedAccount);
       await trackTransaction(observable);
     },
     onSuccess: (_result, variables) => {
       // Invalidate balances for both sender and recipient
-      queryClient.invalidateQueries({
-        queryKey: [
-          "assetBalance",
-          parseInt(variables.assetId),
-          selectedAccount?.address,
-        ],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [
-          "assetBalance",
-          parseInt(variables.assetId),
-          variables.recipient,
-        ],
-      });
+      invalidateBalanceQueries(queryClient, parseInt(variables.assetId), [
+        selectedAccount?.address,
+        variables.recipient,
+      ]);
 
       setFormData({
         assetId: "",
