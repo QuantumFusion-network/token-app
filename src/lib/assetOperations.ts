@@ -28,7 +28,14 @@ interface TransferTokensParams {
   decimals: number;
 }
 
-export const createAssetBatch = (params: CreateAssetParams, signer: InjectedPolkadotAccount) => {
+interface DestroyAssetParams {
+  assetId: string;
+}
+
+export const createAssetBatch = (
+  params: CreateAssetParams,
+  signer: InjectedPolkadotAccount
+) => {
   const assetId = parseInt(params.assetId);
   const minBalance = BigInt(params.minBalance) * 10n ** BigInt(params.decimals);
 
@@ -48,7 +55,10 @@ export const createAssetBatch = (params: CreateAssetParams, signer: InjectedPolk
   const calls: TxCallData[] = [createCall, metadataCall];
 
   if (params.initialMintAmount && parseFloat(params.initialMintAmount) > 0) {
-    const mintAmount = parseUnits(params.initialMintAmount, parseInt(params.decimals));
+    const mintAmount = parseUnits(
+      params.initialMintAmount,
+      parseInt(params.decimals)
+    );
     const mintTx = api.tx.Assets.mint({
       id: assetId,
       beneficiary: MultiAddress.Id(signer.address),
@@ -62,7 +72,10 @@ export const createAssetBatch = (params: CreateAssetParams, signer: InjectedPolk
   return batch.signSubmitAndWatch(signer.polkadotSigner);
 };
 
-export const mintTokens = (params: MintTokensParams, signer: InjectedPolkadotAccount) => {
+export const mintTokens = (
+  params: MintTokensParams,
+  signer: InjectedPolkadotAccount
+) => {
   const assetId = parseInt(params.assetId);
   const amount = parseUnits(params.amount, params.decimals);
 
@@ -75,7 +88,10 @@ export const mintTokens = (params: MintTokensParams, signer: InjectedPolkadotAcc
   return tx.signSubmitAndWatch(signer.polkadotSigner);
 };
 
-export const transferTokens = (params: TransferTokensParams, signer: InjectedPolkadotAccount) => {
+export const transferTokens = (
+  params: TransferTokensParams,
+  signer: InjectedPolkadotAccount
+) => {
   const assetId = parseInt(params.assetId);
   const amount = parseUnits(params.amount, params.decimals);
 
@@ -86,4 +102,42 @@ export const transferTokens = (params: TransferTokensParams, signer: InjectedPol
   });
 
   return tx.signSubmitAndWatch(signer.polkadotSigner);
+};
+
+export const destroyAssetBatch = (
+  params: DestroyAssetParams,
+  signer: InjectedPolkadotAccount
+) => {
+  const assetId = parseInt(params.assetId);
+
+  const freezeCall = api.tx.Assets.freeze_asset({
+    id: assetId,
+  }).decodedCall;
+
+  const startDestroyCall = api.tx.Assets.start_destroy({
+    id: assetId,
+  }).decodedCall;
+
+  const destroyAccountsCall = api.tx.Assets.destroy_accounts({
+    id: assetId,
+  }).decodedCall;
+
+  const destroyApprovalsCall = api.tx.Assets.destroy_approvals({
+    id: assetId,
+  }).decodedCall;
+
+  const finishDestroyCall = api.tx.Assets.finish_destroy({
+    id: assetId,
+  }).decodedCall;
+
+  const calls: TxCallData[] = [
+    freezeCall,
+    startDestroyCall,
+    destroyAccountsCall,
+    destroyApprovalsCall,
+    finishDestroyCall,
+  ];
+
+  const batch = api.tx.Utility.batch_all({ calls });
+  return batch.signSubmitAndWatch(signer.polkadotSigner);
 };

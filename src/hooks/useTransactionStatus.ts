@@ -45,6 +45,7 @@ export function useTransactionStatus() {
                 status: "inBlock",
                 txHash: event.txHash,
               });
+              console.log("Transaction in block", event);
               break;
 
             case "finalized":
@@ -54,6 +55,7 @@ export function useTransactionStatus() {
                 blockHash: event.block.hash,
                 events: event.events,
               });
+              console.log("Transaction finalized", event);
               resolve(event);
               break;
           }

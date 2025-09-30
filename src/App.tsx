@@ -5,10 +5,11 @@ import { CreateAsset } from "./components/CreateAsset";
 import { AssetList } from "./components/AssetList";
 import { MintTokens } from "./components/MintTokens";
 import { TransferTokens } from "./components/TransferTokens";
+import { DestroyAsset } from "./components/DestroyAsset";
 import { Toaster } from "./components/ui/sonner";
 import "./App.css";
 
-type Tab = "assets" | "create" | "mint" | "transfer";
+type Tab = "assets" | "create" | "mint" | "transfer" | "destroy";
 
 export default function App() {
   const { isConnected, selectedAccount } = useWalletContext();
@@ -27,6 +28,7 @@ export default function App() {
     { id: "create" as const, label: "Create", component: CreateAsset },
     { id: "mint" as const, label: "Mint", component: MintTokens },
     { id: "transfer" as const, label: "Transfer", component: TransferTokens },
+    { id: "destroy" as const, label: "Destroy", component: DestroyAsset },
   ];
 
   const ActiveComponent =

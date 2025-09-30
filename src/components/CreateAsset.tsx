@@ -38,6 +38,7 @@ export function CreateAsset() {
     },
     error: (error: string) => `Transaction failed: ${error}`,
   });
+
   const [formData, setFormData] = useState<CreateAssetForm>({
     assetId: nextAssetId?.toString() || "",
     minBalance: "1",
@@ -59,6 +60,7 @@ export function CreateAsset() {
       const obs = createAssetBatch(data, selectedAccount);
       await trackTransaction(obs);
     },
+
     onSuccess: async () => {
       invalidateAssetQueries(queryClient);
       // Reset form
