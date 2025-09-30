@@ -133,8 +133,8 @@ export const destroyAssetBatch = (
   const calls: TxCallData[] = [
     freezeCall,
     startDestroyCall,
-    destroyAccountsCall,
     destroyApprovalsCall,
+    destroyAccountsCall,
     finishDestroyCall,
   ];
 

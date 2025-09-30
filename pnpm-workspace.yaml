@@ -1,2 +1,5 @@
+packages:
+  - "src/packages/*"
+  - "src/apps/*"
 ignoredBuiltDependencies:
-  - '@tailwindcss/oxide'
+  - "@tailwindcss/oxide"
