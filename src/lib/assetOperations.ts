@@ -2,7 +2,7 @@ import { MultiAddress } from "@polkadot-api/descriptors";
 import { type TxCallData } from "polkadot-api";
 import { type InjectedPolkadotAccount } from "polkadot-api/pjs-signer";
 import { Binary } from "polkadot-api";
-import { api } from "./polkadot";
+import { api } from "./qfnetwork";
 import { parseUnits } from "../utils/format";
 
 interface CreateAssetParams {
@@ -59,6 +59,7 @@ export const createAssetBatch = (
       params.initialMintAmount,
       parseInt(params.decimals)
     );
+
     const mintTx = api.tx.Assets.mint({
       id: assetId,
       beneficiary: MultiAddress.Id(signer.address),

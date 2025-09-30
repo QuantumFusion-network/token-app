@@ -1,11 +1,11 @@
-// src/lib/polkadot.ts
+// src/lib/qfnetwork.ts
 import { createClient } from "polkadot-api";
 import { getWsProvider } from "polkadot-api/ws-provider/web";
-import { paseo_asset_hub as chain } from "@polkadot-api/descriptors";
+import { qfn as chain } from "@polkadot-api/descriptors";
 
 // const wsUrl = "wss://polkadot-asset-hub-rpc.polkadot.io";
-const wsUrl = "wss://asset-hub-paseo-rpc.n.dwellir.com";
-// const wsUrl = "wss://test.qfnetwork.xyz";
+// const wsUrl = "wss://asset-hub-paseo-rpc.n.dwellir.com";
+const wsUrl = "wss://test.qfnetwork.xyz";
 
 const provider = getWsProvider(wsUrl);
 

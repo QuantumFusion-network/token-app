@@ -4,15 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a React-based web application for interacting with Polkadot's Asset Hub parachain. It provides a user interface for managing assets including creating, minting, transferring, and viewing asset balances.
+This is a React-based web application for interacting with QF Network. It provides a user interface for managing assets including creating, minting, transferring, and viewing asset balances.
 
 ## Tech Stack
 
 - **Frontend**: React 19 with TypeScript
 - **Build Tool**: Vite
 - **State Management**: React hooks + TanStack Query for server state
-- **Blockchain Integration**: polkadot-api for connecting to Asset Hub
-- **Wallet Integration**: Polkadot extension injected signers
+- **Blockchain Integration**: polkadot-api for connecting to QF Network
+- **Wallet Integration**: QF Network extension injected signers
 - **Styling**: Tailwind CSS classes (inline)
 - **UI Components**: Sonner for toast notifications, Lucide React for icons
 - **Package Manager**: pnpm (specified in package.json)
@@ -39,8 +39,8 @@ src/
 ### Key Components
 
 - **App.tsx**: Main application with tab-based navigation (Assets, Create, Mint, Transfer)
-- **WalletConnector**: Handles Polkadot extension wallet connections
-- **CreateAsset**: Form for creating new assets on Asset Hub (supports both batch and sequential transactions)
+- **WalletConnector**: Handles QF Network extension wallet connections
+- **CreateAsset**: Form for creating new assets on QF Network (supports both batch and sequential transactions)
 - **CreateAssetBatch.tsx**: Original batch transaction implementation for asset creation
 - **AssetList**: Displays on-chain assets with balances
 - **MintTokens/TransferTokens**: Asset operations
@@ -61,16 +61,15 @@ src/
 
 ### Blockchain Integration
 
-- **Current Network**: Paseo Asset Hub testnet (`wss://asset-hub-paseo-rpc.n.dwellir.com`)
-- **Alternative**: Polkadot Asset Hub mainnet (commented out in polkadot.ts)
-- **API**: Uses typed polkadot-api with Asset Hub descriptors from `.papi/descriptors`
+- **Current Network**: QF Network testnet (`wss://test.qfnetwork.xyz`)
+- **API**: Uses typed polkadot-api with QF Network descriptors from `.papi/descriptors`
 - **Metadata**: Pre-generated chain metadata stored in `.papi/metadata/`
-- **Transactions**: All operations use Asset Hub pallet calls (Assets.create, Assets.mint, etc.)
-- **Signers**: Polkadot extension injected signers for transaction signing
+- **Transactions**: All operations use QF Network pallet calls (Assets.create, Assets.mint, etc.)
+- **Signers**: QF Network extension injected signers for transaction signing
 
 ### Custom Hooks Architecture
 
-- **useWallet**: Manages Polkadot extension connection, account selection, and wallet state
+- **useWallet**: Manages QF Network extension connection, account selection, and wallet state
 - **useWalletContext**: Context provider for wallet state across components
 - **useTransactionStatus**: Tracks transaction lifecycle states (signing → broadcasting → inBlock → finalized)
 - **useTransactionToasts**: Handles user notifications during transaction processing
@@ -88,10 +87,10 @@ src/
   - `formatUnits(value: bigint, decimals: number)`: Convert raw units to human-readable format
   - `parseUnits(value: string, decimals: number)`: Convert decimal input to blockchain units
 
-### Polkadot-API Integration
+### QF Network Integration
 
-- **Descriptors**: Auto-generated TypeScript types for Asset Hub pallets
-- **Configuration**: `.papi/polkadot-api.json` defines supported chains (Polkadot & Paseo Asset Hub)
+- **Descriptors**: Auto-generated TypeScript types for QF Network pallets
+- **Configuration**: `.papi/polkadot-api.json` defines supported chains (QF Network)
 - **Type Safety**: Full type safety for all blockchain interactions through generated descriptors
 
 ## Development Notes
@@ -103,7 +102,7 @@ src/
 - Transaction lifecycle handled through TanStack Query mutations
 - Asset metadata includes name, symbol, and decimals stored on-chain
 - Toast notifications use Sonner library for user feedback
-- The app supports both mainnet and testnet Asset Hub connections
+- The app connects to QF Network testnet
 
 #### TypeScript Best Practices
 

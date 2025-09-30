@@ -11,10 +11,10 @@ export function WalletConnector() {
           No Wallet Extensions Found
         </h2>
         <p className="text-gray-600 mb-4">
-          Please install a Polkadot wallet extension like:
+          Please install a compatible wallet extension like:
         </p>
         <ul className="text-left space-y-2">
-          <li>• Polkadot.js Extension</li>
+          <li>• QF Network Extension</li>
           <li>• Talisman</li>
           <li>• SubWallet</li>
         </ul>

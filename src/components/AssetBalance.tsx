@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../lib/polkadot";
+import { api } from "../lib/qfnetwork";
 import { formatUnits } from "../utils/format";
 import { useWalletContext } from "../hooks/useWalletContext";
 
