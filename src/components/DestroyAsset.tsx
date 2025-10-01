@@ -5,6 +5,7 @@ import { useTransactionStatus } from "../hooks/useTransactionStatus";
 import { useTransactionToasts } from "../hooks/useTransactionToasts";
 import { destroyAssetBatch } from "../lib/assetOperations";
 import { invalidateAssetQueries } from "../lib/queryHelpers";
+import { destroyAssetToastConfig } from "../lib/toastConfigs";
 
 interface DestroyAssetForm {
   assetId: string;
@@ -16,15 +17,7 @@ export function DestroyAsset() {
   const { status, trackTransaction, reset } = useTransactionStatus();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const { setTransactionDetails } = useTransactionToasts(status, {
-    signing: "Please sign the asset destruction transaction in your wallet",
-    broadcasting: (hash: string) =>
-      `Asset destruction submitted.
-    Hash: ${hash.slice(0, 16)}...`,
-    inBlock: "Asset destruction in progress...",
-    finalized: (details) => `Asset ${details?.assetId} destroyed successfully!`,
-    error: (error: string) => `Asset destruction failed: ${error}`,
-  });
+  const { setTransactionDetails } = useTransactionToasts(status, destroyAssetToastConfig);
 
   const [formData, setFormData] = useState<DestroyAssetForm>({
     assetId: "",

@@ -6,6 +6,7 @@ import { useTransactionStatus } from "../hooks/useTransactionStatus";
 import { useTransactionToasts } from "../hooks/useTransactionToasts";
 import { createAssetBatch } from "../lib/assetOperations";
 import { invalidateAssetQueries } from "../lib/queryHelpers";
+import { createAssetToastConfig } from "../lib/toastConfigs";
 
 interface CreateAssetForm {
   assetId: string;
@@ -21,23 +22,7 @@ export function CreateAsset() {
   const queryClient = useQueryClient();
   const { status, trackTransaction, reset } = useTransactionStatus();
 
-  const { setTransactionDetails } = useTransactionToasts(status, {
-    signing: "Please sign the transaction in your wallet",
-    broadcasting: (hash: string) =>
-      `Transaction submitted. 
-    Hash: ${hash.slice(0, 16)}...`,
-    inBlock: "Transaction included in block",
-    finalized: (details) => {
-      if (
-        details?.initialMintAmount &&
-        parseFloat(details.initialMintAmount) > 0
-      ) {
-        return `${details.initialMintAmount} tokens minted successfully!`;
-      }
-      return `Asset ${details?.assetId} created successfully!`;
-    },
-    error: (error: string) => `Transaction failed: ${error}`,
-  });
+  const { setTransactionDetails } = useTransactionToasts(status, createAssetToastConfig);
 
   const [formData, setFormData] = useState<CreateAssetForm>({
     assetId: nextAssetId?.toString() || "",

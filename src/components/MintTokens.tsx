@@ -5,6 +5,7 @@ import { useTransactionStatus } from "../hooks/useTransactionStatus";
 import { useTransactionToasts } from "../hooks/useTransactionToasts";
 import { mintTokens } from "../lib/assetOperations";
 import { invalidateBalanceQueries, invalidateAssetQueries } from "../lib/queryHelpers";
+import { mintTokensToastConfig } from "../lib/toastConfigs";
 
 interface MintForm {
   assetId: string;
@@ -18,23 +19,7 @@ export function MintTokens() {
   const queryClient = useQueryClient();
   const { status, trackTransaction, reset } = useTransactionStatus();
   console.log("Mint tokens status", status);
-  const { setTransactionDetails } = useTransactionToasts(status, {
-    signing: "Please sign the mint transaction in your wallet",
-    broadcasting: (hash: string) =>
-      `Mint transaction submitted. Hash: ${hash.slice(0, 16)}...`,
-    inBlock: "Mint transaction included in block",
-    finalized: (details) => {
-      return details
-        ? `${
-            details.amount
-          } tokens minted successfully to ${details.recipient?.slice(
-            0,
-            8
-          )}... for Asset ID ${details.assetId}!`
-        : "Tokens minted successfully!";
-    },
-    error: (error: string) => `Mint transaction failed: ${error}`,
-  });
+  const { setTransactionDetails } = useTransactionToasts(status, mintTokensToastConfig);
   const [formData, setFormData] = useState<MintForm>({
     assetId: "",
     recipient: "",

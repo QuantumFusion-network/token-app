@@ -5,6 +5,7 @@ import { useTransactionStatus } from "../hooks/useTransactionStatus";
 import { useTransactionToasts } from "../hooks/useTransactionToasts";
 import { transferTokens } from "../lib/assetOperations";
 import { invalidateBalanceQueries } from "../lib/queryHelpers";
+import { transferTokensToastConfig } from "../lib/toastConfigs";
 
 interface TransferForm {
   assetId: string;
@@ -18,17 +19,7 @@ export function TransferTokens() {
   const queryClient = useQueryClient();
   const { status, trackTransaction, reset } = useTransactionStatus();
   
-  const { setTransactionDetails } = useTransactionToasts(status, {
-    signing: "Please sign the transfer transaction in your wallet",
-    broadcasting: (hash: string) => `Transfer transaction submitted. Hash: ${hash.slice(0, 16)}...`,
-    inBlock: "Transfer transaction included in block",
-    finalized: (details) => {
-      return details
-        ? `${details.amount} tokens transferred successfully to ${details.recipient?.slice(0, 8)}... for Asset ID ${details.assetId}!`
-        : "Tokens transferred successfully!";
-    },
-    error: (error: string) => `Transfer transaction failed: ${error}`,
-  });
+  const { setTransactionDetails } = useTransactionToasts(status, transferTokensToastConfig);
   const [formData, setFormData] = useState<TransferForm>({
     assetId: "",
     recipient: "",
