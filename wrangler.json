@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-vite-get-started",
+  "name": "token-app",
   "compatibility_date": "2025-04-03",
   "assets": {
     "directory": "./dist"
