@@ -26,6 +26,7 @@ const getNextAssetId = async () => {
 };
 
 const initialAssetId = await getNextAssetId();
+
 const initialFormData = {
   assetId: initialAssetId.toString(),
   minBalance: "1",

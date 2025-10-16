@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
-import type { TxBroadcastEvent } from 'polkadot-api';
-import type { ToastConfig } from '../lib/toastConfigs';
+import { createContext, useContext, useState, type ReactNode } from "react";
+import type { TxBroadcastEvent } from "polkadot-api";
+import type { ToastConfig } from "../lib/toastConfigs";
 
 interface TransactionObservable {
   subscribe: (handlers: {
@@ -10,7 +10,13 @@ interface TransactionObservable {
 }
 
 export interface TransactionStatus {
-  status: 'idle' | 'signing' | 'broadcasting' | 'inBlock' | 'finalized' | 'error';
+  status:
+    | "idle"
+    | "signing"
+    | "broadcasting"
+    | "inBlock"
+    | "finalized"
+    | "error";
   txHash?: string;
   blockHash?: string;
   error?: Error;
@@ -29,21 +35,31 @@ export interface Transaction<T = unknown> {
 interface TransactionContextValue {
   transactions: Record<string, Transaction<unknown>>;
   activeTransaction?: Transaction<unknown>;
-  startTransaction: <T = unknown>(type: string, toastConfig?: ToastConfig<T>) => string;
-  trackTransaction: (id: string, observable: TransactionObservable) => Promise<void>;
+  startTransaction: <T = unknown>(
+    type: string,
+    toastConfig?: ToastConfig<T>
+  ) => string;
+  trackTransaction: (
+    id: string,
+    observable: TransactionObservable
+  ) => Promise<void>;
   setTransactionDetails: <T = unknown>(id: string, details: T) => void;
   completeTransaction: (id: string) => void;
   removeTransaction: (id: string) => void;
   getTransactionStatus: (id: string) => TransactionStatus;
 }
 
-const TransactionContext = createContext<TransactionContextValue | undefined>(undefined);
+const TransactionContext = createContext<TransactionContextValue | undefined>(
+  undefined
+);
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function useTransactionContext() {
   const context = useContext(TransactionContext);
   if (!context) {
-    throw new Error('useTransactionContext must be used within a TransactionProvider');
+    throw new Error(
+      "useTransactionContext must be used within a TransactionProvider"
+    );
   }
   return context;
 }
@@ -53,39 +69,68 @@ interface TransactionProviderProps {
 }
 
 export function TransactionProvider({ children }: TransactionProviderProps) {
-  const [transactions, setTransactions] = useState<Record<string, Transaction<unknown>>>({});
-  const [activeTransactionId, setActiveTransactionId] = useState<string | undefined>();
+  const [transactions, setTransactions] = useState<
+    Record<string, Transaction<unknown>>
+  >({});
+  const [activeTransactionId, setActiveTransactionId] = useState<
+    string | undefined
+  >();
 
-  const startTransaction = <T = unknown>(type: string, toastConfig?: ToastConfig<T>): string => {
-    const id = `${type}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  const startTransaction = <T = unknown,>(
+    type: string,
+    toastConfig?: ToastConfig<T>
+  ): string => {
+    const id = `${type}_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(2, 9)}`;
     const transaction: Transaction<T> = {
       id,
       type,
-      status: { status: 'idle' },
+      status: { status: "idle" },
       toastConfig,
     };
 
     // Update state immediately - no async dispatch
-    setTransactions(prev => ({ ...prev, [id]: transaction as Transaction<unknown> }));
+    setTransactions((prev) => ({
+      ...prev,
+      [id]: transaction as Transaction<unknown>,
+    }));
     setActiveTransactionId(id);
     return id;
   };
 
   const updateTransactionStatus = (id: string, status: TransactionStatus) => {
-    setTransactions(prev => {
+    setTransactions((prev) => {
       const transaction = prev[id];
       if (!transaction) return prev;
 
       return {
         ...prev,
-        [id]: { ...transaction, status }
+        [id]: { ...transaction, status },
       };
     });
   };
 
-  const trackTransaction = async (id: string, observable: TransactionObservable) => {
+  const getDispatchError = (dispatchError: {
+    type: string;
+    value: unknown;
+  }): string => {
+    if (dispatchError?.type === "Module") {
+      const error = dispatchError.value as {
+        type: string;
+        value: { type: string };
+      };
+      return `${error.type}: ${error.value.type}`;
+    }
+    return "Unknown error";
+  };
+
+  const trackTransaction = async (
+    id: string,
+    observable: TransactionObservable
+  ) => {
     // Transaction is available immediately since we use direct state updates
-    updateTransactionStatus(id, { status: 'signing' });
+    updateTransactionStatus(id, { status: "signing" });
 
     return new Promise<void>((resolve, reject) => {
       const subscription = observable.subscribe({
@@ -93,25 +138,38 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
           console.log(`Transaction ${id} status:`, event);
 
           let newStatus: TransactionStatus;
+          let dispatchError = "Unknown error";
+
           switch (event.type) {
-            case 'signed':
-              newStatus = { status: 'signing' };
+            case "signed":
+              newStatus = { status: "signing" };
               break;
-            case 'broadcasted':
-              newStatus = { status: 'broadcasting', txHash: event.txHash };
+            case "broadcasted":
+              newStatus = { status: "broadcasting", txHash: event.txHash };
               break;
-            case 'txBestBlocksState':
-              newStatus = { status: 'inBlock', txHash: event.txHash };
+            case "txBestBlocksState":
+              newStatus = { status: "inBlock", txHash: event.txHash };
               break;
-            case 'finalized':
-              newStatus = {
-                status: 'finalized',
-                txHash: event.txHash,
-                blockHash: event.block.hash,
-                events: event.events,
-              };
-              updateTransactionStatus(id, newStatus);
-              resolve();
+            case "finalized":
+              if (event.ok) {
+                newStatus = {
+                  status: "finalized",
+                  txHash: event.txHash,
+                  blockHash: event.block.hash,
+                  events: event.events,
+                };
+                updateTransactionStatus(id, newStatus);
+                resolve();
+              }
+              if (event.dispatchError) {
+                dispatchError = getDispatchError(event.dispatchError);
+              }
+              updateTransactionStatus(id, {
+                status: "error",
+                error: new Error(dispatchError),
+              });
+              reject(new Error(dispatchError));
+
               return;
             default:
               return;
@@ -121,37 +179,37 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
         },
         error: (error: Error) => {
           console.error(`Transaction ${id} error:`, error);
-          updateTransactionStatus(id, { status: 'error', error });
+          updateTransactionStatus(id, { status: "error", error });
           reject(error);
         },
       });
 
       // Store subscription for cleanup
-      setTransactions(prev => {
+      setTransactions((prev) => {
         const transaction = prev[id];
         if (!transaction) return prev;
         return {
           ...prev,
-          [id]: { ...transaction, subscription }
+          [id]: { ...transaction, subscription },
         };
       });
     });
   };
 
-  const setTransactionDetails = <T = unknown>(id: string, details: T) => {
-    setTransactions(prev => {
+  const setTransactionDetails = <T = unknown,>(id: string, details: T) => {
+    setTransactions((prev) => {
       const transaction = prev[id];
       if (!transaction) return prev;
 
       return {
         ...prev,
-        [id]: { ...transaction, details }
+        [id]: { ...transaction, details },
       };
     });
   };
 
   const completeTransaction = (id: string) => {
-    setTransactions(prev => {
+    setTransactions((prev) => {
       const transaction = prev[id];
       if (transaction?.subscription) {
         transaction.subscription.unsubscribe();
@@ -159,11 +217,11 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
       return prev;
     });
 
-    setActiveTransactionId(prev => prev === id ? undefined : prev);
+    setActiveTransactionId((prev) => (prev === id ? undefined : prev));
   };
 
   const removeTransaction = (id: string) => {
-    setTransactions(prev => {
+    setTransactions((prev) => {
       const transaction = prev[id];
       if (transaction?.subscription) {
         transaction.subscription.unsubscribe();
@@ -173,16 +231,18 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
       return remaining;
     });
 
-    setActiveTransactionId(prev => prev === id ? undefined : prev);
+    setActiveTransactionId((prev) => (prev === id ? undefined : prev));
   };
 
   const getTransactionStatus = (id: string): TransactionStatus => {
-    return transactions[id]?.status || { status: 'idle' };
+    return transactions[id]?.status || { status: "idle" };
   };
 
   const value: TransactionContextValue = {
     transactions,
-    activeTransaction: activeTransactionId ? transactions[activeTransactionId] : undefined,
+    activeTransaction: activeTransactionId
+      ? transactions[activeTransactionId]
+      : undefined,
     startTransaction,
     trackTransaction,
     setTransactionDetails,
