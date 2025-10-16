@@ -3,12 +3,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/chain";
 import { useWalletContext } from "../hooks/useWalletContext";
 import { useTransaction } from "../hooks/useTransaction";
-import { createAssetBatch } from "../lib/assetOperations";
 import { invalidateAssetQueries } from "../lib/queryHelpers";
 import { createAssetToasts } from "../lib/toastConfigs";
-import { FeatureErrorBoundary } from "./error-boundaries";
 
-export interface CreateAssetForm {
+interface CreateAssetForm {
   assetId: string;
   minBalance: string;
   name: string;
@@ -18,14 +16,13 @@ export interface CreateAssetForm {
 }
 
 const getNextAssetId = async () => {
-  const id = await api.query.Assets.NextAssetId.getValue();
-  if (!id) throw new Error("No next asset id");
-  console.log("id", id);
-
-  return id;
+  return await api.query.Assets.NextAssetId.getValue();
 };
 
 const initialAssetId = await getNextAssetId();
+
+if (!initialAssetId) throw new Error("No next asset id");
+
 const initialFormData = {
   assetId: initialAssetId.toString(),
   minBalance: "1",
@@ -35,42 +32,49 @@ const initialFormData = {
   initialMintAmount: "",
 };
 
-function CreateAssetInner() {
+export function CreateAsset() {
   const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
-  const { executeTransaction } =
-    useTransaction<CreateAssetForm>(createAssetToasts);
-  console.log("initialFormData", initialFormData);
+  const { executeTransaction } = useTransaction<CreateAssetForm>(createAssetToasts);
 
   const [formData, setFormData] = useState<CreateAssetForm>(initialFormData);
+
+  const [currentStep, setCurrentStep] = useState<
+    "idle" | "creating" | "metadata" | "minting" | "completed"
+  >("idle");
 
   const createAssetMutation = useMutation({
     mutationFn: async (data: CreateAssetForm) => {
       if (!selectedAccount) throw new Error("No account selected");
 
+      // Use the same batch approach as the main CreateAsset component
+      const { createAssetBatch } = await import("../lib/assetOperations");
       const observable = createAssetBatch(data, selectedAccount);
-      await executeTransaction("createAsset", observable, data);
+      await executeTransaction('createAssetBatch', observable, data);
     },
-
     onSuccess: async () => {
       invalidateAssetQueries(queryClient);
-      const nextAssetId = await getNextAssetId();
 
+      const nextAssetId = await getNextAssetId();
+      if (!nextAssetId) throw new Error("No next asset id");
+
+      // Reset form
       setFormData({
         ...initialFormData,
         assetId: nextAssetId.toString(),
       });
-    },
 
+      setCurrentStep("idle");
+    },
     onError: (error) => {
       console.error("Failed to create asset:", error);
+      setCurrentStep("idle");
     },
   });
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    console.log("formData", formData);
-
+    setCurrentStep("creating");
     createAssetMutation.mutate(formData);
   };
 
@@ -78,9 +82,32 @@ function CreateAssetInner() {
     return <div>Please connect your wallet first</div>;
   }
 
+  const getButtonText = () => {
+    if (createAssetMutation.isPending) {
+      return "Creating Asset...";
+    }
+    return "Create Asset";
+  };
+
+  const isDisabled = createAssetMutation.isPending;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
       <h2 className="text-xl font-bold">Create New Asset</h2>
+
+      {currentStep !== "idle" && (
+        <div className="bg-blue-50 border border-blue-200 rounded p-3">
+          <div className="text-sm font-medium text-blue-800">
+            {currentStep === "creating" && "Step 1/3: Creating Asset"}
+            {currentStep === "metadata" && "Step 2/3: Setting Metadata"}
+            {currentStep === "minting" && "Step 3/3: Minting Tokens"}
+            {currentStep === "completed" && "✓ Asset Created Successfully"}
+          </div>
+          <div className="text-xs text-blue-600 mt-1">
+            Each step requires a separate transaction signature
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium mb-1">Token Name</label>
@@ -178,10 +205,10 @@ function CreateAssetInner() {
 
       <button
         type="submit"
-        disabled={createAssetMutation.isPending}
+        disabled={isDisabled}
         className="w-full bg-blue-500 text-white py-2 px-4 rounded disabled:opacity-50"
       >
-        {createAssetMutation.isPending ? "Creating..." : "Create Asset"}
+        {getButtonText()}
       </button>
 
       {createAssetMutation.isError && (
@@ -190,13 +217,5 @@ function CreateAssetInner() {
         </div>
       )}
     </form>
-  );
-}
-
-export function CreateAsset() {
-  return (
-    <FeatureErrorBoundary featureName="Create Asset">
-      <CreateAssetInner />
-    </FeatureErrorBoundary>
   );
 }

@@ -1,19 +1,24 @@
 import { useState } from "react";
 import { useWalletContext } from "./hooks/useWalletContext";
+import { useTransactionToasts } from "./hooks/useTransactionToasts";
 import { WalletConnector } from "./components/WalletConnector";
 import { CreateAsset } from "./components/CreateAsset";
 import { AssetList } from "./components/AssetList";
 import { MintTokens } from "./components/MintTokens";
 import { TransferTokens } from "./components/TransferTokens";
 import { DestroyAsset } from "./components/DestroyAsset";
+import { AccountSelector } from "./components/AccountSelector";
 import { Toaster } from "./components/ui/sonner";
 import "./App.css";
 
 type Tab = "assets" | "create" | "mint" | "transfer" | "destroy";
 
 export default function App() {
-  const { isConnected, selectedAccount } = useWalletContext();
+  const { isConnected } = useWalletContext();
   const [activeTab, setActiveTab] = useState<Tab>("assets");
+
+  // Initialize transaction toasts
+  useTransactionToasts();
 
   if (!isConnected) {
     return (
@@ -40,10 +45,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <h1 className="text-xl font-semibold">QF Network Manager</h1>
-            <div className="text-sm text-gray-600">
-              Connected: {selectedAccount?.name}
-              {selectedAccount?.address}...
-            </div>
+            <AccountSelector />
           </div>
         </div>
       </header>

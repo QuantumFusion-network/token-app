@@ -2,7 +2,7 @@ import { MultiAddress } from "@polkadot-api/descriptors";
 import { type TxCallData } from "polkadot-api";
 import { type InjectedPolkadotAccount } from "polkadot-api/pjs-signer";
 import { Binary } from "polkadot-api";
-import { api } from "./qfnetwork";
+import { api } from "./chain";
 import { parseUnits } from "../utils/format";
 
 interface CreateAssetParams {

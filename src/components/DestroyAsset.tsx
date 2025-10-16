@@ -1,23 +1,22 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWalletContext } from "../hooks/useWalletContext";
-import { useTransactionStatus } from "../hooks/useTransactionStatus";
-import { useTransactionToasts } from "../hooks/useTransactionToasts";
+import { useTransaction } from "../hooks/useTransaction";
 import { destroyAssetBatch } from "../lib/assetOperations";
 import { invalidateAssetQueries } from "../lib/queryHelpers";
-import { destroyAssetToastConfig } from "../lib/toastConfigs";
+import { destroyAssetToasts } from "../lib/toastConfigs";
+import { FeatureErrorBoundary } from "./error-boundaries";
 
-interface DestroyAssetForm {
+export interface DestroyAssetForm {
   assetId: string;
 }
 
-export function DestroyAsset() {
+function DestroyAssetInner() {
   const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
-  const { status, trackTransaction, reset } = useTransactionStatus();
+  const { executeTransaction } =
+    useTransaction<DestroyAssetForm>(destroyAssetToasts);
   const [showConfirmation, setShowConfirmation] = useState(false);
-
-  const { setTransactionDetails } = useTransactionToasts(status, destroyAssetToastConfig);
 
   const [formData, setFormData] = useState<DestroyAssetForm>({
     assetId: "",
@@ -27,12 +26,8 @@ export function DestroyAsset() {
     mutationFn: async (data: DestroyAssetForm) => {
       if (!selectedAccount) throw new Error("No account selected");
 
-      setTransactionDetails({
-        assetId: data.assetId,
-      });
-
-      const obs = destroyAssetBatch(data, selectedAccount);
-      await trackTransaction(obs);
+      const observable = destroyAssetBatch(data, selectedAccount);
+      await executeTransaction("destroyAsset", observable, data);
     },
     onSuccess: async () => {
       invalidateAssetQueries(queryClient);
@@ -41,8 +36,6 @@ export function DestroyAsset() {
         assetId: "",
       });
       setShowConfirmation(false);
-      // Delay reset to allow useEffect to process finalized status
-      setTimeout(() => reset(), 500);
     },
     onError: (error) => {
       console.error("Failed to destroy asset:", error);
@@ -56,10 +49,8 @@ export function DestroyAsset() {
   };
 
   const handleConfirmDestroy = () => {
-    reset(); // Reset status before starting new transaction
     destroyAssetMutation.mutate(formData);
   };
-
 
   if (!selectedAccount) {
     return <div>Please connect your wallet first</div>;
@@ -77,32 +68,31 @@ export function DestroyAsset() {
             You are about to permanently destroy:
           </p>
           <div className="bg-white rounded p-3 mb-3">
-            <p><strong>Asset ID:</strong> {formData.assetId}</p>
+            <p>
+              <strong>Asset ID:</strong> {formData.assetId}
+            </p>
           </div>
           <p className="text-red-700 text-sm">
-            <strong>This action cannot be undone.</strong> The asset will be permanently removed
-            from the blockchain, and all associated tokens will be destroyed.
+            <strong>This action cannot be undone.</strong> The asset will be
+            permanently removed from the blockchain, and all associated tokens
+            will be destroyed.
           </p>
         </div>
 
         <div className="flex space-x-3">
           <button
             onClick={handleConfirmDestroy}
-            disabled={destroyAssetMutation.isPending || status.status !== "idle"}
+            disabled={destroyAssetMutation.isPending}
             className="flex-1 bg-red-500 text-white py-2 px-4 rounded disabled:opacity-50 hover:bg-red-600"
           >
-            {status.status === "signing" && "Signing..."}
-            {status.status === "broadcasting" && "Broadcasting..."}
-            {status.status === "inBlock" && "In Block..."}
-            {status.status === "finalized" && "Finalizing..."}
-            {status.status === "error" && "Error - Try Again"}
-            {status.status === "idle" &&
-              (destroyAssetMutation.isPending ? "Destroying..." : "Yes, Destroy Asset")}
+            {destroyAssetMutation.isPending
+              ? "Destroying..."
+              : "Yes, Destroy Asset"}
           </button>
 
           <button
             onClick={() => setShowConfirmation(false)}
-            disabled={destroyAssetMutation.isPending || status.status !== "idle"}
+            disabled={destroyAssetMutation.isPending}
             className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded disabled:opacity-50 hover:bg-gray-400"
           >
             Cancel
@@ -124,8 +114,9 @@ export function DestroyAsset() {
 
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
         <p className="text-yellow-800 text-sm">
-          <strong>Warning:</strong> Asset destruction is permanent and irreversible.
-          The chain will reject the transaction if you don't own the asset.
+          <strong>Warning:</strong> Asset destruction is permanent and
+          irreversible. The chain will reject the transaction if you don't own
+          the asset.
         </p>
       </div>
 
@@ -147,14 +138,9 @@ export function DestroyAsset() {
         />
       </div>
 
-
       <button
         type="submit"
-        disabled={
-          !formData.assetId ||
-          destroyAssetMutation.isPending ||
-          status.status !== "idle"
-        }
+        disabled={!formData.assetId || destroyAssetMutation.isPending}
         className="w-full bg-red-500 text-white py-2 px-4 rounded disabled:opacity-50 hover:bg-red-600"
       >
         Destroy Asset
@@ -166,5 +152,13 @@ export function DestroyAsset() {
         </div>
       )}
     </form>
+  );
+}
+
+export function DestroyAsset() {
+  return (
+    <FeatureErrorBoundary featureName="Destroy Asset">
+      <DestroyAssetInner />
+    </FeatureErrorBoundary>
   );
 }

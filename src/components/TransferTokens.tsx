@@ -1,44 +1,38 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWalletContext } from "../hooks/useWalletContext";
-import { useTransactionStatus } from "../hooks/useTransactionStatus";
-import { useTransactionToasts } from "../hooks/useTransactionToasts";
+import { useTransaction } from "../hooks/useTransaction";
 import { transferTokens } from "../lib/assetOperations";
 import { invalidateBalanceQueries } from "../lib/queryHelpers";
-import { transferTokensToastConfig } from "../lib/toastConfigs";
+import { transferTokensToasts } from "../lib/toastConfigs";
+import { FeatureErrorBoundary } from "./error-boundaries";
 
-interface TransferForm {
+export interface TransferForm {
   assetId: string;
   recipient: string;
   amount: string;
   decimals: number;
 }
 
-export function TransferTokens() {
+const initialFormData: TransferForm = {
+  assetId: "",
+  recipient: "",
+  amount: "",
+  decimals: 12,
+};
+
+function TransferTokensInner() {
   const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
-  const { status, trackTransaction, reset } = useTransactionStatus();
-  
-  const { setTransactionDetails } = useTransactionToasts(status, transferTokensToastConfig);
-  const [formData, setFormData] = useState<TransferForm>({
-    assetId: "",
-    recipient: "",
-    amount: "",
-    decimals: 12,
-  });
+  const { executeTransaction } = useTransaction<TransferForm>(transferTokensToasts);
+  const [formData, setFormData] = useState<TransferForm>(initialFormData);
 
   const transferMutation = useMutation({
     mutationFn: async (data: TransferForm) => {
       if (!selectedAccount) throw new Error("No account selected");
 
-      setTransactionDetails({
-        amount: data.amount,
-        recipient: data.recipient,
-        assetId: data.assetId,
-      });
-
       const observable = transferTokens(data, selectedAccount);
-      await trackTransaction(observable);
+      await executeTransaction('transferTokens', observable, data);
     },
     onSuccess: (_result, variables) => {
       // Invalidate balances for both sender and recipient
@@ -47,25 +41,15 @@ export function TransferTokens() {
         variables.recipient,
       ]);
 
-      setFormData({
-        assetId: "",
-        recipient: "",
-        amount: "",
-        decimals: 12,
-      });
-      // Delay reset to allow useEffect to process finalized status
-      setTimeout(() => reset(), 100);
+      setFormData({ ...initialFormData });
     },
     onError: (error) => {
       console.error("Failed to transfer tokens:", error);
-      // Toast error will be handled by transaction status tracking
     },
   });
 
-
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    reset(); // Reset status before starting new transaction
     transferMutation.mutate(formData);
   };
 
@@ -135,16 +119,10 @@ export function TransferTokens() {
 
       <button
         type="submit"
-        disabled={transferMutation.isPending || status.status !== "idle"}
+        disabled={transferMutation.isPending}
         className="w-full bg-blue-500 text-white py-2 px-4 rounded disabled:opacity-50"
       >
-        {status.status === "signing" && "Signing..."}
-        {status.status === "broadcasting" && "Broadcasting..."}
-        {status.status === "inBlock" && "In Block..."}
-        {status.status === "finalized" && "Finalizing..."}
-        {status.status === "error" && "Error - Try Again"}
-        {status.status === "idle" &&
-          (transferMutation.isPending ? "Transferring..." : "Transfer Tokens")}
+        {transferMutation.isPending ? "Transferring..." : "Transfer Tokens"}
       </button>
 
       {transferMutation.isError && (
@@ -153,5 +131,13 @@ export function TransferTokens() {
         </div>
       )}
     </form>
+  );
+}
+
+export function TransferTokens() {
+  return (
+    <FeatureErrorBoundary featureName="Transfer Tokens">
+      <TransferTokensInner />
+    </FeatureErrorBoundary>
   );
 }

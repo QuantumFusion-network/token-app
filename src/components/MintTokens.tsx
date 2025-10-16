@@ -1,25 +1,27 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWalletContext } from "../hooks/useWalletContext";
-import { useTransactionStatus } from "../hooks/useTransactionStatus";
-import { useTransactionToasts } from "../hooks/useTransactionToasts";
+import { useTransaction } from "../hooks/useTransaction";
 import { mintTokens } from "../lib/assetOperations";
-import { invalidateBalanceQueries, invalidateAssetQueries } from "../lib/queryHelpers";
-import { mintTokensToastConfig } from "../lib/toastConfigs";
+import {
+  invalidateBalanceQueries,
+  invalidateAssetQueries,
+} from "../lib/queryHelpers";
+import { mintTokensToasts } from "../lib/toastConfigs";
+import { FeatureErrorBoundary } from "./error-boundaries";
 
-interface MintForm {
+export interface MintForm {
   assetId: string;
   recipient: string;
   amount: string;
   decimals: number;
 }
 
-export function MintTokens() {
+function MintTokensInner() {
   const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
-  const { status, trackTransaction, reset } = useTransactionStatus();
-  console.log("Mint tokens status", status);
-  const { setTransactionDetails } = useTransactionToasts(status, mintTokensToastConfig);
+  const { executeTransaction } = useTransaction<MintForm>(mintTokensToasts);
+
   const [formData, setFormData] = useState<MintForm>({
     assetId: "",
     recipient: "",
@@ -31,17 +33,13 @@ export function MintTokens() {
     mutationFn: async (data: MintForm) => {
       if (!selectedAccount) throw new Error("No account selected");
 
-      setTransactionDetails({
-        amount: data.amount,
-        recipient: data.recipient,
-        assetId: data.assetId,
-      });
-
       const observable = mintTokens(data, selectedAccount);
-      await trackTransaction(observable);
+      await executeTransaction('mintTokens', observable, data);
     },
     onSuccess: (_result, variables) => {
-      invalidateBalanceQueries(queryClient, parseInt(variables.assetId), [variables.recipient]);
+      invalidateBalanceQueries(queryClient, parseInt(variables.assetId), [
+        variables.recipient,
+      ]);
       invalidateAssetQueries(queryClient);
 
       // Reset form
@@ -51,18 +49,14 @@ export function MintTokens() {
         amount: "",
         decimals: 12,
       });
-      // Delay reset to allow useEffect to process finalized status
-      setTimeout(() => reset(), 100);
     },
     onError: (error) => {
       console.error("Failed to mint tokens:", error);
-      // Toast error will be handled by transaction status tracking
     },
   });
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    reset(); // Reset status before starting new transaction
     mintMutation.mutate(formData);
   };
 
@@ -130,16 +124,10 @@ export function MintTokens() {
 
       <button
         type="submit"
-        disabled={mintMutation.isPending || status.status !== "idle"}
+        disabled={mintMutation.isPending}
         className="w-full bg-green-500 text-white py-2 px-4 rounded disabled:opacity-50"
       >
-        {status.status === "signing" && "Signing..."}
-        {status.status === "broadcasting" && "Broadcasting..."}
-        {status.status === "inBlock" && "In Block..."}
-        {status.status === "finalized" && "Finalizing..."}
-        {status.status === "error" && "Error - Try Again"}
-        {status.status === "idle" &&
-          (mintMutation.isPending ? "Minting..." : "Mint Tokens")}
+        {mintMutation.isPending ? "Minting..." : "Mint Tokens"}
       </button>
 
       {mintMutation.isError && (
@@ -148,5 +136,13 @@ export function MintTokens() {
         </div>
       )}
     </form>
+  );
+}
+
+export function MintTokens() {
+  return (
+    <FeatureErrorBoundary featureName="Mint Tokens">
+      <MintTokensInner />
+    </FeatureErrorBoundary>
   );
 }

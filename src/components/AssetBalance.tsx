@@ -1,14 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../lib/qfnetwork";
+import { api } from "../lib/chain";
 import { formatUnits } from "../utils/format";
 import { useWalletContext } from "../hooks/useWalletContext";
+import { ComponentErrorBoundary } from "./error-boundaries";
 
 interface AssetBalanceProps {
   assetId: number;
   accountId?: string;
 }
 
-export function AssetBalance({ assetId, accountId }: AssetBalanceProps) {
+function AssetBalanceInner({ assetId, accountId }: AssetBalanceProps) {
   const { selectedAccount } = useWalletContext();
   const targetAccount = accountId || selectedAccount?.address;
 
@@ -57,5 +58,16 @@ export function AssetBalance({ assetId, accountId }: AssetBalanceProps) {
     <div className="font-mono">
       {formattedBalance} {symbol}
     </div>
+  );
+}
+
+export function AssetBalance(props: AssetBalanceProps) {
+  return (
+    <ComponentErrorBoundary
+      componentName="Asset Balance"
+      fallback={<div className="text-red-500 text-sm">Balance unavailable</div>}
+    >
+      <AssetBalanceInner {...props} />
+    </ComponentErrorBoundary>
   );
 }

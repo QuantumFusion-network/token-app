@@ -1,12 +1,17 @@
-interface ToastConfig {
+import type { CreateAssetForm } from "@/components/CreateAsset";
+import type { DestroyAssetForm } from "@/components/DestroyAsset";
+import type { MintForm } from "@/components/MintTokens";
+import type { TransferForm } from "@/components/TransferTokens";
+
+export interface ToastConfig<T> {
   signing: string;
   broadcasting: (hash: string) => string;
   inBlock: string;
-  finalized: (details?: any) => string;
+  finalized: (details?: T) => string;
   error: (error: string) => string;
 }
 
-export const createAssetToastConfig: ToastConfig = {
+export const createAssetToasts: ToastConfig<CreateAssetForm> = {
   signing: "Please sign the transaction in your wallet",
   broadcasting: (hash: string) =>
     `Transaction submitted. \n    Hash: ${hash.slice(0, 16)}...`,
@@ -23,7 +28,7 @@ export const createAssetToastConfig: ToastConfig = {
   error: (error: string) => `Transaction failed: ${error}`,
 };
 
-export const mintTokensToastConfig: ToastConfig = {
+export const mintTokensToasts: ToastConfig<MintForm> = {
   signing: "Please sign the mint transaction in your wallet",
   broadcasting: (hash: string) =>
     `Mint transaction submitted. Hash: ${hash.slice(0, 16)}...`,
@@ -41,19 +46,25 @@ export const mintTokensToastConfig: ToastConfig = {
   error: (error: string) => `Mint transaction failed: ${error}`,
 };
 
-export const transferTokensToastConfig: ToastConfig = {
+export const transferTokensToasts: ToastConfig<TransferForm> = {
   signing: "Please sign the transfer transaction in your wallet",
-  broadcasting: (hash: string) => `Transfer transaction submitted. Hash: ${hash.slice(0, 16)}...`,
+  broadcasting: (hash: string) =>
+    `Transfer transaction submitted. Hash: ${hash.slice(0, 16)}...`,
   inBlock: "Transfer transaction included in block",
   finalized: (details) => {
     return details
-      ? `${details.amount} tokens transferred successfully to ${details.recipient?.slice(0, 8)}... for Asset ID ${details.assetId}!`
+      ? `${
+          details.amount
+        } tokens transferred successfully to ${details.recipient?.slice(
+          0,
+          8
+        )}... for Asset ID ${details.assetId}!`
       : "Tokens transferred successfully!";
   },
   error: (error: string) => `Transfer transaction failed: ${error}`,
 };
 
-export const destroyAssetToastConfig: ToastConfig = {
+export const destroyAssetToasts: ToastConfig<DestroyAssetForm> = {
   signing: "Please sign the asset destruction transaction in your wallet",
   broadcasting: (hash: string) =>
     `Asset destruction submitted.\n    Hash: ${hash.slice(0, 16)}...`,
