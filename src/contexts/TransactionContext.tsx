@@ -158,6 +158,7 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
                 };
                 updateTransactionStatus(id, newStatus);
                 resolve();
+                break;
               }
               if (event.dispatchError) {
                 dispatchError = getDispatchError(event.dispatchError);
@@ -167,7 +168,6 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
                 error: new Error(dispatchError),
               });
               reject(new Error(dispatchError));
-
               return;
             default:
               return;
