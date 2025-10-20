@@ -7,6 +7,10 @@ import { createAssetBatch } from "../lib/assetOperations";
 import { invalidateAssetQueries } from "../lib/queryHelpers";
 import { createAssetToasts } from "../lib/toastConfigs";
 import { FeatureErrorBoundary } from "./error-boundaries";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 export interface CreateAssetForm {
   assetId: string;
@@ -80,117 +84,131 @@ function CreateAssetInner() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-      <h2 className="text-xl font-bold">Create New Asset</h2>
+    <div className="max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle>Create New Asset</CardTitle>
+          <CardDescription>
+            Create a new token asset on the QF Network
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Basic Token Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Token Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                  required
+                  maxLength={50}
+                  placeholder="My Token"
+                />
+              </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Token Name</label>
-        <input
-          type="text"
-          value={formData.name}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              name: e.target.value,
-            }))
-          }
-          className="w-full border rounded px-3 py-2"
-          required
-          maxLength={50}
-        />
-      </div>
+              <div className="space-y-2">
+                <Label htmlFor="symbol">Token Symbol</Label>
+                <Input
+                  id="symbol"
+                  type="text"
+                  value={formData.symbol}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      symbol: e.target.value.toUpperCase(),
+                    }))
+                  }
+                  required
+                  maxLength={10}
+                  placeholder="MTK"
+                />
+              </div>
+            </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Token Symbol</label>
-        <input
-          type="text"
-          value={formData.symbol}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              symbol: e.target.value.toUpperCase(),
-            }))
-          }
-          className="w-full border rounded px-3 py-2"
-          required
-          maxLength={10}
-        />
-      </div>
+            {/* Token Configuration */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="decimals">Decimals</Label>
+                <Input
+                  id="decimals"
+                  type="number"
+                  value={formData.decimals}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      decimals: e.target.value,
+                    }))
+                  }
+                  min="0"
+                  max="18"
+                />
+              </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Decimals</label>
-        <input
-          type="number"
-          value={formData.decimals}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              decimals: e.target.value,
-            }))
-          }
-          className="w-full border rounded px-3 py-2"
-          min="0"
-          max="18"
-        />
-      </div>
+              <div className="space-y-2">
+                <Label htmlFor="minBalance">Minimum Balance (in tokens)</Label>
+                <Input
+                  id="minBalance"
+                  type="number"
+                  value={formData.minBalance}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      minBalance: e.target.value,
+                    }))
+                  }
+                  min="0.000000000001"
+                  step="0.000000000001"
+                />
+              </div>
+            </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          Minimum Balance (in tokens)
-        </label>
-        <input
-          type="number"
-          value={formData.minBalance}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              minBalance: e.target.value,
-            }))
-          }
-          className="w-full border rounded px-3 py-2"
-          min="0.000000000001"
-          step="0.000000000001"
-        />
-      </div>
+            {/* Initial Mint */}
+            <div className="space-y-2">
+              <Label htmlFor="initialMint">Initial Mint Amount (optional)</Label>
+              <Input
+                id="initialMint"
+                type="number"
+                value={formData.initialMintAmount}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    initialMintAmount: e.target.value,
+                  }))
+                }
+                min="0"
+                step="0.000000000001"
+                placeholder="Amount to mint to your account"
+              />
+              <p className="text-xs text-muted-foreground">
+                Tokens will be minted to your connected account ({selectedAccount?.address.slice(0, 8)}...)
+              </p>
+            </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          Initial Mint Amount (optional)
-        </label>
-        <input
-          type="number"
-          value={formData.initialMintAmount}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              initialMintAmount: e.target.value,
-            }))
-          }
-          className="w-full border rounded px-3 py-2"
-          min="0"
-          step="0.000000000001"
-          placeholder="Amount to mint to your account"
-        />
-        <p className="text-xs text-gray-500 mt-1">
-          Tokens will be minted to your connected account (
-          {selectedAccount?.address.slice(0, 8)}...)
-        </p>
-      </div>
+            {createAssetMutation.isError && (
+              <div className="text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 p-3 rounded-md">
+                {createAssetMutation.error?.message}
+              </div>
+            )}
 
-      <button
-        type="submit"
-        disabled={createAssetMutation.isPending}
-        className="w-full bg-blue-500 text-white py-2 px-4 rounded disabled:opacity-50"
-      >
-        {createAssetMutation.isPending ? "Creating..." : "Create Asset"}
-      </button>
-
-      {createAssetMutation.isError && (
-        <div className="text-red-500 text-sm">
-          {createAssetMutation.error?.message}
-        </div>
-      )}
-    </form>
+            <Button
+              type="submit"
+              disabled={createAssetMutation.isPending}
+              className="w-full"
+            >
+              {createAssetMutation.isPending ? "Creating Asset..." : "Create Asset"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 

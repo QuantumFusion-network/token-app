@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { Button } from "./ui/button";
 import { LogOut, User } from "lucide-react";
 
 export function AccountSelector() {
@@ -69,14 +70,16 @@ export function AccountSelector() {
         </SelectContent>
       </Select>
 
-      <button
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={disconnect}
-        className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+        className="flex items-center gap-1 text-sm hover:text-red-600 hover:bg-red-50"
         title="Disconnect wallet"
       >
         <LogOut className="size-4" />
         <span className="hidden sm:inline">Disconnect</span>
-      </button>
+      </Button>
     </div>
   );
 }

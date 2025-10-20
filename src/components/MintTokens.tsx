@@ -9,6 +9,10 @@ import {
 } from "../lib/queryHelpers";
 import { mintTokensToasts } from "../lib/toastConfigs";
 import { FeatureErrorBoundary } from "./error-boundaries";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 export interface MintForm {
   assetId: string;
@@ -62,77 +66,88 @@ function MintTokensInner() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-      <h2 className="text-xl font-bold">Mint Tokens</h2>
+    <div className="max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle>Mint Tokens</CardTitle>
+          <CardDescription>
+            Mint tokens to any address (owner privileges required)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="assetId">Asset ID</Label>
+              <Input
+                id="assetId"
+                type="number"
+                value={formData.assetId}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    assetId: e.target.value,
+                  }))
+                }
+                required
+                min="1"
+                placeholder="Enter asset ID"
+              />
+            </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Asset ID</label>
-        <input
-          type="number"
-          value={formData.assetId}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              assetId: e.target.value,
-            }))
-          }
-          className="w-full border rounded px-3 py-2"
-          required
-          min="1"
-        />
-      </div>
+            <div className="space-y-2">
+              <Label htmlFor="recipient">Recipient Address</Label>
+              <Input
+                id="recipient"
+                type="text"
+                value={formData.recipient}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    recipient: e.target.value,
+                  }))
+                }
+                className="font-mono text-sm"
+                required
+                placeholder="5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+              />
+            </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          Recipient Address
-        </label>
-        <input
-          type="text"
-          value={formData.recipient}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              recipient: e.target.value,
-            }))
-          }
-          className="w-full border rounded px-3 py-2 font-mono text-sm"
-          required
-          placeholder="5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
-        />
-      </div>
+            <div className="space-y-2">
+              <Label htmlFor="amount">Amount to Mint</Label>
+              <Input
+                id="amount"
+                type="number"
+                value={formData.amount}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    amount: e.target.value,
+                  }))
+                }
+                required
+                min="0"
+                step="0.000000000001"
+                placeholder="0.0"
+              />
+            </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Amount to Mint</label>
-        <input
-          type="number"
-          value={formData.amount}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              amount: e.target.value,
-            }))
-          }
-          className="w-full border rounded px-3 py-2"
-          required
-          min="0"
-          step="0.000000000001"
-        />
-      </div>
+            {mintMutation.isError && (
+              <div className="text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 p-3 rounded-md">
+                {mintMutation.error?.message}
+              </div>
+            )}
 
-      <button
-        type="submit"
-        disabled={mintMutation.isPending}
-        className="w-full bg-green-500 text-white py-2 px-4 rounded disabled:opacity-50"
-      >
-        {mintMutation.isPending ? "Minting..." : "Mint Tokens"}
-      </button>
-
-      {mintMutation.isError && (
-        <div className="text-red-500 text-sm">
-          {mintMutation.error?.message}
-        </div>
-      )}
-    </form>
+            <Button
+              type="submit"
+              disabled={mintMutation.isPending}
+              className="w-full"
+            >
+              {mintMutation.isPending ? "Minting Tokens..." : "Mint Tokens"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
