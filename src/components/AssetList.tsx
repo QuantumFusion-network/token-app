@@ -58,7 +58,7 @@ function AssetListInner() {
 
       return entries
         .filter(entry => {
-          const [assetId, accountAddress] = entry.keyArgs;
+          const [, accountAddress] = entry.keyArgs;
           return accountAddress === selectedAccount.address && entry.value.balance > 0n;
         })
         .map(entry => entry.keyArgs[0]); // Return asset IDs
@@ -71,11 +71,11 @@ function AssetListInner() {
     return (
       <div>
         <AccountDashboard />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {Array.from({ length: 8 }).map((_, i) => (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="h-72 bg-gradient-to-br from-muted/20 to-muted/40 animate-pulse rounded-xl shadow-lg"
+              className="h-96 bg-gradient-to-br from-muted/20 to-muted/40 animate-pulse rounded-xl shadow-lg"
             />
           ))}
         </div>
@@ -187,7 +187,7 @@ function AssetListInner() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {filteredAssets.map((asset) => (
             <AssetCard key={asset.id} {...asset} />
           ))}

@@ -1,9 +1,6 @@
 import type { Binary } from "polkadot-api";
 import { formatUnits } from "../utils/format";
-import {
-  Card,
-  CardContent,
-} from "./ui/card";
+import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import {
@@ -14,12 +11,7 @@ import {
 } from "./ui/dropdown-menu";
 import { AssetBalance } from "./AssetBalance";
 import { useWalletContext } from "../hooks/useWalletContext";
-import {
-  MoreVertical,
-  Coins,
-  Send,
-  Trash2
-} from "lucide-react";
+import { MoreVertical, Coins, Send, Trash2 } from "lucide-react";
 
 interface AssetCardProps {
   id: number;
@@ -71,121 +63,117 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
     ? "bg-gradient-to-br from-accent/10 to-accent/20 border-accent/20"
     : "bg-gradient-to-br from-muted/20 to-muted/40 border-border";
 
-  const accentColor = isOwner
-    ? "text-primary"
-    : isAdmin
-    ? "text-accent-foreground"
-    : "text-muted-foreground";
-
-  const dotColor = isOwner
-    ? "bg-primary"
-    : isAdmin
-    ? "bg-accent"
-    : "bg-muted-foreground";
-
   return (
-    <Card className={`${cardColors} shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden`}>
-      {/* Decorative gradient overlay */}
-      <div className="absolute top-0 right-0 w-20 h-20 opacity-10">
-        <div className={`w-full h-full rounded-bl-full ${isOwner ? 'bg-primary' : isAdmin ? 'bg-accent' : 'bg-muted-foreground'}`}></div>
-      </div>
-
-      <CardContent className="p-6 relative">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-4">
+    <Card
+      className={`${cardColors} shadow-lg hover:shadow-xl transition-all duration-200 relative`}
+    >
+      <CardContent className="p-8 relative">
+        {/* Header with Asset Name */}
+        <div className="flex justify-between items-start mb-6">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <div className={`w-2 h-2 ${dotColor} rounded-full`}></div>
-              <h3 className="text-xl font-bold text-foreground">{metadata.name.asText()}</h3>
-              {canManage && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="w-7 h-7 p-0 opacity-60 hover:opacity-100">
-                      <MoreVertical className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleMint}>
-                      <Coins className="w-4 h-4 mr-2" />
-                      Mint Tokens
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleTransfer}>
-                      <Send className="w-4 h-4 mr-2" />
-                      Transfer
-                    </DropdownMenuItem>
-                    {isOwner && (
-                      <DropdownMenuItem
-                        onClick={handleDestroy}
-                        className="text-red-600 focus:text-red-600"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Destroy Asset
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2 mb-1">
-              <span className={`text-sm font-medium ${accentColor}`}>
-                #{id} • {metadata.symbol.asText()}
-              </span>
-              {isOwner && <Badge className="text-xs bg-primary/20 text-primary border-primary/30">Owner</Badge>}
-              {isAdmin && !isOwner && <Badge variant="secondary" className="text-xs">Admin</Badge>}
-            </div>
-
-            <div className={`text-xs ${accentColor}/70`}>
-              {asset.accounts} holders
-            </div>
+            <h3 className="text-3xl font-bold text-foreground leading-tight mb-2">
+              {`#${id}  ${metadata.name.asText()}`}
+            </h3>
           </div>
+
+          {/* Actions Menu */}
+          {canManage && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-8 h-8 p-0 opacity-60 hover:opacity-100"
+                >
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleMint}>
+                  <Coins className="w-4 h-4 mr-2" />
+                  Mint Tokens
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleTransfer}>
+                  <Send className="w-4 h-4 mr-2" />
+                  Transfer
+                </DropdownMenuItem>
+                {isOwner && (
+                  <DropdownMenuItem
+                    onClick={handleDestroy}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Destroy Asset
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
-        {/* Your Balance - Prominent Display */}
+        {/* YOUR DATA Section */}
         {selectedAccount && (
-          <div className={`${isOwner ? 'bg-primary/5' : isAdmin ? 'bg-accent/5' : 'bg-muted/50'} rounded-xl p-4 mb-4`}>
-            <div className={`text-sm font-medium ${accentColor} mb-1`}>Your Balance</div>
-            <div className="text-2xl font-bold text-foreground font-mono">
-              <AssetBalance assetId={id} />
+          <div className="mb-6">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-sm text-muted-foreground">
+                  Your Balance
+                </span>
+                <span className="text-sm font-mono font-semibold text-foreground">
+                  <AssetBalance assetId={id} />
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-sm text-muted-foreground">Owner</span>
+                <span className="text-xs font-mono text-foreground">
+                  {asset.owner.slice(0, 6)}...{asset.owner.slice(-4)}
+                </span>
+              </div>
+              {asset.owner !== asset.admin && (
+                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                  <span className="text-sm text-muted-foreground">Admin</span>
+                  <span className="text-xs font-mono text-foreground">
+                    {asset.admin.slice(0, 6)}...{asset.admin.slice(-4)}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Asset Stats */}
-        <div className="space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Total Supply</span>
-            <span className="font-mono text-sm font-medium text-foreground">
-              {formattedSupply} {metadata.symbol.asText()}
-            </span>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Decimals</span>
-            <span className="text-sm font-medium text-foreground">{metadata.decimals}</span>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Sufficient</span>
-            <Badge
-              variant={asset.is_sufficient ? "default" : "destructive"}
-              className="text-xs"
-            >
-              {asset.is_sufficient ? "Yes" : "No"}
-            </Badge>
-          </div>
-        </div>
-
-        {/* Owner Info Footer */}
-        <div className={`mt-4 pt-3 border-t ${isOwner ? 'border-primary/20' : isAdmin ? 'border-accent/20' : 'border-border'} space-y-1`}>
-          <div className="text-xs text-muted-foreground">
-            <span className="text-muted-foreground/60">Owner:</span> {asset.owner.slice(0, 6)}...{asset.owner.slice(-4)}
-          </div>
-          {asset.owner !== asset.admin && (
-            <div className="text-xs text-muted-foreground">
-              <span className="text-muted-foreground/60">Admin:</span> {asset.admin.slice(0, 6)}...{asset.admin.slice(-4)}
+        {/* ASSET METADATA Section */}
+        <div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center py-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">
+                Total Supply
+              </span>
+              <span className="text-sm font-mono font-semibold text-foreground">
+                {formattedSupply} {metadata.symbol.asText()}
+              </span>
             </div>
-          )}
+            <div className="flex justify-between items-center py-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">Decimals</span>
+              <span className="text-sm font-medium text-foreground">
+                {metadata.decimals}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">Holders</span>
+              <span className="text-sm font-medium text-foreground">
+                {asset.accounts}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2">
+              <span className="text-sm text-muted-foreground">Sufficient</span>
+              <Badge
+                variant={asset.is_sufficient ? "default" : "destructive"}
+                className="text-xs"
+              >
+                {asset.is_sufficient ? "Yes" : "No"}
+              </Badge>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
