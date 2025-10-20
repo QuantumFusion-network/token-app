@@ -101,7 +101,7 @@ function DestroyAssetInner() {
 
         {destroyAssetMutation.isError && (
           <div className="text-red-500 text-sm mt-4">
-            Error: {destroyAssetMutation.error?.message}
+            {destroyAssetMutation.error?.message}
           </div>
         )}
       </div>
@@ -148,7 +148,7 @@ function DestroyAssetInner() {
 
       {destroyAssetMutation.isError && (
         <div className="text-red-500 text-sm">
-          Error: {destroyAssetMutation.error?.message}
+          {destroyAssetMutation.error?.message}
         </div>
       )}
     </form>

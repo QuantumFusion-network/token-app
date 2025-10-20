@@ -35,7 +35,8 @@ const initialFormData = {
 export function CreateAsset() {
   const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
-  const { executeTransaction } = useTransaction<CreateAssetForm>(createAssetToasts);
+  const { executeTransaction } =
+    useTransaction<CreateAssetForm>(createAssetToasts);
 
   const [formData, setFormData] = useState<CreateAssetForm>(initialFormData);
 
@@ -50,7 +51,7 @@ export function CreateAsset() {
       // Use the same batch approach as the main CreateAsset component
       const { createAssetBatch } = await import("../lib/assetOperations");
       const observable = createAssetBatch(data, selectedAccount);
-      await executeTransaction('createAssetBatch', observable, data);
+      await executeTransaction("createAssetBatch", observable, data);
     },
     onSuccess: async () => {
       invalidateAssetQueries(queryClient);
@@ -213,7 +214,7 @@ export function CreateAsset() {
 
       {createAssetMutation.isError && (
         <div className="text-red-500 text-sm">
-          Error: {createAssetMutation.error?.message}
+          {createAssetMutation.error?.message}
         </div>
       )}
     </form>

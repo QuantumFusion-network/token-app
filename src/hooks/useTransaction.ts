@@ -16,10 +16,13 @@ export function useTransaction<T = unknown>(toastConfig?: ToastConfig<T>) {
     trackTransaction,
     setTransactionDetails,
     completeTransaction,
-    getTransactionStatus,
   } = useTransactionContext();
 
-  const executeTransaction = async (type: string, observable: TransactionObservable, details?: T) => {
+  const executeTransaction = async (
+    type: string,
+    observable: TransactionObservable,
+    details?: T
+  ) => {
     const transactionId = startTransaction(type, toastConfig);
 
     try {
@@ -38,33 +41,7 @@ export function useTransaction<T = unknown>(toastConfig?: ToastConfig<T>) {
     }
   };
 
-  const createTransactionHandler = (type: string) => {
-    const transactionId = startTransaction(type, toastConfig);
-    const status = getTransactionStatus(transactionId);
-
-    return {
-      status,
-      setTransactionDetails: (details: T) => {
-        setTransactionDetails(transactionId, details);
-      },
-      trackTransaction: async (observable: TransactionObservable) => {
-        try {
-          await trackTransaction(transactionId, observable);
-          setTimeout(() => completeTransaction(transactionId), 500);
-        } catch (error) {
-          setTimeout(() => completeTransaction(transactionId), 500);
-          throw error;
-        }
-      },
-      reset: () => {
-        completeTransaction(transactionId);
-      },
-      transactionId,
-    };
-  };
-
   return {
     executeTransaction,
-    createTransactionHandler,
   };
 }

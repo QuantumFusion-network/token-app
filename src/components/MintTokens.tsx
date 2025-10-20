@@ -17,24 +17,26 @@ export interface MintForm {
   decimals: number;
 }
 
+const initialFormData = {
+  assetId: "",
+  recipient: "",
+  amount: "",
+  decimals: 12,
+};
+
 function MintTokensInner() {
   const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
   const { executeTransaction } = useTransaction<MintForm>(mintTokensToasts);
 
-  const [formData, setFormData] = useState<MintForm>({
-    assetId: "",
-    recipient: "",
-    amount: "",
-    decimals: 12,
-  });
+  const [formData, setFormData] = useState<MintForm>(initialFormData);
 
   const mintMutation = useMutation({
     mutationFn: async (data: MintForm) => {
       if (!selectedAccount) throw new Error("No account selected");
 
       const observable = mintTokens(data, selectedAccount);
-      await executeTransaction('mintTokens', observable, data);
+      await executeTransaction("mintTokens", observable, data);
     },
     onSuccess: (_result, variables) => {
       invalidateBalanceQueries(queryClient, parseInt(variables.assetId), [
@@ -43,12 +45,7 @@ function MintTokensInner() {
       invalidateAssetQueries(queryClient);
 
       // Reset form
-      setFormData({
-        assetId: "",
-        recipient: "",
-        amount: "",
-        decimals: 12,
-      });
+      setFormData({ ...initialFormData });
     },
     onError: (error) => {
       console.error("Failed to mint tokens:", error);
@@ -132,7 +129,7 @@ function MintTokensInner() {
 
       {mintMutation.isError && (
         <div className="text-red-500 text-sm">
-          Error: {mintMutation.error?.message}
+          {mintMutation.error?.message}
         </div>
       )}
     </form>

@@ -25,7 +25,7 @@ export const createAssetToasts: ToastConfig<CreateAssetForm> = {
     }
     return `Asset ${details?.assetId} created successfully!`;
   },
-  error: (error: string) => `Transaction failed: ${error}`,
+  error: (_error: string) => `Transaction failed!`,
 };
 
 export const mintTokensToasts: ToastConfig<MintForm> = {
@@ -43,7 +43,7 @@ export const mintTokensToasts: ToastConfig<MintForm> = {
         )}... for Asset ID ${details.assetId}!`
       : "Tokens minted successfully!";
   },
-  error: (error: string) => `Mint transaction failed: ${error}`,
+  error: (_error: string) => `Mint transaction failed!`,
 };
 
 export const transferTokensToasts: ToastConfig<TransferForm> = {
@@ -61,7 +61,7 @@ export const transferTokensToasts: ToastConfig<TransferForm> = {
         )}... for Asset ID ${details.assetId}!`
       : "Tokens transferred successfully!";
   },
-  error: (error: string) => `Transfer transaction failed: ${error}`,
+  error: (_error: string) => `Transfer transaction failed`,
 };
 
 export const destroyAssetToasts: ToastConfig<DestroyAssetForm> = {
@@ -70,5 +70,5 @@ export const destroyAssetToasts: ToastConfig<DestroyAssetForm> = {
     `Asset destruction submitted.\n    Hash: ${hash.slice(0, 16)}...`,
   inBlock: "Asset destruction in progress...",
   finalized: (details) => `Asset ${details?.assetId} destroyed successfully!`,
-  error: (error: string) => `Asset destruction failed: ${error}`,
+  error: (_error: string) => `Asset destruction failed`,
 };

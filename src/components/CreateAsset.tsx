@@ -187,7 +187,7 @@ function CreateAssetInner() {
 
       {createAssetMutation.isError && (
         <div className="text-red-500 text-sm">
-          Error: {createAssetMutation.error?.message}
+          {createAssetMutation.error?.message}
         </div>
       )}
     </form>

@@ -45,8 +45,6 @@ interface TransactionContextValue {
   ) => Promise<void>;
   setTransactionDetails: <T = unknown>(id: string, details: T) => void;
   completeTransaction: (id: string) => void;
-  removeTransaction: (id: string) => void;
-  getTransactionStatus: (id: string) => TransactionStatus;
 }
 
 const TransactionContext = createContext<TransactionContextValue | undefined>(
@@ -220,24 +218,6 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
     setActiveTransactionId((prev) => (prev === id ? undefined : prev));
   };
 
-  const removeTransaction = (id: string) => {
-    setTransactions((prev) => {
-      const transaction = prev[id];
-      if (transaction?.subscription) {
-        transaction.subscription.unsubscribe();
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [id]: _, ...remaining } = prev;
-      return remaining;
-    });
-
-    setActiveTransactionId((prev) => (prev === id ? undefined : prev));
-  };
-
-  const getTransactionStatus = (id: string): TransactionStatus => {
-    return transactions[id]?.status || { status: "idle" };
-  };
-
   const value: TransactionContextValue = {
     transactions,
     activeTransaction: activeTransactionId
@@ -247,8 +227,6 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
     trackTransaction,
     setTransactionDetails,
     completeTransaction,
-    removeTransaction,
-    getTransactionStatus,
   };
 
   return (

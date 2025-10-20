@@ -24,7 +24,8 @@ const initialFormData: TransferForm = {
 function TransferTokensInner() {
   const { selectedAccount } = useWalletContext();
   const queryClient = useQueryClient();
-  const { executeTransaction } = useTransaction<TransferForm>(transferTokensToasts);
+  const { executeTransaction } =
+    useTransaction<TransferForm>(transferTokensToasts);
   const [formData, setFormData] = useState<TransferForm>(initialFormData);
 
   const transferMutation = useMutation({
@@ -32,7 +33,7 @@ function TransferTokensInner() {
       if (!selectedAccount) throw new Error("No account selected");
 
       const observable = transferTokens(data, selectedAccount);
-      await executeTransaction('transferTokens', observable, data);
+      await executeTransaction("transferTokens", observable, data);
     },
     onSuccess: (_result, variables) => {
       // Invalidate balances for both sender and recipient
@@ -127,7 +128,7 @@ function TransferTokensInner() {
 
       {transferMutation.isError && (
         <div className="text-red-500 text-sm">
-          Error: {transferMutation.error?.message}
+          {transferMutation.error?.message}
         </div>
       )}
     </form>

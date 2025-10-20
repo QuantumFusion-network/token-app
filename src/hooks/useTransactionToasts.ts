@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { toast } from 'sonner';
-import { useTransactionContext } from '../contexts/TransactionContext';
+import { useEffect, useRef } from "react";
+import { toast } from "sonner";
+import { useTransactionContext } from "../contexts/TransactionContext";
 
 export function useTransactionToasts() {
   const { transactions } = useTransactionContext();
@@ -20,36 +20,36 @@ export function useTransactionToasts() {
       processedStatusRef.current[id] = status.status;
 
       switch (status.status) {
-        case 'signing':
+        case "signing":
           if (toastConfig.signing) {
             toast.info(toastConfig.signing);
           }
           break;
 
-        case 'broadcasting':
+        case "broadcasting":
           if (toastConfig.broadcasting && status.txHash) {
-            toast.info(toastConfig.broadcasting(status.txHash), { duration: 8000 });
+            toast.info(toastConfig.broadcasting(status.txHash));
           }
           break;
 
-        case 'inBlock':
+        case "inBlock":
           if (toastConfig.inBlock) {
-            toast.info(toastConfig.inBlock, { duration: 8000 });
+            toast.info(toastConfig.inBlock);
           }
           break;
 
-        case 'finalized': {
-          const message = typeof toastConfig.finalized === 'function'
-            ? toastConfig.finalized(details)
-            : toastConfig.finalized;
-          toast.success(message, { duration: 8000 });
+        case "finalized": {
+          const message = toastConfig.finalized(details);
+          toast.success(message);
           break;
         }
 
-        case 'error':
+        case "error":
           if (status.error && toastConfig.error) {
             const message = toastConfig.error(status.error.message);
-            toast.error(message, { duration: 8000 });
+            toast.error(message, {
+              description: status.error.message,
+            });
           }
           break;
       }
@@ -57,7 +57,7 @@ export function useTransactionToasts() {
 
     // Clean up processed statuses for removed transactions
     const currentTransactionIds = new Set(Object.keys(transactions));
-    Object.keys(processedStatusRef.current).forEach(id => {
+    Object.keys(processedStatusRef.current).forEach((id) => {
       if (!currentTransactionIds.has(id)) {
         delete processedStatusRef.current[id];
       }
