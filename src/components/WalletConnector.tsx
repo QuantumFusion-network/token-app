@@ -6,7 +6,7 @@ export function WalletConnector() {
 
   if (availableExtensions.length === 0) {
     return (
-      <div className="border rounded-lg p-6 text-center">
+      <div className="border rounded-lg p-4 text-center">
         <h2 className="text-xl font-semibold mb-2">
           No Wallet Extensions Found
         </h2>
@@ -23,9 +23,9 @@ export function WalletConnector() {
   }
 
   return (
-    <div className="border rounded-lg p-6">
+    <div className="border rounded-lg p-4">
       <h2 className="text-xl font-semibold mb-4 text-center">Connect Wallet</h2>
-      <div className="space-y-3">
+      <div className="space-y-2">
         {availableExtensions.map((extension) => (
           <button
             key={extension}

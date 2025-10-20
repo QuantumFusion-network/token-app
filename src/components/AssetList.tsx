@@ -71,7 +71,7 @@ function AssetListInner() {
     return (
       <div>
         <AccountDashboard />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
@@ -129,14 +129,14 @@ function AssetListInner() {
     <div>
       <AccountDashboard />
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">
           {filter === "all" && `Assets (${filteredAssets.length})`}
           {filter === "owned" && `My Assets (${filteredAssets.length})`}
           {filter === "held" && `Assets I Hold (${filteredAssets.length})`}
         </h2>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Filter className="w-4 h-4" />
             <span className="text-sm font-medium">Filter:</span>
@@ -172,7 +172,7 @@ function AssetListInner() {
 
       {filteredAssets.length === 0 ? (
         <div className="text-center py-16">
-          <div className="w-16 h-16 bg-muted rounded-full mx-auto mb-4 flex items-center justify-center">
+          <div className="w-16 h-16 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
             <Coins className="w-8 h-8 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-semibold text-foreground mb-2">
@@ -187,7 +187,7 @@ function AssetListInner() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredAssets.map((asset) => (
             <AssetCard key={asset.id} {...asset} />
           ))}

@@ -28,7 +28,7 @@ export class AppErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="text-center space-y-4 p-8 max-w-2xl">
+          <div className="text-center space-y-4 p-4 max-w-2xl">
             <h1 className="text-2xl font-bold text-destructive">
               Application Error
             </h1>

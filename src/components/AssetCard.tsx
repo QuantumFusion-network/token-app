@@ -80,9 +80,9 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
     <Card
       className={`${cardColors} ${borderGlow} shadow-lg transition-shadow duration-200 relative backdrop-blur-sm`}
     >
-      <CardContent className="p-8 relative">
+      <CardContent className="p-4 relative">
         {/* Header with Asset Name and Symbol */}
-        <div className="flex justify-between items-start mb-6">
+        <div className="flex justify-between items-start mb-3">
           <div className="flex-1">
             <div className="flex justify-between items-baseline gap-3 mb-1">
               <h3 className="text-2xl font-bold text-foreground leading-tight">
@@ -142,10 +142,10 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
         </div>
 
         {/* Key Metrics - Side by Side Stat Cards */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-3 mb-3">
           {/* Total Supply Card */}
-          <div className="bg-muted/30 rounded-lg p-4 border border-border/40">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="bg-muted/30 rounded-lg p-3 border border-border/40">
+            <div className="flex items-center gap-2 mb-1.5">
               <TrendingUp className="w-4 h-4 text-primary" />
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 Total Supply
@@ -157,8 +157,8 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
           </div>
 
           {/* Holders Card */}
-          <div className="bg-muted/30 rounded-lg p-4 border border-border/40">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="bg-muted/30 rounded-lg p-3 border border-border/40">
+            <div className="flex items-center gap-2 mb-1.5">
               <Users className="w-4 h-4 text-accent" />
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 Holders
@@ -174,9 +174,9 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
 
         {/* YOUR DATA Section */}
         {selectedAccount && (
-          <div className="mb-6">
-            <div className="space-y-2">
-              <div className="flex justify-between items-center py-2 border-b border-border/50">
+          <div className="mb-3">
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center py-1.5 border-b border-border/50">
                 <span className="text-sm text-muted-foreground">
                   Your Balance
                 </span>
@@ -184,7 +184,7 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
                   <AssetBalance assetId={id} />
                 </span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-border/50">
+              <div className="flex justify-between items-center py-1.5 border-b border-border/50">
                 <span className="text-sm text-muted-foreground">Owner</span>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-mono text-foreground">
@@ -198,7 +198,7 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
                 </div>
               </div>
               {asset.owner !== asset.admin && (
-                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <div className="flex justify-between items-center py-1.5 border-b border-border/50">
                   <span className="text-sm text-muted-foreground">Admin</span>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-mono text-foreground">
@@ -218,14 +218,14 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
 
         {/* ASSET METADATA Section */}
         <div>
-          <div className="space-y-2">
-            <div className="flex justify-between items-center py-2 border-b border-border/50">
+          <div className="space-y-1.5">
+            <div className="flex justify-between items-center py-1.5 border-b border-border/50">
               <span className="text-sm text-muted-foreground">Decimals</span>
               <span className="text-sm font-medium text-foreground">
                 {metadata.decimals}
               </span>
             </div>
-            <div className="flex justify-between items-center py-2">
+            <div className="flex justify-between items-center py-1.5">
               <span className="text-sm text-muted-foreground">Sufficient</span>
               <div className="flex items-center gap-2">
                 <div

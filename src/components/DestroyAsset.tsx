@@ -79,7 +79,7 @@ function DestroyAssetInner() {
               <p className="text-red-800 font-medium mb-2">
                 You are about to permanently destroy:
               </p>
-              <div className="bg-white rounded p-3 mb-3">
+              <div className="bg-white rounded p-3 mb-2">
                 <p>
                   <strong>Asset ID:</strong> {formData.assetId}
                 </p>
@@ -97,7 +97,7 @@ function DestroyAssetInner() {
               </div>
             )}
 
-            <div className="flex space-x-3">
+            <div className="flex gap-2">
               <Button
                 variant="destructive"
                 onClick={handleConfirmDestroy}
@@ -137,7 +137,7 @@ function DestroyAssetInner() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />

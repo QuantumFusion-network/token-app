@@ -37,7 +37,7 @@ export class FeatureErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="p-4 border border-destructive/20 rounded-lg bg-destructive/5 space-y-3 text-left">
+        <div className="p-4 border border-destructive/20 rounded-lg bg-destructive/5 space-y-2 text-left">
           <h3 className="font-semibold text-destructive">
             {this.props.featureName
               ? `${this.props.featureName} Error`

@@ -38,13 +38,13 @@ function AccountDashboardInner() {
   const faucetUrl = "https://faucet.qfnetwork.xyz"; // Replace with actual testnet faucet URL
 
   return (
-    <div className="mb-8">
+    <div className="mb-6">
       {/* Single Stretched Summary Card */}
       <Card className="bg-gradient-to-br from-primary/10 to-primary/20 border-primary/20 shadow-lg">
-        <CardContent className="p-6">
+        <CardContent className="p-4">
           <div className="flex items-center justify-between">
             {/* Left Section - Balance */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
                 <Wallet className="w-6 h-6 text-primary" />
                 <div>

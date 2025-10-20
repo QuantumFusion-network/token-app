@@ -83,7 +83,7 @@ export default function App() {
       {/* Sidebar */}
       <div className="w-64 bg-card border-r border-border flex flex-col shadow-lg">
         {/* Header */}
-        <div className="p-6 border-b border-border bg-gradient-to-br from-muted/20 to-muted/40">
+        <div className="p-4 border-b border-border bg-gradient-to-br from-muted/20 to-muted/40">
           <h1 className="text-xl font-bold text-foreground">QF Network</h1>
           <p className="text-sm text-muted-foreground mt-1">Asset Manager</p>
         </div>
@@ -118,8 +118,8 @@ export default function App() {
       <div className="flex-1 flex flex-col">
         {/* Header with account selector */}
         <header className="border-b border-border bg-background/80 backdrop-blur-sm">
-          <div className="flex items-center justify-between px-8 py-4">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
               <span className="text-sm font-medium text-muted-foreground">Connected to QF Network</span>
             </div>
@@ -127,7 +127,7 @@ export default function App() {
           </div>
         </header>
 
-        <main className="flex-1 p-8 bg-muted/20">
+        <main className="flex-1 p-4 bg-muted/20">
           <ActiveComponent />
         </main>
       </div>
