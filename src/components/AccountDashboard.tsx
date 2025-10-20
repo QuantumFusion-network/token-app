@@ -32,7 +32,7 @@ function AccountDashboardInner() {
   const truncatedBalance = (() => {
     const parts = formattedNativeBalance.split(".");
     if (parts.length === 1) return formattedNativeBalance;
-    return `${parts[0]}.${parts[1].slice(0, 3)}...`;
+    return `${parts[0]}.${parts[1].slice(0, 4)}...`;
   })();
 
   const faucetUrl = "https://faucet.qfnetwork.xyz"; // Replace with actual testnet faucet URL

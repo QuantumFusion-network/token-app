@@ -11,7 +11,14 @@ import {
 } from "./ui/dropdown-menu";
 import { AssetBalance } from "./AssetBalance";
 import { useWalletContext } from "../hooks/useWalletContext";
-import { MoreVertical, Coins, Send, Trash2 } from "lucide-react";
+import {
+  MoreVertical,
+  Coins,
+  Send,
+  Trash2,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 
 interface AssetCardProps {
   id: number;
@@ -58,22 +65,45 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
 
   // Dynamic styling based on ownership using semantic theme colors
   const cardColors = isOwner
-    ? "bg-gradient-to-br from-primary/10 to-primary/20 border-primary/20"
+    ? "bg-gradient-to-br from-primary/8 via-primary/5 to-transparent border-primary/30"
     : isAdmin
-    ? "bg-gradient-to-br from-accent/10 to-accent/20 border-accent/20"
-    : "bg-gradient-to-br from-muted/20 to-muted/40 border-border";
+    ? "bg-gradient-to-br from-accent/8 via-accent/5 to-transparent border-accent/30"
+    : "bg-card/50 border-border/60";
+
+  const borderGlow = isOwner
+    ? "shadow-[0_0_0_1px_oklch(var(--primary)/0.2)]"
+    : isAdmin
+    ? "shadow-[0_0_0_1px_oklch(var(--accent)/0.2)]"
+    : "";
 
   return (
     <Card
-      className={`${cardColors} shadow-lg hover:shadow-xl transition-all duration-200 relative`}
+      className={`${cardColors} ${borderGlow} shadow-lg transition-shadow duration-200 relative backdrop-blur-sm`}
     >
       <CardContent className="p-8 relative">
-        {/* Header with Asset Name */}
+        {/* Header with Asset Name and Symbol */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex-1">
-            <h3 className="text-3xl font-bold text-foreground leading-tight mb-2">
-              {`#${id}  ${metadata.name.asText()}`}
-            </h3>
+            <div className="flex justify-between items-baseline gap-3 mb-1">
+              <h3 className="text-2xl font-bold text-foreground leading-tight">
+                {metadata.name.asText()}
+              </h3>
+
+              <Badge
+                variant="outline"
+                className="text-xs font-mono justify-self-end"
+              >
+                ID #{id}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              {metadata.is_frozen && (
+                <div className="flex items-center gap-1.5 text-destructive">
+                  <div className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
+                  <span className="text-xs font-medium">Frozen</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Actions Menu */}
@@ -83,7 +113,7 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-8 h-8 p-0 opacity-60 hover:opacity-100"
+                  className="w-8 h-8 p-0 opacity-60 hover:opacity-100 transition-opacity"
                 >
                   <MoreVertical className="w-4 h-4" />
                 </Button>
@@ -111,6 +141,37 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
           )}
         </div>
 
+        {/* Key Metrics - Side by Side Stat Cards */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {/* Total Supply Card */}
+          <div className="bg-muted/30 rounded-lg p-4 border border-border/40">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Total Supply
+              </span>
+            </div>
+            <div className="text-xl font-bold text-foreground font-mono">
+              {`${formattedSupply} ${metadata.symbol.asText()}`}
+            </div>
+          </div>
+
+          {/* Holders Card */}
+          <div className="bg-muted/30 rounded-lg p-4 border border-border/40">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="w-4 h-4 text-accent" />
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Holders
+              </span>
+            </div>
+            <div className="text-xl font-bold text-foreground font-mono">
+              {`${asset.accounts} ${
+                asset.accounts === 1 ? "Account" : "Accounts"
+              }`}
+            </div>
+          </div>
+        </div>
+
         {/* YOUR DATA Section */}
         {selectedAccount && (
           <div className="mb-6">
@@ -125,16 +186,30 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border/50">
                 <span className="text-sm text-muted-foreground">Owner</span>
-                <span className="text-xs font-mono text-foreground">
-                  {asset.owner.slice(0, 6)}...{asset.owner.slice(-4)}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono text-foreground">
+                    {asset.owner.slice(0, 6)}...{asset.owner.slice(-4)}
+                  </span>
+                  {isOwner && (
+                    <Badge className="text-xs px-2 py-0.5 bg-primary/20 text-primary border-primary/30">
+                      You
+                    </Badge>
+                  )}
+                </div>
               </div>
               {asset.owner !== asset.admin && (
                 <div className="flex justify-between items-center py-2 border-b border-border/50">
                   <span className="text-sm text-muted-foreground">Admin</span>
-                  <span className="text-xs font-mono text-foreground">
-                    {asset.admin.slice(0, 6)}...{asset.admin.slice(-4)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-foreground">
+                      {asset.admin.slice(0, 6)}...{asset.admin.slice(-4)}
+                    </span>
+                    {isAdmin && (
+                      <Badge className="text-xs px-2 py-0.5 bg-accent/20 text-accent border-accent/30">
+                        You
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -145,33 +220,25 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
         <div>
           <div className="space-y-2">
             <div className="flex justify-between items-center py-2 border-b border-border/50">
-              <span className="text-sm text-muted-foreground">
-                Total Supply
-              </span>
-              <span className="text-sm font-mono font-semibold text-foreground">
-                {formattedSupply} {metadata.symbol.asText()}
-              </span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-sm text-muted-foreground">Decimals</span>
               <span className="text-sm font-medium text-foreground">
                 {metadata.decimals}
               </span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-border/50">
-              <span className="text-sm text-muted-foreground">Holders</span>
-              <span className="text-sm font-medium text-foreground">
-                {asset.accounts}
-              </span>
-            </div>
             <div className="flex justify-between items-center py-2">
               <span className="text-sm text-muted-foreground">Sufficient</span>
-              <Badge
-                variant={asset.is_sufficient ? "default" : "destructive"}
-                className="text-xs"
-              >
-                {asset.is_sufficient ? "Yes" : "No"}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    asset.is_sufficient
+                      ? "bg-green-500"
+                      : "bg-muted-foreground/40"
+                  }`}
+                />
+                <span className="text-sm font-medium text-foreground">
+                  {asset.is_sufficient ? "Yes" : "No"}
+                </span>
+              </div>
             </div>
           </div>
         </div>
