@@ -1,23 +1,22 @@
 import { useState, type FormEvent } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/chain";
 import { useWalletContext } from "../hooks/useWalletContext";
-import { useTransaction } from "../hooks/useTransaction";
+import { useAssetMutation } from "../hooks/useAssetMutation";
+import { useFee } from "../hooks/useFee";
 import { createAssetBatch } from "../lib/assetOperations";
 import { invalidateAssetQueries } from "../lib/queryHelpers";
 import { createAssetToasts } from "../lib/toastConfigs";
-import { getMockFee } from "../utils/mockFees";
 import { FeatureErrorBoundary } from "./error-boundaries";
 import { AccountDashboard } from "./AccountDashboard";
 import { TransactionReview } from "./TransactionReview";
+import { FeeDisplay } from "./FeeDisplay";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
 import { ArrowRight, Plus } from "lucide-react";
 
-export interface CreateAssetForm {
+export interface CreateAssetParams {
   assetId: string;
   minBalance: string;
   name: string;
@@ -29,7 +28,6 @@ export interface CreateAssetForm {
 const getNextAssetId = async () => {
   const id = await api.query.Assets.NextAssetId.getValue();
   if (!id) throw new Error("No next asset id");
-  console.log("id", id);
 
   return id;
 };
@@ -47,41 +45,40 @@ const initialFormData = {
 
 function CreateAssetInner() {
   const { selectedAccount } = useWalletContext();
-  const queryClient = useQueryClient();
-  const { executeTransaction } =
-    useTransaction<CreateAssetForm>(createAssetToasts);
-  console.log("initialFormData", initialFormData);
+  const [formData, setFormData] = useState<CreateAssetParams>(initialFormData);
 
-  const [formData, setFormData] = useState<CreateAssetForm>(initialFormData);
+  const { mutation: createAssetMutation, transaction } =
+    useAssetMutation<CreateAssetParams>({
+      params: formData,
+      operationFn: (params) =>
+        createAssetBatch(params, selectedAccount?.address ?? ""),
+      toastConfig: createAssetToasts,
+      transactionKey: "createAsset",
+      isValid: (params) =>
+        params.assetId !== "" &&
+        !isNaN(parseInt(params.assetId)) &&
+        params.name !== "" &&
+        params.symbol !== "" &&
+        params.decimals !== "" &&
+        !isNaN(parseInt(params.decimals)) &&
+        params.minBalance !== "" &&
+        parseFloat(params.minBalance) > 0,
+      onSuccess: async (queryClient) => {
+        await invalidateAssetQueries(queryClient);
+        const nextAssetId = await getNextAssetId();
 
-  const createAssetMutation = useMutation({
-    mutationFn: async (data: CreateAssetForm) => {
-      if (!selectedAccount) throw new Error("No account selected");
+        setFormData({
+          ...initialFormData,
+          assetId: nextAssetId.toString(),
+        });
+      },
+    });
 
-      const observable = createAssetBatch(data, selectedAccount);
-      await executeTransaction("createAsset", observable, data);
-    },
-
-    onSuccess: async () => {
-      await invalidateAssetQueries(queryClient);
-      const nextAssetId = await getNextAssetId();
-
-      setFormData({
-        ...initialFormData,
-        assetId: nextAssetId.toString(),
-      });
-    },
-
-    onError: (error) => {
-      console.error("Failed to create asset:", error);
-    },
-  });
+  const feeState = useFee(transaction, selectedAccount?.address);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    console.log("formData", formData);
-
-    createAssetMutation.mutate(formData);
+    createAssetMutation.mutate();
   };
 
   if (!selectedAccount) {
@@ -238,22 +235,12 @@ function CreateAssetInner() {
 
             {/* Fee + CTA Section */}
             <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-4 border-t">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Estimated Fee:
-                </span>
-                <Badge
-                  variant="outline"
-                  className="text-base font-semibold font-mono"
-                >
-                  {getMockFee("createAsset")} QF
-                </Badge>
-              </div>
+              <FeeDisplay {...feeState} />
               <Button
                 type="submit"
                 disabled={createAssetMutation.isPending}
                 size="lg"
-                className="w-full lg:w-auto"
+                className="w-full lg:w-auto ml-auto"
               >
                 {createAssetMutation.isPending
                   ? "Creating Asset..."

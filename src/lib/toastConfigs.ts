@@ -1,7 +1,7 @@
-import type { CreateAssetForm } from "@/components/CreateAsset";
-import type { DestroyAssetForm } from "@/components/DestroyAsset";
-import type { MintForm } from "@/components/MintTokens";
-import type { TransferForm } from "@/components/TransferTokens";
+import type { CreateAssetParams } from "@/components/CreateAsset";
+import type { DestroyAssetParams } from "@/components/DestroyAsset";
+import type { MintParams } from "@/components/MintTokens";
+import type { TransferParams } from "@/components/TransferTokens";
 
 export interface ToastConfig<T> {
   signing: string;
@@ -11,7 +11,7 @@ export interface ToastConfig<T> {
   error: (error: string) => string;
 }
 
-export const createAssetToasts: ToastConfig<CreateAssetForm> = {
+export const createAssetToasts: ToastConfig<CreateAssetParams> = {
   signing: "Please sign the transaction in your wallet",
   broadcasting: (hash: string) =>
     `Transaction submitted. \n    Hash: ${hash.slice(0, 16)}...`,
@@ -28,7 +28,7 @@ export const createAssetToasts: ToastConfig<CreateAssetForm> = {
   error: (_error: string) => `Transaction failed!`,
 };
 
-export const mintTokensToasts: ToastConfig<MintForm> = {
+export const mintTokensToasts: ToastConfig<MintParams> = {
   signing: "Please sign the mint transaction in your wallet",
   broadcasting: (hash: string) =>
     `Mint transaction submitted. Hash: ${hash.slice(0, 16)}...`,
@@ -46,7 +46,7 @@ export const mintTokensToasts: ToastConfig<MintForm> = {
   error: (_error: string) => `Mint transaction failed!`,
 };
 
-export const transferTokensToasts: ToastConfig<TransferForm> = {
+export const transferTokensToasts: ToastConfig<TransferParams> = {
   signing: "Please sign the transfer transaction in your wallet",
   broadcasting: (hash: string) =>
     `Transfer transaction submitted. Hash: ${hash.slice(0, 16)}...`,
@@ -64,7 +64,7 @@ export const transferTokensToasts: ToastConfig<TransferForm> = {
   error: (_error: string) => `Transfer transaction failed`,
 };
 
-export const destroyAssetToasts: ToastConfig<DestroyAssetForm> = {
+export const destroyAssetToasts: ToastConfig<DestroyAssetParams> = {
   signing: "Please sign the asset destruction transaction in your wallet",
   broadcasting: (hash: string) =>
     `Asset destruction submitted.\n    Hash: ${hash.slice(0, 16)}...`,

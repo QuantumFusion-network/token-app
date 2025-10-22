@@ -1,25 +1,24 @@
 import { useState, type FormEvent } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWalletContext } from "../hooks/useWalletContext";
-import { useTransaction } from "../hooks/useTransaction";
+import { useAssetMutation } from "../hooks/useAssetMutation";
+import { useFee } from "../hooks/useFee";
 import { mintTokens } from "../lib/assetOperations";
 import {
   invalidateBalanceQueries,
   invalidateAssetQueries,
 } from "../lib/queryHelpers";
 import { mintTokensToasts } from "../lib/toastConfigs";
-import { getMockFee } from "../utils/mockFees";
 import { FeatureErrorBoundary } from "./error-boundaries";
 import { AccountDashboard } from "./AccountDashboard";
 import { TransactionReview } from "./TransactionReview";
+import { FeeDisplay } from "./FeeDisplay";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
 import { Coins, ArrowRight } from "lucide-react";
 
-export interface MintForm {
+export interface MintParams {
   assetId: string;
   recipient: string;
   amount: string;
@@ -35,35 +34,36 @@ const initialFormData = {
 
 function MintTokensInner() {
   const { selectedAccount } = useWalletContext();
-  const queryClient = useQueryClient();
-  const { executeTransaction } = useTransaction<MintForm>(mintTokensToasts);
 
-  const [formData, setFormData] = useState<MintForm>(initialFormData);
+  const [formData, setFormData] = useState<MintParams>(initialFormData);
 
-  const mintMutation = useMutation({
-    mutationFn: async (data: MintForm) => {
-      if (!selectedAccount) throw new Error("No account selected");
-
-      const observable = mintTokens(data, selectedAccount);
-      await executeTransaction("mintTokens", observable, data);
-    },
-    onSuccess: async (_result, variables) => {
-      invalidateBalanceQueries(queryClient, parseInt(variables.assetId), [
-        variables.recipient,
+  const { mutation: mintMutation, transaction } = useAssetMutation<MintParams>({
+    params: formData,
+    operationFn: mintTokens,
+    toastConfig: mintTokensToasts,
+    transactionKey: "mintTokens",
+    isValid: (params) =>
+      params.assetId !== "" &&
+      !isNaN(parseInt(params.assetId)) &&
+      params.recipient !== "" &&
+      params.amount !== "" &&
+      parseFloat(params.amount) > 0,
+    onSuccess: async (queryClient) => {
+      invalidateBalanceQueries(queryClient, parseInt(formData.assetId), [
+        formData.recipient,
       ]);
       await invalidateAssetQueries(queryClient);
 
       // Reset form
       setFormData({ ...initialFormData });
     },
-    onError: (error) => {
-      console.error("Failed to mint tokens:", error);
-    },
   });
+
+  const feeState = useFee(transaction, selectedAccount?.address);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    mintMutation.mutate(formData);
+    mintMutation.mutate();
   };
 
   if (!selectedAccount) {
@@ -164,22 +164,12 @@ function MintTokensInner() {
 
             {/* Fee + CTA Section */}
             <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-4 border-t">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Estimated Fee:
-                </span>
-                <Badge
-                  variant="outline"
-                  className="text-base font-semibold font-mono"
-                >
-                  {getMockFee("mintTokens")} QF
-                </Badge>
-              </div>
+              <FeeDisplay {...feeState} />
               <Button
                 type="submit"
                 disabled={mintMutation.isPending}
                 size="lg"
-                className="w-full lg:w-auto"
+                className="w-full lg:w-auto ml-auto"
               >
                 {mintMutation.isPending ? "Minting Tokens..." : "Mint Tokens"}
                 <ArrowRight className="w-4 h-4 ml-2" />

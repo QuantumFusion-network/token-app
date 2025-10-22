@@ -1,29 +1,28 @@
 import { useState, type FormEvent } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWalletContext } from "../hooks/useWalletContext";
-import { useTransaction } from "../hooks/useTransaction";
+import { useAssetMutation } from "../hooks/useAssetMutation";
+import { useFee } from "../hooks/useFee";
 import { transferTokens } from "../lib/assetOperations";
 import { invalidateBalanceQueries } from "../lib/queryHelpers";
 import { transferTokensToasts } from "../lib/toastConfigs";
-import { getMockFee } from "../utils/mockFees";
 import { FeatureErrorBoundary } from "./error-boundaries";
 import { AccountDashboard } from "./AccountDashboard";
 import { TransactionReview } from "./TransactionReview";
+import { FeeDisplay } from "./FeeDisplay";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
 import { Send, ArrowRight } from "lucide-react";
 
-export interface TransferForm {
+export interface TransferParams {
   assetId: string;
   recipient: string;
   amount: string;
   decimals: number;
 }
 
-const initialFormData: TransferForm = {
+const initialFormData: TransferParams = {
   assetId: "",
   recipient: "",
   amount: "",
@@ -32,35 +31,36 @@ const initialFormData: TransferForm = {
 
 function TransferTokensInner() {
   const { selectedAccount } = useWalletContext();
-  const queryClient = useQueryClient();
-  const { executeTransaction } =
-    useTransaction<TransferForm>(transferTokensToasts);
-  const [formData, setFormData] = useState<TransferForm>(initialFormData);
+  const [formData, setFormData] = useState<TransferParams>(initialFormData);
 
-  const transferMutation = useMutation({
-    mutationFn: async (data: TransferForm) => {
-      if (!selectedAccount) throw new Error("No account selected");
+  const { mutation: transferMutation, transaction } =
+    useAssetMutation<TransferParams>({
+      params: formData,
+      operationFn: transferTokens,
+      toastConfig: transferTokensToasts,
+      transactionKey: "transferTokens",
+      isValid: (params) =>
+        params.assetId !== "" &&
+        !isNaN(parseInt(params.assetId)) &&
+        params.recipient !== "" &&
+        params.amount !== "" &&
+        parseFloat(params.amount) > 0,
+      onSuccess: (queryClient) => {
+        // Invalidate balances for both sender and recipient
+        invalidateBalanceQueries(queryClient, parseInt(formData.assetId), [
+          selectedAccount?.address,
+          formData.recipient,
+        ]);
 
-      const observable = transferTokens(data, selectedAccount);
-      await executeTransaction("transferTokens", observable, data);
-    },
-    onSuccess: (_result, variables) => {
-      // Invalidate balances for both sender and recipient
-      invalidateBalanceQueries(queryClient, parseInt(variables.assetId), [
-        selectedAccount?.address,
-        variables.recipient,
-      ]);
+        setFormData({ ...initialFormData });
+      },
+    });
 
-      setFormData({ ...initialFormData });
-    },
-    onError: (error) => {
-      console.error("Failed to transfer tokens:", error);
-    },
-  });
+  const feeState = useFee(transaction, selectedAccount?.address);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    transferMutation.mutate(formData);
+    transferMutation.mutate();
   };
 
   if (!selectedAccount) {
@@ -162,22 +162,12 @@ function TransferTokensInner() {
 
             {/* Fee + CTA Section */}
             <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-4 border-t">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Estimated Fee:
-                </span>
-                <Badge
-                  variant="outline"
-                  className="text-base font-semibold font-mono"
-                >
-                  {getMockFee("transferTokens")} QF
-                </Badge>
-              </div>
+              <FeeDisplay {...feeState} />
               <Button
                 type="submit"
                 disabled={transferMutation.isPending}
                 size="lg"
-                className="w-full lg:w-auto"
+                className="w-full lg:w-auto ml-auto"
               >
                 {transferMutation.isPending
                   ? "Transferring Tokens..."

@@ -1,14 +1,14 @@
 import { useState, type FormEvent } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWalletContext } from "../hooks/useWalletContext";
-import { useTransaction } from "../hooks/useTransaction";
+import { useAssetMutation } from "../hooks/useAssetMutation";
+import { useFee } from "../hooks/useFee";
 import { destroyAssetBatch } from "../lib/assetOperations";
 import { invalidateAssetQueries } from "../lib/queryHelpers";
 import { destroyAssetToasts } from "../lib/toastConfigs";
-import { getMockFee } from "../utils/mockFees";
 import { FeatureErrorBoundary } from "./error-boundaries";
 import { AccountDashboard } from "./AccountDashboard";
 import { TransactionReview } from "./TransactionReview";
+import { FeeDisplay } from "./FeeDisplay";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -19,44 +19,39 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Badge } from "./ui/badge";
 import { AlertTriangle, ArrowRight, Trash } from "lucide-react";
 
-export interface DestroyAssetForm {
+export interface DestroyAssetParams {
   assetId: string;
 }
 
 function DestroyAssetInner() {
   const { selectedAccount } = useWalletContext();
-  const queryClient = useQueryClient();
-  const { executeTransaction } =
-    useTransaction<DestroyAssetForm>(destroyAssetToasts);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const [formData, setFormData] = useState<DestroyAssetForm>({
+  const [formData, setFormData] = useState<DestroyAssetParams>({
     assetId: "",
   });
 
-  const destroyAssetMutation = useMutation({
-    mutationFn: async (data: DestroyAssetForm) => {
-      if (!selectedAccount) throw new Error("No account selected");
+  const { mutation: destroyAssetMutation, transaction } =
+    useAssetMutation<DestroyAssetParams>({
+      params: formData,
+      operationFn: destroyAssetBatch,
+      toastConfig: destroyAssetToasts,
+      transactionKey: "destroyAsset",
+      isValid: (params) =>
+        params.assetId !== "" && !isNaN(parseInt(params.assetId)),
+      onSuccess: async (queryClient) => {
+        await invalidateAssetQueries(queryClient);
+        // Reset form
+        setFormData({
+          assetId: "",
+        });
+        setShowConfirmation(false);
+      },
+    });
 
-      const observable = destroyAssetBatch(data, selectedAccount);
-      await executeTransaction("destroyAsset", observable, data);
-    },
-    onSuccess: async () => {
-      await invalidateAssetQueries(queryClient);
-      // Reset form
-      setFormData({
-        assetId: "",
-      });
-      setShowConfirmation(false);
-    },
-    onError: (error) => {
-      console.error("Failed to destroy asset:", error);
-      setShowConfirmation(false);
-    },
-  });
+  const feeState = useFee(transaction, selectedAccount?.address);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -64,7 +59,7 @@ function DestroyAssetInner() {
   };
 
   const handleConfirmDestroy = () => {
-    destroyAssetMutation.mutate(formData);
+    destroyAssetMutation.mutate();
   };
 
   if (!selectedAccount) {
@@ -202,23 +197,13 @@ function DestroyAssetInner() {
 
             {/* Fee + CTA Section */}
             <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-4 border-t border-destructive/20">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Estimated Fee:
-                </span>
-                <Badge
-                  variant="outline"
-                  className="text-base font-semibold font-mono border-destructive/30"
-                >
-                  {getMockFee("destroyAsset")} QF
-                </Badge>
-              </div>
+              <FeeDisplay {...feeState} variant="destructive" />
               <Button
                 type="submit"
                 variant="destructive"
                 size="lg"
                 disabled={!formData.assetId || destroyAssetMutation.isPending}
-                className="w-full lg:w-auto"
+                className="w-full lg:w-auto ml-auto"
               >
                 {destroyAssetMutation.isPending
                   ? "Destroying Asset..."

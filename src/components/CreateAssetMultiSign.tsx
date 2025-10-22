@@ -50,7 +50,8 @@ export function CreateAsset() {
 
       // Use the same batch approach as the main CreateAsset component
       const { createAssetBatch } = await import("../lib/assetOperations");
-      const observable = createAssetBatch(data, selectedAccount);
+      const transaction = createAssetBatch(data, selectedAccount.address);
+      const observable = transaction.signSubmitAndWatch(selectedAccount.polkadotSigner);
       await executeTransaction("createAssetBatch", observable, data);
     },
     onSuccess: async () => {
