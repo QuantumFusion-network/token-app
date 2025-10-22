@@ -4,6 +4,7 @@ import { Coins, LayoutDashboard, Plus, Send, Trash2 } from 'lucide-react'
 
 import { AccountSelector } from './components/AccountSelector'
 import { AssetList } from './components/AssetList'
+import { ConnectionBanner } from './components/ConnectionBanner'
 import { CreateAsset } from './components/CreateAsset'
 import { DestroyAsset } from './components/DestroyAsset'
 import { MintTokens } from './components/MintTokens'
@@ -11,6 +12,7 @@ import { TransferTokens } from './components/TransferTokens'
 import { Button } from './components/ui/button'
 import { Toaster } from './components/ui/sonner'
 import { WalletConnector } from './components/WalletConnector'
+import { useConnectionContext } from './hooks/useConnectionContext'
 import { useTransactionToasts } from './hooks/useTransactionToasts'
 import { useWalletContext } from './hooks/useWalletContext'
 
@@ -19,13 +21,14 @@ import './App.css'
 type Tab = 'assets' | 'create' | 'mint' | 'transfer' | 'destroy'
 
 export default function App() {
-  const { isConnected } = useWalletContext()
+  const { isConnected: isWalletConnected } = useWalletContext()
+  const { isConnected: isChainConnected } = useConnectionContext()
   const [activeTab, setActiveTab] = useState<Tab>('assets')
 
   // Initialize transaction toasts
   useTransactionToasts()
 
-  if (!isConnected) {
+  if (!isWalletConnected) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <WalletConnector />
@@ -167,13 +170,24 @@ export default function App() {
 
       {/* Main content */}
       <div className="flex flex-1 flex-col">
+        {/* Connection status banner */}
+        <ConnectionBanner />
+
         {/* Header with account selector */}
         <header className="border-border bg-background/80 border-b backdrop-blur-sm">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
-              <div className="bg-accent h-2 w-2 animate-pulse rounded-full"></div>
+              <div
+                className={`h-2 w-2 rounded-full ${
+                  isChainConnected
+                    ? 'bg-accent animate-pulse'
+                    : 'bg-destructive'
+                }`}
+              ></div>
               <span className="text-muted-foreground text-sm font-medium">
-                Connected to QF Network
+                {isChainConnected
+                  ? 'Connected to QF Network'
+                  : 'Disconnected from QF Network'}
               </span>
             </div>
             <AccountSelector />

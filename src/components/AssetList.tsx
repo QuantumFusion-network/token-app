@@ -4,8 +4,8 @@ import { Coins, Filter } from 'lucide-react'
 
 import { useQuery } from '@tanstack/react-query'
 
+import { useConnectionContext } from '../hooks/useConnectionContext'
 import { useWalletContext } from '../hooks/useWalletContext'
-import { api } from '../lib/chain'
 import { AccountDashboard } from './AccountDashboard'
 import { AssetCard } from './AssetCard'
 import { FeatureErrorBoundary } from './error-boundaries'
@@ -15,6 +15,7 @@ type FilterType = 'all' | 'owned' | 'held'
 
 function AssetListInner() {
   const { selectedAccount } = useWalletContext()
+  const { api } = useConnectionContext()
   const [filter, setFilter] = useState<FilterType>('all')
 
   // Query asset entries with reactive updates

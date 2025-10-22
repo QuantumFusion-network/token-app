@@ -7,6 +7,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import App from './App'
 import { AppErrorBoundary } from './components/error-boundaries'
+import { ConnectionProvider } from './contexts/ConnectionContext'
 import { TransactionProvider } from './contexts/TransactionContext'
 import { WalletProvider } from './contexts/WalletContext'
 import { queryClient } from './lib/queryClient'
@@ -14,14 +15,16 @@ import { queryClient } from './lib/queryClient'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppErrorBoundary>
-      <WalletProvider>
-        <TransactionProvider>
-          <QueryClientProvider client={queryClient}>
-            <App />
-            <ReactQueryDevtools initialIsOpen={true} />
-          </QueryClientProvider>
-        </TransactionProvider>
-      </WalletProvider>
+      <ConnectionProvider>
+        <WalletProvider>
+          <TransactionProvider>
+            <QueryClientProvider client={queryClient}>
+              <App />
+              <ReactQueryDevtools initialIsOpen={true} />
+            </QueryClientProvider>
+          </TransactionProvider>
+        </WalletProvider>
+      </ConnectionProvider>
     </AppErrorBoundary>
   </StrictMode>
 )

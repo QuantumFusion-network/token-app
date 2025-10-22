@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
+import { useConnectionContext } from '../hooks/useConnectionContext'
 import { useWalletContext } from '../hooks/useWalletContext'
-import { api } from '../lib/chain'
 import { formatUnits } from '../utils/format'
 import { ComponentErrorBoundary } from './error-boundaries'
 
@@ -12,6 +12,7 @@ interface AssetBalanceProps {
 
 function AssetBalanceInner({ assetId, accountId }: AssetBalanceProps) {
   const { selectedAccount } = useWalletContext()
+  const { api } = useConnectionContext()
   const targetAccount = accountId || selectedAccount?.address
 
   const {

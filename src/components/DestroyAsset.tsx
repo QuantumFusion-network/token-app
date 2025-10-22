@@ -3,9 +3,10 @@ import { useState, type FormEvent } from 'react'
 import { AlertTriangle, ArrowRight, Trash } from 'lucide-react'
 
 import { useAssetMutation } from '../hooks/useAssetMutation'
+import { useConnectionContext } from '../hooks/useConnectionContext'
 import { useFee } from '../hooks/useFee'
 import { useWalletContext } from '../hooks/useWalletContext'
-import { destroyAssetBatch } from '../lib/assetOperations'
+import { destroyAssetBatch, type DestroyAssetParams } from '../lib/assetOperations'
 import { invalidateAssetQueries } from '../lib/queryHelpers'
 import { destroyAssetToasts } from '../lib/toastConfigs'
 import { AccountDashboard } from './AccountDashboard'
@@ -23,12 +24,10 @@ import {
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 
-export interface DestroyAssetParams {
-  assetId: string
-}
 
 function DestroyAssetInner() {
   const { selectedAccount } = useWalletContext()
+  const { isConnected, api } = useConnectionContext()
   const [showConfirmation, setShowConfirmation] = useState(false)
 
   const [formData, setFormData] = useState<DestroyAssetParams>({
@@ -38,7 +37,9 @@ function DestroyAssetInner() {
   const { mutation: destroyAssetMutation, transaction } =
     useAssetMutation<DestroyAssetParams>({
       params: formData,
-      operationFn: destroyAssetBatch,
+      operationFn: (params) =>{ 
+        console.log("operationFn");
+        return destroyAssetBatch(api, params)},
       toastConfig: destroyAssetToasts,
       transactionKey: 'destroyAsset',
       isValid: (params) =>
@@ -114,7 +115,7 @@ function DestroyAssetInner() {
                 <Button
                   variant="destructive"
                   onClick={handleConfirmDestroy}
-                  disabled={destroyAssetMutation.isPending}
+                  disabled={!isConnected || destroyAssetMutation.isPending}
                   className="flex-1"
                 >
                   {destroyAssetMutation.isPending
@@ -204,7 +205,11 @@ function DestroyAssetInner() {
                 type="submit"
                 variant="destructive"
                 size="lg"
-                disabled={!formData.assetId || destroyAssetMutation.isPending}
+                disabled={
+                  !isConnected ||
+                  !formData.assetId ||
+                  destroyAssetMutation.isPending
+                }
                 className="ml-auto w-full lg:w-auto"
               >
                 {destroyAssetMutation.isPending

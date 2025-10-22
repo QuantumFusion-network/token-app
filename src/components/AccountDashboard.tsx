@@ -2,8 +2,8 @@ import { ExternalLink, Wallet } from 'lucide-react'
 
 import { useQuery } from '@tanstack/react-query'
 
+import { useConnectionContext } from '../hooks/useConnectionContext'
 import { useWalletContext } from '../hooks/useWalletContext'
-import { api } from '../lib/chain'
 import { formatUnits } from '../utils/format'
 import { ComponentErrorBoundary } from './error-boundaries'
 import { Button } from './ui/button'
@@ -11,6 +11,7 @@ import { Card, CardContent } from './ui/card'
 
 function AccountDashboardInner() {
   const { selectedAccount } = useWalletContext()
+  const { api } = useConnectionContext()
 
   // Get account's native token balance
   const { data: accountInfo, isLoading: isLoadingAccount } = useQuery({

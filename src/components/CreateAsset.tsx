@@ -1,12 +1,13 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 
 import { ArrowRight, Plus } from 'lucide-react'
 
 import { useAssetMutation } from '../hooks/useAssetMutation'
+import { useConnectionContext } from '../hooks/useConnectionContext'
 import { useFee } from '../hooks/useFee'
+import { useNextAssetId } from '../hooks/useNextAssetId'
 import { useWalletContext } from '../hooks/useWalletContext'
-import { createAssetBatch } from '../lib/assetOperations'
-import { api } from '../lib/chain'
+import { createAssetBatch, type CreateAssetParams } from '../lib/assetOperations'
 import { invalidateAssetQueries } from '../lib/queryHelpers'
 import { createAssetToasts } from '../lib/toastConfigs'
 import { AccountDashboard } from './AccountDashboard'
@@ -18,47 +19,44 @@ import { Card, CardContent } from './ui/card'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 
-export interface CreateAssetParams {
-  assetId: string
-  minBalance: string
-  name: string
-  symbol: string
-  decimals: string
-  initialMintAmount: string
-}
-
-const getNextAssetId = async () => {
-  const id = await api.query.Assets.NextAssetId.getValue()
-  if (!id) throw new Error('No next asset id')
-
-  return id
-}
-
-const initialAssetId = await getNextAssetId()
 
 const initialFormData = {
-  assetId: initialAssetId.toString(),
   minBalance: '1',
   name: '',
   symbol: '',
   decimals: '12',
   initialMintAmount: '',
+  initialMintBeneficiary: '',
 }
 
 function CreateAssetInner() {
   const { selectedAccount } = useWalletContext()
-  const [formData, setFormData] = useState<CreateAssetParams>(initialFormData)
+  const { isConnected, api } = useConnectionContext()
+  const { nextAssetId } = useNextAssetId()
+  const [formData, setFormData] = useState<Omit<CreateAssetParams, 'assetId'>>(initialFormData)
+
+  // Keep beneficiary in sync with selected account
+  useEffect(() => {
+    if (selectedAccount?.address) {
+      setFormData((prev) => ({
+        ...prev,
+        initialMintBeneficiary: selectedAccount.address,
+      }))
+    }
+  }, [selectedAccount?.address])
 
   const { mutation: createAssetMutation, transaction } =
     useAssetMutation<CreateAssetParams>({
-      params: formData,
+      params: { ...formData, assetId: nextAssetId ?? '' },
       operationFn: (params) =>
-        createAssetBatch(params, selectedAccount?.address ?? ''),
+        createAssetBatch(
+          api,
+          params,
+          selectedAccount?.address ?? '',
+        ),
       toastConfig: createAssetToasts,
       transactionKey: 'createAsset',
       isValid: (params) =>
-        params.assetId !== '' &&
-        !isNaN(parseInt(params.assetId)) &&
         params.name !== '' &&
         params.symbol !== '' &&
         params.decimals !== '' &&
@@ -67,12 +65,7 @@ function CreateAssetInner() {
         parseFloat(params.minBalance) > 0,
       onSuccess: async (queryClient) => {
         await invalidateAssetQueries(queryClient)
-        const nextAssetId = await getNextAssetId()
-
-        setFormData({
-          ...initialFormData,
-          assetId: nextAssetId.toString(),
-        })
+        setFormData(initialFormData)
       },
     })
 
@@ -94,6 +87,7 @@ function CreateAssetInner() {
     minBalance: formData.minBalance,
     ...(formData.initialMintAmount && {
       initialMint: formData.initialMintAmount,
+      beneficiary: formData.initialMintBeneficiary,
     }),
   }
 
@@ -197,29 +191,49 @@ function CreateAssetInner() {
                 </div>
 
                 {/* Initial Mint */}
-                <div className="space-y-2">
-                  <Label htmlFor="initialMint">
-                    Initial Mint Amount (optional)
-                  </Label>
-                  <Input
-                    id="initialMint"
-                    type="number"
-                    value={formData.initialMintAmount}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        initialMintAmount: e.target.value,
-                      }))
-                    }
-                    min="0"
-                    step="0.000000000001"
-                    placeholder="Amount to mint to your account"
-                    className="h-12"
-                  />
-                  <p className="text-muted-foreground text-xs">
-                    Tokens will be minted to your connected account (
-                    {selectedAccount?.address.slice(0, 8)}...)
-                  </p>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="initialMint">
+                      Initial Mint Amount (optional)
+                    </Label>
+                    <Input
+                      id="initialMint"
+                      type="number"
+                      value={formData.initialMintAmount}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          initialMintAmount: e.target.value,
+                        }))
+                      }
+                      min="0"
+                      step="0.000000000001"
+                      placeholder="Amount to mint"
+                      className="h-12"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="initialMintBeneficiary">
+                      Beneficiary Address
+                    </Label>
+                    <Input
+                      id="initialMintBeneficiary"
+                      type="text"
+                      value={formData.initialMintBeneficiary}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          initialMintBeneficiary: e.target.value,
+                        }))
+                      }
+                      className="h-12 font-mono text-sm"
+                      placeholder="5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+                    />
+                    <p className="text-muted-foreground text-xs">
+                      Tokens will be minted to this address
+                    </p>
+                  </div>
                 </div>
 
                 {createAssetMutation.isError && (
@@ -240,7 +254,7 @@ function CreateAssetInner() {
               <FeeDisplay {...feeState} />
               <Button
                 type="submit"
-                disabled={createAssetMutation.isPending}
+                disabled={!isConnected || createAssetMutation.isPending}
                 size="lg"
                 className="ml-auto w-full lg:w-auto"
               >

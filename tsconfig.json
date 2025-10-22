@@ -22,5 +22,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "*.config.ts"]
+  "include": ["src", "*.config.ts", ".prettierrc.ts"]
 }

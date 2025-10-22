@@ -1,11 +1,10 @@
 import { useState, type FormEvent } from 'react'
-
 import { ArrowRight, Send } from 'lucide-react'
-
 import { useAssetMutation } from '../hooks/useAssetMutation'
+import { useConnectionContext } from '../hooks/useConnectionContext'
 import { useFee } from '../hooks/useFee'
 import { useWalletContext } from '../hooks/useWalletContext'
-import { transferTokens } from '../lib/assetOperations'
+import { transferTokens, type TransferParams } from '../lib/assetOperations'
 import { invalidateBalanceQueries } from '../lib/queryHelpers'
 import { transferTokensToasts } from '../lib/toastConfigs'
 import { AccountDashboard } from './AccountDashboard'
@@ -17,14 +16,9 @@ import { Card, CardContent } from './ui/card'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 
-export interface TransferParams {
-  assetId: string
-  recipient: string
-  amount: string
-  decimals: number
-}
 
-const initialFormData: TransferParams = {
+
+const initialFormData = {
   assetId: '',
   recipient: '',
   amount: '',
@@ -33,12 +27,13 @@ const initialFormData: TransferParams = {
 
 function TransferTokensInner() {
   const { selectedAccount } = useWalletContext()
+  const { isConnected, api } = useConnectionContext()
   const [formData, setFormData] = useState<TransferParams>(initialFormData)
 
   const { mutation: transferMutation, transaction } =
     useAssetMutation<TransferParams>({
       params: formData,
-      operationFn: transferTokens,
+      operationFn: (params) => transferTokens(api, params),
       toastConfig: transferTokensToasts,
       transactionKey: 'transferTokens',
       isValid: (params) =>
@@ -167,7 +162,7 @@ function TransferTokensInner() {
               <FeeDisplay {...feeState} />
               <Button
                 type="submit"
-                disabled={transferMutation.isPending}
+                disabled={!isConnected || transferMutation.isPending}
                 size="lg"
                 className="ml-auto w-full lg:w-auto"
               >

@@ -3,9 +3,10 @@ import { useState, type FormEvent } from 'react'
 import { ArrowRight, Coins } from 'lucide-react'
 
 import { useAssetMutation } from '../hooks/useAssetMutation'
+import { useConnectionContext } from '../hooks/useConnectionContext'
 import { useFee } from '../hooks/useFee'
 import { useWalletContext } from '../hooks/useWalletContext'
-import { mintTokens } from '../lib/assetOperations'
+import { mintTokens, type MintParams } from '../lib/assetOperations'
 import {
   invalidateAssetQueries,
   invalidateBalanceQueries,
@@ -20,12 +21,6 @@ import { Card, CardContent } from './ui/card'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 
-export interface MintParams {
-  assetId: string
-  recipient: string
-  amount: string
-  decimals: number
-}
 
 const initialFormData = {
   assetId: '',
@@ -36,12 +31,13 @@ const initialFormData = {
 
 function MintTokensInner() {
   const { selectedAccount } = useWalletContext()
+  const { isConnected, api } = useConnectionContext()
 
   const [formData, setFormData] = useState<MintParams>(initialFormData)
 
   const { mutation: mintMutation, transaction } = useAssetMutation<MintParams>({
     params: formData,
-    operationFn: mintTokens,
+    operationFn: (params) => mintTokens(api, params),
     toastConfig: mintTokensToasts,
     transactionKey: 'mintTokens',
     isValid: (params) =>
@@ -169,7 +165,7 @@ function MintTokensInner() {
               <FeeDisplay {...feeState} />
               <Button
                 type="submit"
-                disabled={mintMutation.isPending}
+                disabled={!isConnected || mintMutation.isPending}
                 size="lg"
                 className="ml-auto w-full lg:w-auto"
               >

@@ -1,9 +1,10 @@
-import { Binary, type TxCallData } from 'polkadot-api'
+import { Binary, type TxCallData, type TypedApi } from 'polkadot-api'
 
-import { MultiAddress } from '@polkadot-api/descriptors'
+import { type qfn, MultiAddress } from '@polkadot-api/descriptors'
 
 import { parseUnits } from '../utils/format'
-import { api } from './chain'
+
+type QfnApi = TypedApi<typeof qfn>
 
 export interface CreateAssetParams {
   assetId: string
@@ -12,16 +13,17 @@ export interface CreateAssetParams {
   symbol: string
   decimals: string
   initialMintAmount: string
+  initialMintBeneficiary: string
 }
 
-export interface MintTokensParams {
+export interface MintParams {
   assetId: string
   recipient: string
   amount: string
   decimals: number
 }
 
-export interface TransferTokensParams {
+export interface TransferParams {
   assetId: string
   recipient: string
   amount: string
@@ -33,8 +35,9 @@ export interface DestroyAssetParams {
 }
 
 export const createAssetBatch = (
+  api: QfnApi,
   params: CreateAssetParams,
-  signerAddress: string
+  signerAddress: string,
 ) => {
   const assetId = parseInt(params.assetId)
   const minBalance = BigInt(params.minBalance) * 10n ** BigInt(params.decimals)
@@ -62,7 +65,7 @@ export const createAssetBatch = (
 
     const mintTx = api.tx.Assets.mint({
       id: assetId,
-      beneficiary: MultiAddress.Id(signerAddress),
+      beneficiary: MultiAddress.Id(params.initialMintBeneficiary),
       amount: mintAmount,
     }).decodedCall
 
@@ -72,7 +75,7 @@ export const createAssetBatch = (
   return api.tx.Utility.batch_all({ calls })
 }
 
-export const mintTokens = (params: MintTokensParams) => {
+export const mintTokens = (api: QfnApi, params: MintParams) => {
   const assetId = parseInt(params.assetId)
   const amount = parseUnits(params.amount, params.decimals)
 
@@ -83,7 +86,7 @@ export const mintTokens = (params: MintTokensParams) => {
   })
 }
 
-export const transferTokens = (params: TransferTokensParams) => {
+export const transferTokens = (api: QfnApi, params: TransferParams) => {
   const assetId = parseInt(params.assetId)
   const amount = parseUnits(params.amount, params.decimals)
 
@@ -94,7 +97,7 @@ export const transferTokens = (params: TransferTokensParams) => {
   })
 }
 
-export const destroyAssetBatch = (params: DestroyAssetParams) => {
+export const destroyAssetBatch = (api: QfnApi, params: DestroyAssetParams) => {
   const assetId = parseInt(params.assetId)
 
   const freezeCall = api.tx.Assets.freeze_asset({

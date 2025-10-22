@@ -41,6 +41,8 @@ export const useAssetMutation = <TParams>({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!selectedAccount || !transaction) {
+        console.log(selectedAccount?.address);
+        console.log(transaction);
         throw new Error('No account selected or transaction not available')
       }
 
