@@ -1,25 +1,19 @@
-import {
-  Coins,
-  MoreVertical,
-  Send,
-  Trash2,
-  TrendingUp,
-  Users,
-} from 'lucide-react'
+import { Coins, MoreVertical, Send, Trash2, TrendingUp, Users } from 'lucide-react'
 import type { Binary } from 'polkadot-api'
 
-import { useWalletContext } from '../hooks/useWalletContext'
-import { formatUnits } from '../utils/format'
-import { AssetBalance } from './AssetBalance'
-import { Badge } from './ui/badge'
-import { Button } from './ui/button'
-import { Card, CardContent } from './ui/card'
+import { AssetBalance } from '@/components'
 import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu'
+} from '@/components/ui'
+import { useWalletContext } from '@/hooks'
+import { formatUnits } from '@/lib'
 
 interface AssetCardProps {
   id: number

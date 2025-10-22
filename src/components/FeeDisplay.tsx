@@ -1,6 +1,6 @@
 import { AlertCircle } from 'lucide-react'
 
-import { Badge } from './ui/badge'
+import { Badge } from '@/components/ui'
 
 interface FeeDisplayProps {
   fee: string | null

@@ -2,24 +2,16 @@ import { useState, type FormEvent } from 'react'
 
 import { ArrowRight, Coins } from 'lucide-react'
 
-import { useAssetMutation } from '../hooks/useAssetMutation'
-import { useConnectionContext } from '../hooks/useConnectionContext'
-import { useFee } from '../hooks/useFee'
-import { useWalletContext } from '../hooks/useWalletContext'
-import { mintTokens, type MintParams } from '../lib/assetOperations'
+import { AccountDashboard, FeeDisplay, FeatureErrorBoundary, TransactionReview } from '@/components'
+import { Button, Card, CardContent, Input, Label } from '@/components/ui'
+import { useAssetMutation, useConnectionContext, useFee, useWalletContext } from '@/hooks'
 import {
   invalidateAssetQueries,
   invalidateBalanceQueries,
-} from '../lib/queryHelpers'
-import { mintTokensToasts } from '../lib/toastConfigs'
-import { AccountDashboard } from './AccountDashboard'
-import { FeatureErrorBoundary } from './error-boundaries'
-import { FeeDisplay } from './FeeDisplay'
-import { TransactionReview } from './TransactionReview'
-import { Button } from './ui/button'
-import { Card, CardContent } from './ui/card'
-import { Input } from './ui/input'
-import { Label } from './ui/label'
+  mintTokens,
+  mintTokensToasts,
+  type MintParams,
+} from '@/lib'
 
 
 const initialFormData = {

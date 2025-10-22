@@ -2,7 +2,7 @@ import { useDeferredValue, useEffect, useState } from 'react'
 
 import type { Transaction } from 'polkadot-api'
 
-import { formatFee } from '../utils/formatFee'
+import { formatFee } from '@/lib'
 
 export const useFee = (
   transaction: Transaction<object, string, string, unknown> | null,

@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { useConnectionContext } from '../hooks/useConnectionContext'
-import { useWalletContext } from '../hooks/useWalletContext'
-import { formatUnits } from '../utils/format'
-import { ComponentErrorBoundary } from './error-boundaries'
+import { ComponentErrorBoundary } from '@/components'
+import { useConnectionContext, useWalletContext } from '@/hooks'
+import { formatUnits } from '@/lib'
 
 interface AssetBalanceProps {
   assetId: number

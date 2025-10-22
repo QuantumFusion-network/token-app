@@ -1,6 +1,6 @@
 import { AlertTriangle, Loader2 } from 'lucide-react'
 
-import { useConnectionContext } from '../hooks/useConnectionContext'
+import { useConnectionContext } from '@/hooks'
 
 export function ConnectionBanner() {
   const { isConnected, isReconnecting } = useConnectionContext()

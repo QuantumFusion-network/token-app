@@ -2,7 +2,7 @@ import type { Transaction } from 'polkadot-api'
 
 import { useMutation, type QueryClient } from '@tanstack/react-query'
 
-import type { ToastConfig } from '../lib/toastConfigs'
+import type { ToastConfig } from '@/lib/toastConfigs'
 import { useTransaction } from './useTransaction'
 import { useWalletContext } from './useWalletContext'
 
@@ -41,8 +41,6 @@ export const useAssetMutation = <TParams>({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!selectedAccount || !transaction) {
-        console.log(selectedAccount?.address);
-        console.log(transaction);
         throw new Error('No account selected or transaction not available')
       }
 

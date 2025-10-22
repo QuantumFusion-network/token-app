@@ -1,8 +1,7 @@
-// No React imports needed for React 19
 import type { TxBroadcastEvent } from 'polkadot-api'
 
-import { useTransactionContext } from '../contexts/TransactionContext'
-import type { ToastConfig } from '../lib/toastConfigs'
+import { useTransactionContext } from '@/contexts'
+import type { ToastConfig } from '@/lib'
 
 interface TransactionObservable {
   subscribe: (handlers: {

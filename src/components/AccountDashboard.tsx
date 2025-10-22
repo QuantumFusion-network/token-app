@@ -2,12 +2,10 @@ import { ExternalLink, Wallet } from 'lucide-react'
 
 import { useQuery } from '@tanstack/react-query'
 
-import { useConnectionContext } from '../hooks/useConnectionContext'
-import { useWalletContext } from '../hooks/useWalletContext'
-import { formatUnits } from '../utils/format'
-import { ComponentErrorBoundary } from './error-boundaries'
-import { Button } from './ui/button'
-import { Card, CardContent } from './ui/card'
+import { ComponentErrorBoundary } from '@/components'
+import { Button, Card, CardContent } from '@/components/ui'
+import { useConnectionContext, useWalletContext } from '@/hooks'
+import { formatUnits } from '@/lib'
 
 function AccountDashboardInner() {
   const { selectedAccount } = useWalletContext()

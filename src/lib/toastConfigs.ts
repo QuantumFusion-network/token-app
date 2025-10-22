@@ -1,4 +1,4 @@
-import type { CreateAssetParams, DestroyAssetParams, MintParams, TransferParams } from '@/lib/assetOperations'
+import type { CreateAssetParams, DestroyAssetParams, MintParams, TransferParams } from './assetOperations'
 export interface ToastConfig<T> {
   signing: string
   broadcasting: (hash: string) => string

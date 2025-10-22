@@ -2,22 +2,10 @@ import { useEffect, useState, type FormEvent } from 'react'
 
 import { ArrowRight, Plus } from 'lucide-react'
 
-import { useAssetMutation } from '../hooks/useAssetMutation'
-import { useConnectionContext } from '../hooks/useConnectionContext'
-import { useFee } from '../hooks/useFee'
-import { useNextAssetId } from '../hooks/useNextAssetId'
-import { useWalletContext } from '../hooks/useWalletContext'
-import { createAssetBatch, type CreateAssetParams } from '../lib/assetOperations'
-import { invalidateAssetQueries } from '../lib/queryHelpers'
-import { createAssetToasts } from '../lib/toastConfigs'
-import { AccountDashboard } from './AccountDashboard'
-import { FeatureErrorBoundary } from './error-boundaries'
-import { FeeDisplay } from './FeeDisplay'
-import { TransactionReview } from './TransactionReview'
-import { Button } from './ui/button'
-import { Card, CardContent } from './ui/card'
-import { Input } from './ui/input'
-import { Label } from './ui/label'
+import { AccountDashboard, FeeDisplay, FeatureErrorBoundary, TransactionReview } from '@/components'
+import { Button, Card, CardContent, Input, Label } from '@/components/ui'
+import { useAssetMutation, useConnectionContext, useFee, useNextAssetId, useWalletContext } from '@/hooks'
+import { createAssetBatch, createAssetToasts, invalidateAssetQueries, type CreateAssetParams } from '@/lib'
 
 
 const initialFormData = {

@@ -2,7 +2,7 @@ import { Binary, type TxCallData, type TypedApi } from 'polkadot-api'
 
 import { type qfn, MultiAddress } from '@polkadot-api/descriptors'
 
-import { parseUnits } from '../utils/format'
+import { parseUnits } from './utils'
 
 type QfnApi = TypedApi<typeof qfn>
 

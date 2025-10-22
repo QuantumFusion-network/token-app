@@ -1,14 +1,7 @@
 import { LogOut, User } from 'lucide-react'
 
-import { useWalletContext } from '../hooks/useWalletContext'
-import { Button } from './ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select'
+import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui'
+import { useWalletContext } from '@/hooks'
 
 export function AccountSelector() {
   const { accounts, selectedAccount, setSelectedAccount, disconnect } =

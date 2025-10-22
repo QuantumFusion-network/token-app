@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 
 import { toast } from 'sonner'
 
-import { useTransactionContext } from '../contexts/TransactionContext'
+import { useTransactionContext } from '@/contexts'
 
 export function useTransactionToasts() {
   const { transactions } = useTransactionContext()

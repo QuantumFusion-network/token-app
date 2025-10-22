@@ -2,27 +2,10 @@ import { useState, type FormEvent } from 'react'
 
 import { AlertTriangle, ArrowRight, Trash } from 'lucide-react'
 
-import { useAssetMutation } from '../hooks/useAssetMutation'
-import { useConnectionContext } from '../hooks/useConnectionContext'
-import { useFee } from '../hooks/useFee'
-import { useWalletContext } from '../hooks/useWalletContext'
-import { destroyAssetBatch, type DestroyAssetParams } from '../lib/assetOperations'
-import { invalidateAssetQueries } from '../lib/queryHelpers'
-import { destroyAssetToasts } from '../lib/toastConfigs'
-import { AccountDashboard } from './AccountDashboard'
-import { FeatureErrorBoundary } from './error-boundaries'
-import { FeeDisplay } from './FeeDisplay'
-import { TransactionReview } from './TransactionReview'
-import { Button } from './ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from './ui/card'
-import { Input } from './ui/input'
-import { Label } from './ui/label'
+import { AccountDashboard, FeeDisplay, FeatureErrorBoundary, TransactionReview } from '@/components'
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label } from '@/components/ui'
+import { useAssetMutation, useConnectionContext, useFee, useWalletContext } from '@/hooks'
+import { destroyAssetBatch, destroyAssetToasts, invalidateAssetQueries, type DestroyAssetParams } from '@/lib'
 
 
 function DestroyAssetInner() {

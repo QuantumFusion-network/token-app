@@ -1,4 +1,4 @@
-import { useWalletContext } from '../hooks/useWalletContext'
+import { useWalletContext } from '@/hooks'
 
 export function WalletConnector() {
   const { availableExtensions, isConnecting, connectWallet } =

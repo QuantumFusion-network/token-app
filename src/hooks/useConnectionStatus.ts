@@ -5,7 +5,7 @@ import { getWsProvider, WsEvent, type StatusChange } from 'polkadot-api/ws-provi
 
 import { qfn as chain } from '@polkadot-api/descriptors'
 
-import { queryClient } from '../lib/queryClient'
+import { queryClient } from '@/lib'
 
 const wsUrl = 'wss://test.qfnetwork.xyz'
 

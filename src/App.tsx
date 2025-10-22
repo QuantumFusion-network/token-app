@@ -2,19 +2,18 @@ import { useState } from 'react'
 
 import { Coins, LayoutDashboard, Plus, Send, Trash2 } from 'lucide-react'
 
-import { AccountSelector } from './components/AccountSelector'
-import { AssetList } from './components/AssetList'
-import { ConnectionBanner } from './components/ConnectionBanner'
-import { CreateAsset } from './components/CreateAsset'
-import { DestroyAsset } from './components/DestroyAsset'
-import { MintTokens } from './components/MintTokens'
-import { TransferTokens } from './components/TransferTokens'
-import { Button } from './components/ui/button'
-import { Toaster } from './components/ui/sonner'
-import { WalletConnector } from './components/WalletConnector'
-import { useConnectionContext } from './hooks/useConnectionContext'
-import { useTransactionToasts } from './hooks/useTransactionToasts'
-import { useWalletContext } from './hooks/useWalletContext'
+import {
+  AccountSelector,
+  AssetList,
+  ConnectionBanner,
+  CreateAsset,
+  DestroyAsset,
+  MintTokens,
+  TransferTokens,
+  WalletConnector,
+} from '@/components'
+import { Button, Toaster } from '@/components/ui'
+import { useConnectionContext, useTransactionToasts, useWalletContext } from '@/hooks'
 
 import './App.css'
 
@@ -180,7 +179,7 @@ export default function App() {
               <div
                 className={`h-2 w-2 rounded-full ${
                   isChainConnected
-                    ? 'bg-accent animate-pulse'
+                    ? 'bg-green-500'
                     : 'bg-destructive'
                 }`}
               ></div>

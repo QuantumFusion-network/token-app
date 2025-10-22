@@ -2,7 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from 'react'
 
 import type { TxBroadcastEvent } from 'polkadot-api'
 
-import type { ToastConfig } from '../lib/toastConfigs'
+import type { ToastConfig } from '@/lib/toastConfigs'
 
 interface TransactionObservable {
   subscribe: (handlers: {
