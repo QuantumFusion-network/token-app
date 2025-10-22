@@ -12,4 +12,8 @@ export { TransactionReview } from './TransactionReview'
 export { TransferTokens } from './TransferTokens'
 export { WalletConnector } from './WalletConnector'
 
-export { AppErrorBoundary, ComponentErrorBoundary, FeatureErrorBoundary } from './error-boundaries'
+export {
+  AppErrorBoundary,
+  ComponentErrorBoundary,
+  FeatureErrorBoundary,
+} from './error-boundaries'

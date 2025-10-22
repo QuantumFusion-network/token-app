@@ -1,8 +1,7 @@
 import * as React from 'react'
 
-import * as LabelPrimitive from '@radix-ui/react-label'
-
 import { cn } from '@/lib'
+import * as LabelPrimitive from '@radix-ui/react-label'
 
 function Label({
   className,

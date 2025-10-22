@@ -1,6 +1,6 @@
 import { Binary, type TxCallData, type TypedApi } from 'polkadot-api'
 
-import { type qfn, MultiAddress } from '@polkadot-api/descriptors'
+import { MultiAddress, type qfn } from '@polkadot-api/descriptors'
 
 import { parseUnits } from './utils'
 
@@ -37,7 +37,7 @@ export interface DestroyAssetParams {
 export const createAssetBatch = (
   api: QfnApi,
   params: CreateAssetParams,
-  signerAddress: string,
+  signerAddress: string
 ) => {
   const assetId = parseInt(params.assetId)
   const minBalance = BigInt(params.minBalance) * 10n ** BigInt(params.decimals)

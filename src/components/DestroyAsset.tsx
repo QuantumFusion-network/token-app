@@ -2,11 +2,34 @@ import { useState, type FormEvent } from 'react'
 
 import { AlertTriangle, ArrowRight, Trash } from 'lucide-react'
 
-import { AccountDashboard, FeeDisplay, FeatureErrorBoundary, TransactionReview } from '@/components'
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label } from '@/components/ui'
-import { useAssetMutation, useConnectionContext, useFee, useWalletContext } from '@/hooks'
-import { destroyAssetBatch, destroyAssetToasts, invalidateAssetQueries, type DestroyAssetParams } from '@/lib'
-
+import {
+  AccountDashboard,
+  FeatureErrorBoundary,
+  FeeDisplay,
+  TransactionReview,
+} from '@/components'
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Input,
+  Label,
+} from '@/components/ui'
+import {
+  useAssetMutation,
+  useConnectionContext,
+  useFee,
+  useWalletContext,
+} from '@/hooks'
+import {
+  destroyAssetBatch,
+  destroyAssetToasts,
+  invalidateAssetQueries,
+  type DestroyAssetParams,
+} from '@/lib'
 
 function DestroyAssetInner() {
   const { selectedAccount } = useWalletContext()
@@ -20,9 +43,10 @@ function DestroyAssetInner() {
   const { mutation: destroyAssetMutation, transaction } =
     useAssetMutation<DestroyAssetParams>({
       params: formData,
-      operationFn: (params) =>{ 
-        console.log("operationFn");
-        return destroyAssetBatch(api, params)},
+      operationFn: (params) => {
+        console.log('operationFn')
+        return destroyAssetBatch(api, params)
+      },
       toastConfig: destroyAssetToasts,
       transactionKey: 'destroyAsset',
       isValid: (params) =>

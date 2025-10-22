@@ -1,4 +1,11 @@
-import { Coins, MoreVertical, Send, Trash2, TrendingUp, Users } from 'lucide-react'
+import {
+  Coins,
+  MoreVertical,
+  Send,
+  Trash2,
+  TrendingUp,
+  Users,
+} from 'lucide-react'
 import type { Binary } from 'polkadot-api'
 
 import { AssetBalance } from '@/components'

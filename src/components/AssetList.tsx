@@ -2,11 +2,10 @@ import { useState } from 'react'
 
 import { Coins, Filter } from 'lucide-react'
 
-import { useQuery } from '@tanstack/react-query'
-
 import { AccountDashboard, AssetCard, FeatureErrorBoundary } from '@/components'
 import { Button } from '@/components/ui'
 import { useConnectionContext, useWalletContext } from '@/hooks'
+import { useQuery } from '@tanstack/react-query'
 
 type FilterType = 'all' | 'owned' | 'held'
 

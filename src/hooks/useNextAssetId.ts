@@ -10,7 +10,9 @@ export function useNextAssetId() {
     queryFn: async () => {
       const result = await api.query.Assets.NextAssetId.getValue()
       if (result === undefined) {
-        throw new Error('NextAssetId returned undefined - chain configuration error')
+        throw new Error(
+          'NextAssetId returned undefined - chain configuration error'
+        )
       }
       return result
     },

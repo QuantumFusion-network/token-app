@@ -20,6 +20,8 @@ export default defineConfig([
       '.vscode',
       '.wrangler',
       'node_modules',
+      '*.config.{js,mjs,cjs}',
+      '.prettierrc.*',
     ],
   },
 

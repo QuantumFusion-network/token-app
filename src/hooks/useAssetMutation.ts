@@ -1,8 +1,8 @@
 import type { Transaction } from 'polkadot-api'
 
+import type { ToastConfig } from '@/lib/toastConfigs'
 import { useMutation, type QueryClient } from '@tanstack/react-query'
 
-import type { ToastConfig } from '@/lib/toastConfigs'
 import { useTransaction } from './useTransaction'
 import { useWalletContext } from './useWalletContext'
 

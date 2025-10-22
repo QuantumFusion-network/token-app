@@ -7,7 +7,11 @@ import {
   type InjectedPolkadotAccount,
 } from 'polkadot-api/pjs-signer'
 
-import { clearWalletConnection, loadWalletConnection, saveWalletConnection } from '@/lib'
+import {
+  clearWalletConnection,
+  loadWalletConnection,
+  saveWalletConnection,
+} from '@/lib'
 
 export function useWallet() {
   const [extension, setExtension] = useState<InjectedExtension | null>(null)

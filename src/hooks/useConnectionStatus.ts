@@ -1,11 +1,14 @@
 import { useRef, useState } from 'react'
 
 import { createClient } from 'polkadot-api'
-import { getWsProvider, WsEvent, type StatusChange } from 'polkadot-api/ws-provider'
-
-import { qfn as chain } from '@polkadot-api/descriptors'
+import {
+  getWsProvider,
+  WsEvent,
+  type StatusChange,
+} from 'polkadot-api/ws-provider'
 
 import { queryClient } from '@/lib'
+import { qfn as chain } from '@polkadot-api/descriptors'
 
 const wsUrl = 'wss://test.qfnetwork.xyz'
 

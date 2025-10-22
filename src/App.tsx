@@ -13,7 +13,11 @@ import {
   WalletConnector,
 } from '@/components'
 import { Button, Toaster } from '@/components/ui'
-import { useConnectionContext, useTransactionToasts, useWalletContext } from '@/hooks'
+import {
+  useConnectionContext,
+  useTransactionToasts,
+  useWalletContext,
+} from '@/hooks'
 
 import './App.css'
 
@@ -178,9 +182,7 @@ export default function App() {
             <div className="flex items-center gap-2">
               <div
                 className={`h-2 w-2 rounded-full ${
-                  isChainConnected
-                    ? 'bg-green-500'
-                    : 'bg-destructive'
+                  isChainConnected ? 'bg-green-500' : 'bg-destructive'
                 }`}
               ></div>
               <span className="text-muted-foreground text-sm font-medium">

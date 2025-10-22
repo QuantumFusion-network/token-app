@@ -2,11 +2,26 @@ import { useEffect, useState, type FormEvent } from 'react'
 
 import { ArrowRight, Plus } from 'lucide-react'
 
-import { AccountDashboard, FeeDisplay, FeatureErrorBoundary, TransactionReview } from '@/components'
+import {
+  AccountDashboard,
+  FeatureErrorBoundary,
+  FeeDisplay,
+  TransactionReview,
+} from '@/components'
 import { Button, Card, CardContent, Input, Label } from '@/components/ui'
-import { useAssetMutation, useConnectionContext, useFee, useNextAssetId, useWalletContext } from '@/hooks'
-import { createAssetBatch, createAssetToasts, invalidateAssetQueries, type CreateAssetParams } from '@/lib'
-
+import {
+  useAssetMutation,
+  useConnectionContext,
+  useFee,
+  useNextAssetId,
+  useWalletContext,
+} from '@/hooks'
+import {
+  createAssetBatch,
+  createAssetToasts,
+  invalidateAssetQueries,
+  type CreateAssetParams,
+} from '@/lib'
 
 const initialFormData = {
   minBalance: '1',
@@ -21,7 +36,8 @@ function CreateAssetInner() {
   const { selectedAccount } = useWalletContext()
   const { isConnected, api } = useConnectionContext()
   const { nextAssetId } = useNextAssetId()
-  const [formData, setFormData] = useState<Omit<CreateAssetParams, 'assetId'>>(initialFormData)
+  const [formData, setFormData] =
+    useState<Omit<CreateAssetParams, 'assetId'>>(initialFormData)
 
   // Keep beneficiary in sync with selected account
   useEffect(() => {
@@ -37,11 +53,7 @@ function CreateAssetInner() {
     useAssetMutation<CreateAssetParams>({
       params: { ...formData, assetId: nextAssetId ?? '' },
       operationFn: (params) =>
-        createAssetBatch(
-          api,
-          params,
-          selectedAccount?.address ?? '',
-        ),
+        createAssetBatch(api, params, selectedAccount?.address ?? ''),
       toastConfig: createAssetToasts,
       transactionKey: 'createAsset',
       isValid: (params) =>
