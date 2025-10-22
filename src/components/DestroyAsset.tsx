@@ -45,7 +45,7 @@ function DestroyAssetInner() {
       await executeTransaction("destroyAsset", observable, data);
     },
     onSuccess: async () => {
-      invalidateAssetQueries(queryClient);
+      await invalidateAssetQueries(queryClient);
       // Reset form
       setFormData({
         assetId: "",

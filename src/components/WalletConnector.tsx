@@ -29,7 +29,7 @@ export function WalletConnector() {
         {availableExtensions.map((extension) => (
           <button
             key={extension}
-            onClick={() => connectWallet(extension)}
+            onClick={() => void connectWallet(extension)}
             disabled={isConnecting}
             className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >

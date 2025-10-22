@@ -47,11 +47,11 @@ function MintTokensInner() {
       const observable = mintTokens(data, selectedAccount);
       await executeTransaction("mintTokens", observable, data);
     },
-    onSuccess: (_result, variables) => {
+    onSuccess: async (_result, variables) => {
       invalidateBalanceQueries(queryClient, parseInt(variables.assetId), [
         variables.recipient,
       ]);
-      invalidateAssetQueries(queryClient);
+      await invalidateAssetQueries(queryClient);
 
       // Reset form
       setFormData({ ...initialFormData });

@@ -18,7 +18,9 @@ export function useWallet() {
     useState<InjectedPolkadotAccount | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isAutoConnecting, setIsAutoConnecting] = useState(true);
-  const [connectedExtensionName, setConnectedExtensionName] = useState<string | null>(null);
+  const [connectedExtensionName, setConnectedExtensionName] = useState<
+    string | null
+  >(null);
 
   const availableExtensions = getInjectedExtensions();
 
@@ -35,7 +37,9 @@ export function useWallet() {
 
       // Check if the saved extension is still available
       if (!availableExtensions.includes(extensionName)) {
-        console.log(`Saved extension '${extensionName}' is no longer available`);
+        console.log(
+          `Saved extension '${extensionName}' is no longer available`
+        );
         clearWalletConnection();
         setIsAutoConnecting(false);
         return;
@@ -44,9 +48,9 @@ export function useWallet() {
       console.log(`Auto-reconnecting to ${extensionName}...`);
       try {
         await connectWallet(extensionName, selectedAccountAddress);
-        console.log('Auto-reconnection successful');
+        console.log("Auto-reconnection successful");
       } catch (error) {
-        console.log('Auto-reconnection failed:', error);
+        console.log("Auto-reconnection failed:", error);
         clearWalletConnection();
       } finally {
         setIsAutoConnecting(false);
@@ -55,13 +59,16 @@ export function useWallet() {
 
     // Only attempt auto-reconnect if we're not already connected
     if (!extension) {
-      attemptAutoReconnect();
+      attemptAutoReconnect().catch(console.error);
     } else {
       setIsAutoConnecting(false);
     }
   }, [availableExtensions, extension]); // Re-run if available extensions change or connection status changes
 
-  const connectWallet = async (extensionName: string, selectedAccountAddress?: string) => {
+  const connectWallet = async (
+    extensionName: string,
+    selectedAccountAddress?: string
+  ) => {
     try {
       setIsConnecting(true);
       console.log("Connecting to extension:", extensionName);
@@ -78,13 +85,18 @@ export function useWallet() {
       // Try to find the previously selected account
       if (selectedAccountAddress) {
         const foundAccount = availableAccounts.find(
-          account => account.address === selectedAccountAddress
+          (account) => account.address === selectedAccountAddress
         );
         if (foundAccount) {
           accountToSelect = foundAccount;
-          console.log("Restored previously selected account:", selectedAccountAddress);
+          console.log(
+            "Restored previously selected account:",
+            selectedAccountAddress
+          );
         } else {
-          console.log("Previously selected account not found, using first available");
+          console.log(
+            "Previously selected account not found, using first available"
+          );
         }
       }
 

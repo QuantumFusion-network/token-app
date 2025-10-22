@@ -63,7 +63,7 @@ function CreateAssetInner() {
     },
 
     onSuccess: async () => {
-      invalidateAssetQueries(queryClient);
+      await invalidateAssetQueries(queryClient);
       const nextAssetId = await getNextAssetId();
 
       setFormData({

@@ -51,7 +51,6 @@ const TransactionContext = createContext<TransactionContextValue | undefined>(
   undefined
 );
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useTransactionContext() {
   const context = useContext(TransactionContext);
   if (!context) {

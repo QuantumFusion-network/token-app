@@ -54,7 +54,7 @@ export function CreateAsset() {
       await executeTransaction("createAssetBatch", observable, data);
     },
     onSuccess: async () => {
-      invalidateAssetQueries(queryClient);
+      await invalidateAssetQueries(queryClient);
 
       const nextAssetId = await getNextAssetId();
       if (!nextAssetId) throw new Error("No next asset id");
