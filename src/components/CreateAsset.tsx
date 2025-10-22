@@ -22,6 +22,7 @@ import {
   invalidateAssetQueries,
   type CreateAssetParams,
 } from '@/lib'
+import { useQueryClient } from '@tanstack/react-query'
 
 const initialFormData = {
   minBalance: '1',
@@ -35,6 +36,7 @@ const initialFormData = {
 function CreateAssetInner() {
   const { selectedAccount } = useWalletContext()
   const { isConnected, api } = useConnectionContext()
+  const queryClient = useQueryClient()
   const { nextAssetId } = useNextAssetId()
   const [formData, setFormData] =
     useState<Omit<CreateAssetParams, 'assetId'>>(initialFormData)
@@ -51,7 +53,7 @@ function CreateAssetInner() {
 
   const { mutation: createAssetMutation, transaction } =
     useAssetMutation<CreateAssetParams>({
-      params: { ...formData, assetId: nextAssetId ?? '' },
+      params: { ...formData, assetId: nextAssetId },
       operationFn: (params) =>
         createAssetBatch(api, params, selectedAccount?.address ?? ''),
       toastConfig: createAssetToasts,
@@ -63,7 +65,7 @@ function CreateAssetInner() {
         !isNaN(parseInt(params.decimals)) &&
         params.minBalance !== '' &&
         parseFloat(params.minBalance) > 0,
-      onSuccess: async (queryClient) => {
+      onSuccess: async () => {
         await invalidateAssetQueries(queryClient)
         setFormData(initialFormData)
       },

@@ -21,7 +21,7 @@ export function useNextAssetId() {
   })
 
   return {
-    nextAssetId: data?.toString(),
+    nextAssetId: data?.toString() ?? '',
     isLoading,
   }
 }

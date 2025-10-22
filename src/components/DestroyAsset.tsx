@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 
+import { useQueryClient } from '@tanstack/react-query'
 import { AlertTriangle, ArrowRight, Trash } from 'lucide-react'
 
 import {
@@ -34,6 +35,7 @@ import {
 function DestroyAssetInner() {
   const { selectedAccount } = useWalletContext()
   const { isConnected, api } = useConnectionContext()
+  const queryClient = useQueryClient()
   const [showConfirmation, setShowConfirmation] = useState(false)
 
   const [formData, setFormData] = useState<DestroyAssetParams>({
@@ -51,7 +53,7 @@ function DestroyAssetInner() {
       transactionKey: 'destroyAsset',
       isValid: (params) =>
         params.assetId !== '' && !isNaN(parseInt(params.assetId)),
-      onSuccess: async (queryClient) => {
+      onSuccess: async () => {
         await invalidateAssetQueries(queryClient)
         // Reset form
         setFormData({

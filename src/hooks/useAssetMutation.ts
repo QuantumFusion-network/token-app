@@ -1,7 +1,7 @@
 import type { Transaction } from 'polkadot-api'
 
 import type { ToastConfig } from '@/lib/toastConfigs'
-import { useMutation, type QueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 
 import { useTransaction } from './useTransaction'
 import { useWalletContext } from './useWalletContext'
@@ -10,7 +10,7 @@ interface AssetMutationConfig<TParams> {
   params: TParams
   operationFn: (params: TParams) => Transaction<object, string, string, unknown>
   toastConfig: ToastConfig<TParams>
-  onSuccess?: (queryClient: QueryClient) => void | Promise<void>
+  onSuccess?: () => void | Promise<void>
   transactionKey: string
   isValid?: (params: TParams) => boolean
 }
@@ -49,11 +49,9 @@ export const useAssetMutation = <TParams>({
       )
       await executeTransaction(transactionKey, observable, params)
     },
-    onSuccess: async (_data, _variables, context) => {
+    onSuccess: async () => {
       if (onSuccess) {
-        const queryClient = (context as { queryClient: QueryClient })
-          .queryClient
-        await onSuccess(queryClient)
+        await onSuccess()
       }
     },
   })

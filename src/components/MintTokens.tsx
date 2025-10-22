@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 
+import { useQueryClient } from '@tanstack/react-query'
 import { ArrowRight, Coins } from 'lucide-react'
 
 import {
@@ -33,6 +34,7 @@ const initialFormData = {
 function MintTokensInner() {
   const { selectedAccount } = useWalletContext()
   const { isConnected, api } = useConnectionContext()
+  const queryClient = useQueryClient()
 
   const [formData, setFormData] = useState<MintParams>(initialFormData)
 
@@ -47,7 +49,7 @@ function MintTokensInner() {
       params.recipient !== '' &&
       params.amount !== '' &&
       parseFloat(params.amount) > 0,
-    onSuccess: async (queryClient) => {
+    onSuccess: async () => {
       invalidateBalanceQueries(queryClient, parseInt(formData.assetId), [
         formData.recipient,
       ])

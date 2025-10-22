@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 
+import { useQueryClient } from '@tanstack/react-query'
 import { ArrowRight, Send } from 'lucide-react'
 
 import {
@@ -32,6 +33,7 @@ const initialFormData = {
 function TransferTokensInner() {
   const { selectedAccount } = useWalletContext()
   const { isConnected, api } = useConnectionContext()
+  const queryClient = useQueryClient()
   const [formData, setFormData] = useState<TransferParams>(initialFormData)
 
   const { mutation: transferMutation, transaction } =
@@ -46,7 +48,7 @@ function TransferTokensInner() {
         params.recipient !== '' &&
         params.amount !== '' &&
         parseFloat(params.amount) > 0,
-      onSuccess: (queryClient) => {
+      onSuccess: () => {
         // Invalidate balances for both sender and recipient
         invalidateBalanceQueries(queryClient, parseInt(formData.assetId), [
           selectedAccount?.address,
