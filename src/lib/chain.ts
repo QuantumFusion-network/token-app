@@ -1,13 +1,14 @@
 // src/lib/qfnetwork.ts
-import { createClient } from "polkadot-api";
-import { getWsProvider } from "polkadot-api/ws-provider";
-import { qfn as chain } from "@polkadot-api/descriptors";
+import { createClient } from 'polkadot-api'
+import { getWsProvider } from 'polkadot-api/ws-provider'
+
+import { qfn as chain } from '@polkadot-api/descriptors'
 
 // const wsUrl = "wss://polkadot-asset-hub-rpc.polkadot.io";
 // const wsUrl = "wss://asset-hub-paseo-rpc.n.dwellir.com";
-const wsUrl = "wss://test.qfnetwork.xyz";
+const wsUrl = 'wss://test.qfnetwork.xyz'
 
-const provider = getWsProvider(wsUrl);
+const provider = getWsProvider(wsUrl)
 
-export const client = createClient(provider);
-export const api = client.getTypedApi(chain);
+export const client = createClient(provider)
+export const api = client.getTypedApi(chain)

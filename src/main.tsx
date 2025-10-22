@@ -1,15 +1,17 @@
 // src/main.tsx
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { queryClient } from "./lib/queryClient";
-import { WalletProvider } from "./contexts/WalletContext";
-import { TransactionProvider } from "./contexts/TransactionContext";
-import { AppErrorBoundary } from "./components/error-boundaries";
-import App from "./App";
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
 
-createRoot(document.getElementById("root")!).render(
+import { QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+import App from './App'
+import { AppErrorBoundary } from './components/error-boundaries'
+import { TransactionProvider } from './contexts/TransactionContext'
+import { WalletProvider } from './contexts/WalletContext'
+import { queryClient } from './lib/queryClient'
+
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppErrorBoundary>
       <WalletProvider>
@@ -22,4 +24,4 @@ createRoot(document.getElementById("root")!).render(
       </WalletProvider>
     </AppErrorBoundary>
   </StrictMode>
-);
+)

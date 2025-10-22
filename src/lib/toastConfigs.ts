@@ -1,38 +1,38 @@
-import type { CreateAssetParams } from "@/components/CreateAsset";
-import type { DestroyAssetParams } from "@/components/DestroyAsset";
-import type { MintParams } from "@/components/MintTokens";
-import type { TransferParams } from "@/components/TransferTokens";
+import type { CreateAssetParams } from '@/components/CreateAsset'
+import type { DestroyAssetParams } from '@/components/DestroyAsset'
+import type { MintParams } from '@/components/MintTokens'
+import type { TransferParams } from '@/components/TransferTokens'
 
 export interface ToastConfig<T> {
-  signing: string;
-  broadcasting: (hash: string) => string;
-  inBlock: string;
-  finalized: (details?: T) => string;
-  error: (error: string) => string;
+  signing: string
+  broadcasting: (hash: string) => string
+  inBlock: string
+  finalized: (details?: T) => string
+  error: (error: string) => string
 }
 
 export const createAssetToasts: ToastConfig<CreateAssetParams> = {
-  signing: "Please sign the transaction in your wallet",
+  signing: 'Please sign the transaction in your wallet',
   broadcasting: (hash: string) =>
     `Transaction submitted. \n    Hash: ${hash.slice(0, 16)}...`,
-  inBlock: "Transaction included in block",
+  inBlock: 'Transaction included in block',
   finalized: (details) => {
     if (
       details?.initialMintAmount &&
       parseFloat(details.initialMintAmount) > 0
     ) {
-      return `${details.initialMintAmount} tokens minted successfully!`;
+      return `${details.initialMintAmount} tokens minted successfully!`
     }
-    return `Asset ${details?.assetId} created successfully!`;
+    return `Asset ${details?.assetId} created successfully!`
   },
   error: (_error: string) => `Transaction failed!`,
-};
+}
 
 export const mintTokensToasts: ToastConfig<MintParams> = {
-  signing: "Please sign the mint transaction in your wallet",
+  signing: 'Please sign the mint transaction in your wallet',
   broadcasting: (hash: string) =>
     `Mint transaction submitted. Hash: ${hash.slice(0, 16)}...`,
-  inBlock: "Mint transaction included in block",
+  inBlock: 'Mint transaction included in block',
   finalized: (details) => {
     return details
       ? `${
@@ -41,16 +41,16 @@ export const mintTokensToasts: ToastConfig<MintParams> = {
           0,
           8
         )}... for Asset ID ${details.assetId}!`
-      : "Tokens minted successfully!";
+      : 'Tokens minted successfully!'
   },
   error: (_error: string) => `Mint transaction failed!`,
-};
+}
 
 export const transferTokensToasts: ToastConfig<TransferParams> = {
-  signing: "Please sign the transfer transaction in your wallet",
+  signing: 'Please sign the transfer transaction in your wallet',
   broadcasting: (hash: string) =>
     `Transfer transaction submitted. Hash: ${hash.slice(0, 16)}...`,
-  inBlock: "Transfer transaction included in block",
+  inBlock: 'Transfer transaction included in block',
   finalized: (details) => {
     return details
       ? `${
@@ -59,16 +59,16 @@ export const transferTokensToasts: ToastConfig<TransferParams> = {
           0,
           8
         )}... for Asset ID ${details.assetId}!`
-      : "Tokens transferred successfully!";
+      : 'Tokens transferred successfully!'
   },
   error: (_error: string) => `Transfer transaction failed`,
-};
+}
 
 export const destroyAssetToasts: ToastConfig<DestroyAssetParams> = {
-  signing: "Please sign the asset destruction transaction in your wallet",
+  signing: 'Please sign the asset destruction transaction in your wallet',
   broadcasting: (hash: string) =>
     `Asset destruction submitted.\n    Hash: ${hash.slice(0, 16)}...`,
-  inBlock: "Asset destruction in progress...",
+  inBlock: 'Asset destruction in progress...',
   finalized: (details) => `Asset ${details?.assetId} destroyed successfully!`,
   error: (_error: string) => `Asset destruction failed`,
-};
+}

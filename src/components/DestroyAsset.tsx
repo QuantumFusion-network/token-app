@@ -1,84 +1,86 @@
-import { useState, type FormEvent } from "react";
-import { useWalletContext } from "../hooks/useWalletContext";
-import { useAssetMutation } from "../hooks/useAssetMutation";
-import { useFee } from "../hooks/useFee";
-import { destroyAssetBatch } from "../lib/assetOperations";
-import { invalidateAssetQueries } from "../lib/queryHelpers";
-import { destroyAssetToasts } from "../lib/toastConfigs";
-import { FeatureErrorBoundary } from "./error-boundaries";
-import { AccountDashboard } from "./AccountDashboard";
-import { TransactionReview } from "./TransactionReview";
-import { FeeDisplay } from "./FeeDisplay";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import { useState, type FormEvent } from 'react'
+
+import { AlertTriangle, ArrowRight, Trash } from 'lucide-react'
+
+import { useAssetMutation } from '../hooks/useAssetMutation'
+import { useFee } from '../hooks/useFee'
+import { useWalletContext } from '../hooks/useWalletContext'
+import { destroyAssetBatch } from '../lib/assetOperations'
+import { invalidateAssetQueries } from '../lib/queryHelpers'
+import { destroyAssetToasts } from '../lib/toastConfigs'
+import { AccountDashboard } from './AccountDashboard'
+import { FeatureErrorBoundary } from './error-boundaries'
+import { FeeDisplay } from './FeeDisplay'
+import { TransactionReview } from './TransactionReview'
+import { Button } from './ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "./ui/card";
-import { AlertTriangle, ArrowRight, Trash } from "lucide-react";
+} from './ui/card'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
 
 export interface DestroyAssetParams {
-  assetId: string;
+  assetId: string
 }
 
 function DestroyAssetInner() {
-  const { selectedAccount } = useWalletContext();
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const { selectedAccount } = useWalletContext()
+  const [showConfirmation, setShowConfirmation] = useState(false)
 
   const [formData, setFormData] = useState<DestroyAssetParams>({
-    assetId: "",
-  });
+    assetId: '',
+  })
 
   const { mutation: destroyAssetMutation, transaction } =
     useAssetMutation<DestroyAssetParams>({
       params: formData,
       operationFn: destroyAssetBatch,
       toastConfig: destroyAssetToasts,
-      transactionKey: "destroyAsset",
+      transactionKey: 'destroyAsset',
       isValid: (params) =>
-        params.assetId !== "" && !isNaN(parseInt(params.assetId)),
+        params.assetId !== '' && !isNaN(parseInt(params.assetId)),
       onSuccess: async (queryClient) => {
-        await invalidateAssetQueries(queryClient);
+        await invalidateAssetQueries(queryClient)
         // Reset form
         setFormData({
-          assetId: "",
-        });
-        setShowConfirmation(false);
+          assetId: '',
+        })
+        setShowConfirmation(false)
       },
-    });
+    })
 
-  const feeState = useFee(transaction, selectedAccount?.address);
+  const feeState = useFee(transaction, selectedAccount?.address)
 
   const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    setShowConfirmation(true);
-  };
+    e.preventDefault()
+    setShowConfirmation(true)
+  }
 
   const handleConfirmDestroy = () => {
-    destroyAssetMutation.mutate();
-  };
+    destroyAssetMutation.mutate()
+  }
 
   if (!selectedAccount) {
-    return <div>Please connect your wallet first</div>;
+    return <div>Please connect your wallet first</div>
   }
 
   const reviewData = {
     assetId: formData.assetId,
-  };
+  }
 
   if (showConfirmation) {
     return (
       <div>
         <AccountDashboard />
-        <div className="max-w-3xl mx-auto">
+        <div className="mx-auto max-w-3xl">
           <Card className="border-destructive/30 shadow-lg">
             <CardHeader className="pb-4">
               <div className="flex items-center gap-2 text-red-600">
-                <AlertTriangle className="w-5 h-5" />
+                <AlertTriangle className="h-5 w-5" />
                 <CardTitle>Confirm Asset Destruction</CardTitle>
               </div>
               <CardDescription className="text-red-700">
@@ -86,16 +88,16 @@ function DestroyAssetInner() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-red-800 font-medium mb-2">
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                <p className="mb-2 font-medium text-red-800">
                   You are about to permanently destroy:
                 </p>
-                <div className="bg-white rounded p-3 mb-2">
+                <div className="mb-2 rounded bg-white p-3">
                   <p>
                     <strong>Asset ID:</strong> {formData.assetId}
                   </p>
                 </div>
-                <p className="text-red-700 text-sm">
+                <p className="text-sm text-red-700">
                   <strong>This action cannot be undone.</strong> The asset will
                   be permanently removed from the blockchain, and all associated
                   tokens will be destroyed.
@@ -103,7 +105,7 @@ function DestroyAssetInner() {
               </div>
 
               {destroyAssetMutation.isError && (
-                <div className="text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 p-3 rounded-md">
+                <div className="text-destructive-foreground bg-destructive/10 border-destructive/20 rounded-md border p-3 text-sm">
                   {destroyAssetMutation.error?.message}
                 </div>
               )}
@@ -116,8 +118,8 @@ function DestroyAssetInner() {
                   className="flex-1"
                 >
                   {destroyAssetMutation.isPending
-                    ? "Destroying Asset..."
-                    : "Yes, Destroy Asset"}
+                    ? 'Destroying Asset...'
+                    : 'Yes, Destroy Asset'}
                 </Button>
 
                 <Button
@@ -133,28 +135,28 @@ function DestroyAssetInner() {
           </Card>
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <div>
       <AccountDashboard />
-      <div className="flex items-center gap-4 mb-4">
-        <Trash className="w-5 h-5 text-destructive" />
-        <h1 className="text-2xl font-bold text-foreground leading-tight">
+      <div className="mb-4 flex items-center gap-4">
+        <Trash className="text-destructive h-5 w-5" />
+        <h1 className="text-foreground text-2xl leading-tight font-bold">
           Destroy Asset
         </h1>
       </div>
-      <Card className="shadow-lg gap-8">
+      <Card className="gap-8 shadow-lg">
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Grid: Form Fields + Review */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               {/* Form Fields - 2 columns */}
-              <div className="lg:col-span-2 space-y-4">
-                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+              <div className="space-y-4 lg:col-span-2">
+                <div className="bg-destructive/10 border-destructive/20 rounded-lg border p-4">
                   <div className="flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                    <AlertTriangle className="text-destructive mt-0.5 h-4 w-4 flex-shrink-0" />
                     <p className="text-destructive text-sm">
                       <strong>Warning:</strong> Asset destruction is permanent
                       and irreversible. The chain will reject the transaction if
@@ -183,7 +185,7 @@ function DestroyAssetInner() {
                 </div>
 
                 {destroyAssetMutation.isError && (
-                  <div className="text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 p-3 rounded-md">
+                  <div className="text-destructive-foreground bg-destructive/10 border-destructive/20 rounded-md border p-3 text-sm">
                     {destroyAssetMutation.error?.message}
                   </div>
                 )}
@@ -196,26 +198,26 @@ function DestroyAssetInner() {
             </div>
 
             {/* Fee + CTA Section */}
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-4 border-t border-destructive/20">
+            <div className="border-destructive/20 flex flex-col items-center justify-between gap-4 border-t pt-4 lg:flex-row">
               <FeeDisplay {...feeState} variant="destructive" />
               <Button
                 type="submit"
                 variant="destructive"
                 size="lg"
                 disabled={!formData.assetId || destroyAssetMutation.isPending}
-                className="w-full lg:w-auto ml-auto"
+                className="ml-auto w-full lg:w-auto"
               >
                 {destroyAssetMutation.isPending
-                  ? "Destroying Asset..."
-                  : "Destroy Asset"}
-                <ArrowRight className="w-4 h-4 ml-2" />
+                  ? 'Destroying Asset...'
+                  : 'Destroy Asset'}
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }
 
 export function DestroyAsset() {
@@ -223,5 +225,5 @@ export function DestroyAsset() {
     <FeatureErrorBoundary featureName="Destroy Asset">
       <DestroyAssetInner />
     </FeatureErrorBoundary>
-  );
+  )
 }

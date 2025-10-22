@@ -1,42 +1,42 @@
-import { useWalletContext } from "../hooks/useWalletContext";
+import { useWalletContext } from '../hooks/useWalletContext'
 
 export function WalletConnector() {
   const { availableExtensions, isConnecting, connectWallet } =
-    useWalletContext();
+    useWalletContext()
 
   if (availableExtensions.length === 0) {
     return (
-      <div className="border rounded-lg p-4 text-center">
-        <h2 className="text-xl font-semibold mb-2">
+      <div className="rounded-lg border p-4 text-center">
+        <h2 className="mb-2 text-xl font-semibold">
           No Wallet Extensions Found
         </h2>
-        <p className="text-gray-600 mb-4">
+        <p className="mb-4 text-gray-600">
           Please install a compatible wallet extension like:
         </p>
-        <ul className="text-left space-y-2">
+        <ul className="space-y-2 text-left">
           <li>• QF Network Extension</li>
           <li>• Talisman</li>
           <li>• SubWallet</li>
         </ul>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="border rounded-lg p-4">
-      <h2 className="text-xl font-semibold mb-4 text-center">Connect Wallet</h2>
+    <div className="rounded-lg border p-4">
+      <h2 className="mb-4 text-center text-xl font-semibold">Connect Wallet</h2>
       <div className="space-y-2">
         {availableExtensions.map((extension) => (
           <button
             key={extension}
             onClick={() => void connectWallet(extension)}
             disabled={isConnecting}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isConnecting ? "Connecting..." : `Connect ${extension}`}
+            {isConnecting ? 'Connecting...' : `Connect ${extension}`}
           </button>
         ))}
       </div>
     </div>
-  );
+  )
 }

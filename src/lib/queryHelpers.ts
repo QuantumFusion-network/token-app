@@ -1,9 +1,9 @@
-import type { QueryClient } from "@tanstack/react-query";
+import type { QueryClient } from '@tanstack/react-query'
 
 export const invalidateAssetQueries = async (queryClient: QueryClient) => {
-  await queryClient.invalidateQueries({ queryKey: ["assets"] });
-  await queryClient.invalidateQueries({ queryKey: ["assetMetadata"] });
-};
+  await queryClient.invalidateQueries({ queryKey: ['assets'] })
+  await queryClient.invalidateQueries({ queryKey: ['assetMetadata'] })
+}
 
 export const invalidateBalanceQueries = (
   queryClient: QueryClient,
@@ -14,11 +14,11 @@ export const invalidateBalanceQueries = (
     if (address) {
       queryClient
         .invalidateQueries({
-          queryKey: ["assetBalance", assetId, address],
+          queryKey: ['assetBalance', assetId, address],
         })
         .catch((e: Error) => {
-          console.log(e);
-        });
+          console.log(e)
+        })
     }
-  });
-};
+  })
+}

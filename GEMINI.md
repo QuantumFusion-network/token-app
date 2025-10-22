@@ -5,6 +5,7 @@
 This project is a web application called "QF Network Manager". It serves as a tool for managing assets on the QF Network, which is a Polkadot-based blockchain. The application allows users to connect their Polkadot wallet to perform various asset-related operations.
 
 The core functionalities of the QF Network Manager include:
+
 - Connecting to a Polkadot wallet.
 - Viewing a list of existing assets.
 - Creating new assets on the network.

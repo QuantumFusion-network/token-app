@@ -1,50 +1,50 @@
-const WALLET_STORAGE_KEY = "polka-wallet-connection";
+const WALLET_STORAGE_KEY = 'polka-wallet-connection'
 
 export interface StoredWalletConnection {
-  extensionName: string;
-  selectedAccountAddress: string;
+  extensionName: string
+  selectedAccountAddress: string
 }
 
 export function saveWalletConnection(connection: StoredWalletConnection): void {
   try {
-    localStorage.setItem(WALLET_STORAGE_KEY, JSON.stringify(connection));
+    localStorage.setItem(WALLET_STORAGE_KEY, JSON.stringify(connection))
   } catch (error) {
-    console.warn("Failed to save wallet connection to localStorage:", error);
+    console.warn('Failed to save wallet connection to localStorage:', error)
   }
 }
 
 export function loadWalletConnection(): StoredWalletConnection | null {
   try {
-    const stored = localStorage.getItem(WALLET_STORAGE_KEY);
-    if (!stored) return null;
+    const stored = localStorage.getItem(WALLET_STORAGE_KEY)
+    if (!stored) return null
 
-    const parsed = JSON.parse(stored) as StoredWalletConnection;
+    const parsed = JSON.parse(stored) as StoredWalletConnection
 
     // Validate the structure
     if (
-      typeof parsed === "object" &&
-      typeof parsed.extensionName === "string" &&
-      typeof parsed.selectedAccountAddress === "string" &&
+      typeof parsed === 'object' &&
+      typeof parsed.extensionName === 'string' &&
+      typeof parsed.selectedAccountAddress === 'string' &&
       parsed.extensionName.length > 0 &&
       parsed.selectedAccountAddress.length > 0
     ) {
-      return parsed;
+      return parsed
     }
 
     // Invalid data, clear it
-    clearWalletConnection();
-    return null;
+    clearWalletConnection()
+    return null
   } catch (error) {
-    console.warn("Failed to load wallet connection from localStorage:", error);
-    clearWalletConnection();
-    return null;
+    console.warn('Failed to load wallet connection from localStorage:', error)
+    clearWalletConnection()
+    return null
   }
 }
 
 export function clearWalletConnection(): void {
   try {
-    localStorage.removeItem(WALLET_STORAGE_KEY);
+    localStorage.removeItem(WALLET_STORAGE_KEY)
   } catch (error) {
-    console.warn("Failed to clear wallet connection from localStorage:", error);
+    console.warn('Failed to clear wallet connection from localStorage:', error)
   }
 }

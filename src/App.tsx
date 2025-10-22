@@ -1,83 +1,86 @@
-import { useState } from "react";
-import { useWalletContext } from "./hooks/useWalletContext";
-import { useTransactionToasts } from "./hooks/useTransactionToasts";
-import { WalletConnector } from "./components/WalletConnector";
-import { CreateAsset } from "./components/CreateAsset";
-import { AssetList } from "./components/AssetList";
-import { MintTokens } from "./components/MintTokens";
-import { TransferTokens } from "./components/TransferTokens";
-import { DestroyAsset } from "./components/DestroyAsset";
-import { AccountSelector } from "./components/AccountSelector";
-import { Toaster } from "./components/ui/sonner";
-import { Button } from "./components/ui/button";
-import { LayoutDashboard, Plus, Coins, Send, Trash2 } from "lucide-react";
-import "./App.css";
+import { useState } from 'react'
 
-type Tab = "assets" | "create" | "mint" | "transfer" | "destroy";
+import { Coins, LayoutDashboard, Plus, Send, Trash2 } from 'lucide-react'
+
+import { AccountSelector } from './components/AccountSelector'
+import { AssetList } from './components/AssetList'
+import { CreateAsset } from './components/CreateAsset'
+import { DestroyAsset } from './components/DestroyAsset'
+import { MintTokens } from './components/MintTokens'
+import { TransferTokens } from './components/TransferTokens'
+import { Button } from './components/ui/button'
+import { Toaster } from './components/ui/sonner'
+import { WalletConnector } from './components/WalletConnector'
+import { useTransactionToasts } from './hooks/useTransactionToasts'
+import { useWalletContext } from './hooks/useWalletContext'
+
+import './App.css'
+
+type Tab = 'assets' | 'create' | 'mint' | 'transfer' | 'destroy'
 
 export default function App() {
-  const { isConnected } = useWalletContext();
-  const [activeTab, setActiveTab] = useState<Tab>("assets");
+  const { isConnected } = useWalletContext()
+  const [activeTab, setActiveTab] = useState<Tab>('assets')
 
   // Initialize transaction toasts
-  useTransactionToasts();
+  useTransactionToasts()
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <WalletConnector />
       </div>
-    );
+    )
   }
 
   const navigationItems = [
     {
-      id: "assets" as const,
-      label: "Portfolio",
+      id: 'assets' as const,
+      label: 'Portfolio',
       icon: LayoutDashboard,
       component: AssetList,
-      section: "main",
+      section: 'main',
     },
     {
-      id: "create" as const,
-      label: "Create Asset",
+      id: 'create' as const,
+      label: 'Create Asset',
       icon: Plus,
       component: CreateAsset,
-      section: "main",
+      section: 'main',
     },
     {
-      id: "mint" as const,
-      label: "Mint Tokens",
+      id: 'mint' as const,
+      label: 'Mint Tokens',
       icon: Coins,
       component: MintTokens,
-      section: "operations",
+      section: 'operations',
     },
     {
-      id: "transfer" as const,
-      label: "Transfer",
+      id: 'transfer' as const,
+      label: 'Transfer',
       icon: Send,
       component: TransferTokens,
-      section: "operations",
+      section: 'operations',
     },
     {
-      id: "destroy" as const,
-      label: "Destroy Asset",
+      id: 'destroy' as const,
+      label: 'Destroy Asset',
       icon: Trash2,
       component: DestroyAsset,
-      section: "admin",
+      section: 'admin',
     },
-  ];
+  ]
 
   const ActiveComponent =
     navigationItems.find((item) => item.id === activeTab)?.component ||
-    AssetList;
+    AssetList
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="bg-background flex min-h-screen">
       {/* Sidebar */}
-      <div className="w-64 bg-card border-r border-border flex flex-col shadow-lg">
+      <div className="bg-card border-border flex w-64 flex-col border-r shadow-lg">
         {/* Header */}
-        <div className="p-4 text-foreground border-b border-border bg-gradient-to-br from-muted/20 to-muted/40 flex items-center gap-3">
+        <div className="text-foreground border-border from-muted/20 to-muted/40 flex items-center gap-3 border-b bg-gradient-to-br p-4">
           <svg
             width="527"
             height="475"
@@ -130,10 +133,10 @@ export default function App() {
             </defs>
           </svg>
           <div className="text-left">
-            <h1 className="text-xl font-bold text-foreground leading-4 mt-1.5">
+            <h1 className="text-foreground mt-1.5 text-xl leading-4 font-bold">
               QF Network
             </h1>
-            <p className="text-sm text-muted-foreground ">Asset Manager</p>
+            <p className="text-muted-foreground text-sm">Asset Manager</p>
           </div>
         </div>
 
@@ -141,35 +144,35 @@ export default function App() {
         <nav className="flex-1 p-4">
           <div className="space-y-1">
             {navigationItems.map((item) => {
-              const Icon = item.icon;
+              const Icon = item.icon
               return (
                 <Button
                   key={item.id}
-                  variant={activeTab === item.id ? "default" : "ghost"}
-                  className={`w-full justify-start h-10 px-3 ${
+                  variant={activeTab === item.id ? 'default' : 'ghost'}
+                  className={`h-10 w-full justify-start px-3 ${
                     activeTab === item.id
-                      ? ""
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                      ? ''
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
                   }`}
                   onClick={() => setActiveTab(item.id)}
                 >
-                  <Icon className="w-4 h-4 mr-3" />
+                  <Icon className="mr-3 h-4 w-4" />
                   {item.label}
                 </Button>
-              );
+              )
             })}
           </div>
         </nav>
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex flex-1 flex-col">
         {/* Header with account selector */}
-        <header className="border-b border-border bg-background/80 backdrop-blur-sm">
+        <header className="border-border bg-background/80 border-b backdrop-blur-sm">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-muted-foreground">
+              <div className="bg-accent h-2 w-2 animate-pulse rounded-full"></div>
+              <span className="text-muted-foreground text-sm font-medium">
                 Connected to QF Network
               </span>
             </div>
@@ -177,12 +180,12 @@ export default function App() {
           </div>
         </header>
 
-        <main className="flex-1 p-4 bg-muted/20">
+        <main className="bg-muted/20 flex-1 p-4">
           <ActiveComponent />
         </main>
       </div>
 
       <Toaster toastOptions={{ duration: 30_000 }} />
     </div>
-  );
+  )
 }

@@ -1,97 +1,99 @@
-import { useState, type FormEvent } from "react";
-import { useWalletContext } from "../hooks/useWalletContext";
-import { useAssetMutation } from "../hooks/useAssetMutation";
-import { useFee } from "../hooks/useFee";
-import { mintTokens } from "../lib/assetOperations";
+import { useState, type FormEvent } from 'react'
+
+import { ArrowRight, Coins } from 'lucide-react'
+
+import { useAssetMutation } from '../hooks/useAssetMutation'
+import { useFee } from '../hooks/useFee'
+import { useWalletContext } from '../hooks/useWalletContext'
+import { mintTokens } from '../lib/assetOperations'
 import {
-  invalidateBalanceQueries,
   invalidateAssetQueries,
-} from "../lib/queryHelpers";
-import { mintTokensToasts } from "../lib/toastConfigs";
-import { FeatureErrorBoundary } from "./error-boundaries";
-import { AccountDashboard } from "./AccountDashboard";
-import { TransactionReview } from "./TransactionReview";
-import { FeeDisplay } from "./FeeDisplay";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Card, CardContent } from "./ui/card";
-import { Coins, ArrowRight } from "lucide-react";
+  invalidateBalanceQueries,
+} from '../lib/queryHelpers'
+import { mintTokensToasts } from '../lib/toastConfigs'
+import { AccountDashboard } from './AccountDashboard'
+import { FeatureErrorBoundary } from './error-boundaries'
+import { FeeDisplay } from './FeeDisplay'
+import { TransactionReview } from './TransactionReview'
+import { Button } from './ui/button'
+import { Card, CardContent } from './ui/card'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
 
 export interface MintParams {
-  assetId: string;
-  recipient: string;
-  amount: string;
-  decimals: number;
+  assetId: string
+  recipient: string
+  amount: string
+  decimals: number
 }
 
 const initialFormData = {
-  assetId: "",
-  recipient: "",
-  amount: "",
+  assetId: '',
+  recipient: '',
+  amount: '',
   decimals: 12,
-};
+}
 
 function MintTokensInner() {
-  const { selectedAccount } = useWalletContext();
+  const { selectedAccount } = useWalletContext()
 
-  const [formData, setFormData] = useState<MintParams>(initialFormData);
+  const [formData, setFormData] = useState<MintParams>(initialFormData)
 
   const { mutation: mintMutation, transaction } = useAssetMutation<MintParams>({
     params: formData,
     operationFn: mintTokens,
     toastConfig: mintTokensToasts,
-    transactionKey: "mintTokens",
+    transactionKey: 'mintTokens',
     isValid: (params) =>
-      params.assetId !== "" &&
+      params.assetId !== '' &&
       !isNaN(parseInt(params.assetId)) &&
-      params.recipient !== "" &&
-      params.amount !== "" &&
+      params.recipient !== '' &&
+      params.amount !== '' &&
       parseFloat(params.amount) > 0,
     onSuccess: async (queryClient) => {
       invalidateBalanceQueries(queryClient, parseInt(formData.assetId), [
         formData.recipient,
-      ]);
-      await invalidateAssetQueries(queryClient);
+      ])
+      await invalidateAssetQueries(queryClient)
 
       // Reset form
-      setFormData({ ...initialFormData });
+      setFormData({ ...initialFormData })
     },
-  });
+  })
 
-  const feeState = useFee(transaction, selectedAccount?.address);
+  const feeState = useFee(transaction, selectedAccount?.address)
 
   const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    mintMutation.mutate();
-  };
+    e.preventDefault()
+    mintMutation.mutate()
+  }
 
   if (!selectedAccount) {
-    return <div>Please connect your wallet to mint tokens</div>;
+    return <div>Please connect your wallet to mint tokens</div>
   }
 
   const reviewData = {
     assetId: formData.assetId,
     recipient: formData.recipient,
     amount: formData.amount,
-  };
+  }
 
   return (
     <div>
       <AccountDashboard />
-      <div className="flex items-center gap-4 mb-4">
-        <Coins className="w-5 h-5 text-primary" />
-        <h1 className="text-2xl font-bold text-foreground leading-tight">
+      <div className="mb-4 flex items-center gap-4">
+        <Coins className="text-primary h-5 w-5" />
+        <h1 className="text-foreground text-2xl leading-tight font-bold">
           Mint Tokens
         </h1>
       </div>
-      <Card className="shadow-lg gap-8">
+      <Card className="gap-8 shadow-lg">
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Grid: Form Fields + Review */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               {/* Form Fields - 2 columns */}
-              <div className="lg:col-span-2 space-y-4">
+              <div className="space-y-4 lg:col-span-2">
                 <div className="space-y-2">
                   <Label htmlFor="assetId">Asset ID</Label>
                   <Input
@@ -123,7 +125,7 @@ function MintTokensInner() {
                         recipient: e.target.value,
                       }))
                     }
-                    className="font-mono text-sm h-12"
+                    className="h-12 font-mono text-sm"
                     required
                     placeholder="5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
                   />
@@ -150,7 +152,7 @@ function MintTokensInner() {
                 </div>
 
                 {mintMutation.isError && (
-                  <div className="text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 p-3 rounded-md">
+                  <div className="text-destructive-foreground bg-destructive/10 border-destructive/20 rounded-md border p-3 text-sm">
                     {mintMutation.error?.message}
                   </div>
                 )}
@@ -163,23 +165,23 @@ function MintTokensInner() {
             </div>
 
             {/* Fee + CTA Section */}
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-4 border-t">
+            <div className="flex flex-col items-center justify-between gap-4 border-t pt-4 lg:flex-row">
               <FeeDisplay {...feeState} />
               <Button
                 type="submit"
                 disabled={mintMutation.isPending}
                 size="lg"
-                className="w-full lg:w-auto ml-auto"
+                className="ml-auto w-full lg:w-auto"
               >
-                {mintMutation.isPending ? "Minting Tokens..." : "Mint Tokens"}
-                <ArrowRight className="w-4 h-4 ml-2" />
+                {mintMutation.isPending ? 'Minting Tokens...' : 'Mint Tokens'}
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }
 
 export function MintTokens() {
@@ -187,5 +189,5 @@ export function MintTokens() {
     <FeatureErrorBoundary featureName="Mint Tokens">
       <MintTokensInner />
     </FeatureErrorBoundary>
-  );
+  )
 }

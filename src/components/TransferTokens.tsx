@@ -1,70 +1,72 @@
-import { useState, type FormEvent } from "react";
-import { useWalletContext } from "../hooks/useWalletContext";
-import { useAssetMutation } from "../hooks/useAssetMutation";
-import { useFee } from "../hooks/useFee";
-import { transferTokens } from "../lib/assetOperations";
-import { invalidateBalanceQueries } from "../lib/queryHelpers";
-import { transferTokensToasts } from "../lib/toastConfigs";
-import { FeatureErrorBoundary } from "./error-boundaries";
-import { AccountDashboard } from "./AccountDashboard";
-import { TransactionReview } from "./TransactionReview";
-import { FeeDisplay } from "./FeeDisplay";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Card, CardContent } from "./ui/card";
-import { Send, ArrowRight } from "lucide-react";
+import { useState, type FormEvent } from 'react'
+
+import { ArrowRight, Send } from 'lucide-react'
+
+import { useAssetMutation } from '../hooks/useAssetMutation'
+import { useFee } from '../hooks/useFee'
+import { useWalletContext } from '../hooks/useWalletContext'
+import { transferTokens } from '../lib/assetOperations'
+import { invalidateBalanceQueries } from '../lib/queryHelpers'
+import { transferTokensToasts } from '../lib/toastConfigs'
+import { AccountDashboard } from './AccountDashboard'
+import { FeatureErrorBoundary } from './error-boundaries'
+import { FeeDisplay } from './FeeDisplay'
+import { TransactionReview } from './TransactionReview'
+import { Button } from './ui/button'
+import { Card, CardContent } from './ui/card'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
 
 export interface TransferParams {
-  assetId: string;
-  recipient: string;
-  amount: string;
-  decimals: number;
+  assetId: string
+  recipient: string
+  amount: string
+  decimals: number
 }
 
 const initialFormData: TransferParams = {
-  assetId: "",
-  recipient: "",
-  amount: "",
+  assetId: '',
+  recipient: '',
+  amount: '',
   decimals: 12,
-};
+}
 
 function TransferTokensInner() {
-  const { selectedAccount } = useWalletContext();
-  const [formData, setFormData] = useState<TransferParams>(initialFormData);
+  const { selectedAccount } = useWalletContext()
+  const [formData, setFormData] = useState<TransferParams>(initialFormData)
 
   const { mutation: transferMutation, transaction } =
     useAssetMutation<TransferParams>({
       params: formData,
       operationFn: transferTokens,
       toastConfig: transferTokensToasts,
-      transactionKey: "transferTokens",
+      transactionKey: 'transferTokens',
       isValid: (params) =>
-        params.assetId !== "" &&
+        params.assetId !== '' &&
         !isNaN(parseInt(params.assetId)) &&
-        params.recipient !== "" &&
-        params.amount !== "" &&
+        params.recipient !== '' &&
+        params.amount !== '' &&
         parseFloat(params.amount) > 0,
       onSuccess: (queryClient) => {
         // Invalidate balances for both sender and recipient
         invalidateBalanceQueries(queryClient, parseInt(formData.assetId), [
           selectedAccount?.address,
           formData.recipient,
-        ]);
+        ])
 
-        setFormData({ ...initialFormData });
+        setFormData({ ...initialFormData })
       },
-    });
+    })
 
-  const feeState = useFee(transaction, selectedAccount?.address);
+  const feeState = useFee(transaction, selectedAccount?.address)
 
   const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    transferMutation.mutate();
-  };
+    e.preventDefault()
+    transferMutation.mutate()
+  }
 
   if (!selectedAccount) {
-    return <div>Please connect your wallet to transfer tokens</div>;
+    return <div>Please connect your wallet to transfer tokens</div>
   }
 
   const reviewData = {
@@ -72,24 +74,24 @@ function TransferTokensInner() {
     from: selectedAccount.address,
     to: formData.recipient,
     amount: formData.amount,
-  };
+  }
 
   return (
     <div>
       <AccountDashboard />
-      <div className="flex items-center gap-4 mb-4">
-        <Send className="w-5 h-5 text-primary" />
-        <h1 className="text-2xl font-bold text-foreground leading-tight">
+      <div className="mb-4 flex items-center gap-4">
+        <Send className="text-primary h-5 w-5" />
+        <h1 className="text-foreground text-2xl leading-tight font-bold">
           Transfer Tokens
         </h1>
       </div>
-      <Card className="shadow-lg gap-8">
+      <Card className="gap-8 shadow-lg">
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Grid: Form Fields + Review */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               {/* Form Fields - 2 columns */}
-              <div className="lg:col-span-2 space-y-4">
+              <div className="space-y-4 lg:col-span-2">
                 <div className="space-y-2">
                   <Label htmlFor="assetId">Asset ID</Label>
                   <Input
@@ -121,7 +123,7 @@ function TransferTokensInner() {
                         recipient: e.target.value,
                       }))
                     }
-                    className="font-mono text-sm h-12"
+                    className="h-12 font-mono text-sm"
                     required
                     placeholder="5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
                   />
@@ -148,7 +150,7 @@ function TransferTokensInner() {
                 </div>
 
                 {transferMutation.isError && (
-                  <div className="text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 p-3 rounded-md">
+                  <div className="text-destructive-foreground bg-destructive/10 border-destructive/20 rounded-md border p-3 text-sm">
                     {transferMutation.error?.message}
                   </div>
                 )}
@@ -161,25 +163,25 @@ function TransferTokensInner() {
             </div>
 
             {/* Fee + CTA Section */}
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-4 border-t">
+            <div className="flex flex-col items-center justify-between gap-4 border-t pt-4 lg:flex-row">
               <FeeDisplay {...feeState} />
               <Button
                 type="submit"
                 disabled={transferMutation.isPending}
                 size="lg"
-                className="w-full lg:w-auto ml-auto"
+                className="ml-auto w-full lg:w-auto"
               >
                 {transferMutation.isPending
-                  ? "Transferring Tokens..."
-                  : "Transfer Tokens"}
-                <ArrowRight className="w-4 h-4 ml-2" />
+                  ? 'Transferring Tokens...'
+                  : 'Transfer Tokens'}
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }
 
 export function TransferTokens() {
@@ -187,5 +189,5 @@ export function TransferTokens() {
     <FeatureErrorBoundary featureName="Transfer Tokens">
       <TransferTokensInner />
     </FeatureErrorBoundary>
-  );
+  )
 }
