@@ -23,6 +23,7 @@ export function useWallet() {
   const [connectedExtensionName, setConnectedExtensionName] = useState<
     string | null
   >(null)
+  const [connectionError, setConnectionError] = useState<string | null>(null)
 
   const availableExtensions = getInjectedExtensions()
 
@@ -71,6 +72,7 @@ export function useWallet() {
   ) => {
     try {
       setIsConnecting(true)
+      setConnectionError(null) // Clear any previous errors
       console.log('Connecting to extension:', extensionName)
       const ext = await connectInjectedExtension(extensionName)
       console.log('Extension connected:', ext)
@@ -112,7 +114,9 @@ export function useWallet() {
 
       console.log('Wallet connection completed')
     } catch (error) {
-      console.error('Failed to connect wallet:', error)
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to connect wallet'
+      setConnectionError(errorMessage)
       clearWalletConnection()
     } finally {
       setIsConnecting(false)
@@ -153,5 +157,6 @@ export function useWallet() {
     connectWallet,
     disconnect,
     isConnected,
+    connectionError,
   }
 }

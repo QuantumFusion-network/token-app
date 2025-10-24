@@ -1,7 +1,7 @@
 import { useWalletContext } from '@/hooks'
 
 export function WalletConnector() {
-  const { availableExtensions, isConnecting, connectWallet } =
+  const { availableExtensions, isConnecting, connectWallet, connectionError } =
     useWalletContext()
 
   if (availableExtensions.length === 0) {
@@ -23,7 +23,7 @@ export function WalletConnector() {
   }
 
   return (
-    <div className="rounded-lg border p-4">
+    <div className="mx-auto w-sm rounded-lg border p-4">
       <h2 className="mb-4 text-center text-xl font-semibold">Connect Wallet</h2>
       <div className="space-y-2">
         {availableExtensions.map((extension) => (
@@ -37,6 +37,14 @@ export function WalletConnector() {
           </button>
         ))}
       </div>
+      {connectionError && (
+        <div className="border-destructive/20 bg-destructive/5 mt-4 space-y-1 rounded-lg border p-3">
+          <p className="text-destructive text-sm font-semibold">
+            Connection Failed
+          </p>
+          <p className="text-destructive/80 text-sm">{connectionError}</p>
+        </div>
+      )}
     </div>
   )
 }
