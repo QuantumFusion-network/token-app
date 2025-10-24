@@ -1,16 +1,16 @@
 import { useState, type FormEvent } from 'react'
 
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, Coins } from 'lucide-react'
+import { Coins } from 'lucide-react'
 
 import {
   AccountDashboard,
   FeatureErrorBoundary,
-  FeeDisplay,
   MutationError,
+  TransactionFormFooter,
   TransactionReview,
 } from '@/components'
-import { Button, Card, CardContent, Input, Label } from '@/components/ui'
+import { Card, CardContent, Input, Label } from '@/components/ui'
 import {
   useAssetMutation,
   useConnectionContext,
@@ -161,18 +161,12 @@ function MintTokensInner() {
             </div>
 
             {/* Fee + CTA Section */}
-            <div className="flex flex-col items-center justify-between gap-4 border-t pt-4 lg:flex-row">
-              <FeeDisplay {...feeState} />
-              <Button
-                type="submit"
-                disabled={!isConnected || mintMutation.isPending}
-                size="lg"
-                className="ml-auto w-full lg:w-auto"
-              >
-                {mintMutation.isPending ? 'Minting Tokens...' : 'Mint Tokens'}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <TransactionFormFooter
+              feeState={feeState}
+              isDisabled={!isConnected || mintMutation.isPending}
+              isPending={mintMutation.isPending}
+              actionText="Mint Tokens"
+            />
           </form>
         </CardContent>
       </Card>

@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from 'react'
 
-import { AlertTriangle, ArrowRight, Trash } from 'lucide-react'
+import { AlertTriangle, Trash } from 'lucide-react'
 
 import {
   AccountDashboard,
   FeatureErrorBoundary,
-  FeeDisplay,
   MutationError,
+  TransactionFormFooter,
   TransactionReview,
 } from '@/components'
 import {
@@ -163,7 +163,7 @@ function DestroyAssetInner() {
               <div className="space-y-4 lg:col-span-2">
                 <div className="bg-muted/50 border-muted/50 rounded-lg border p-4">
                   <div className="flex items-start gap-2">
-                    <AlertTriangle className="text-destructive mt-0.5 h-4 w-4 flex-shrink-0" />
+                    <AlertTriangle className="text-destructive mt-0.5 h-4 w-4 shrink-0" />
                     <p className="text-muted-foreground text-sm">
                       <strong>Warning:</strong> Asset destruction is permanent
                       and irreversible. The chain will reject the transaction if
@@ -201,25 +201,17 @@ function DestroyAssetInner() {
             </div>
 
             {/* Fee + CTA Section */}
-            <div className="border-destructive/20 flex flex-col items-center justify-between gap-4 border-t pt-4 lg:flex-row">
-              <FeeDisplay {...feeState} variant="destructive" />
-              <Button
-                type="submit"
-                variant="destructive"
-                size="lg"
-                disabled={
-                  !isConnected ||
-                  !formData.assetId ||
-                  destroyAssetMutation.isPending
-                }
-                className="ml-auto w-full lg:w-auto"
-              >
-                {destroyAssetMutation.isPending
-                  ? 'Destroying Asset...'
-                  : 'Destroy Asset'}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <TransactionFormFooter
+              feeState={feeState}
+              isDisabled={
+                !isConnected ||
+                !formData.assetId ||
+                destroyAssetMutation.isPending
+              }
+              isPending={destroyAssetMutation.isPending}
+              variant="destructive"
+              actionText="Destroy Asset"
+            />
           </form>
         </CardContent>
       </Card>

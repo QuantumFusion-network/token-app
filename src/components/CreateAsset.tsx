@@ -1,15 +1,15 @@
 import { useEffect, useState, type FormEvent } from 'react'
 
-import { ArrowRight, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 import {
   AccountDashboard,
   FeatureErrorBoundary,
-  FeeDisplay,
   MutationError,
+  TransactionFormFooter,
   TransactionReview,
 } from '@/components'
-import { Button, Card, CardContent, Input, Label } from '@/components/ui'
+import { Card, CardContent, Input, Label } from '@/components/ui'
 import {
   useAssetMutation,
   useConnectionContext,
@@ -249,20 +249,12 @@ function CreateAssetInner() {
             </div>
 
             {/* Fee + CTA Section */}
-            <div className="flex flex-col items-center justify-between gap-4 border-t pt-4 lg:flex-row">
-              <FeeDisplay {...feeState} />
-              <Button
-                type="submit"
-                disabled={!isConnected || createAssetMutation.isPending}
-                size="lg"
-                className="ml-auto w-full lg:w-auto"
-              >
-                {createAssetMutation.isPending
-                  ? 'Creating Asset...'
-                  : 'Create Asset'}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <TransactionFormFooter
+              feeState={feeState}
+              isDisabled={!isConnected || createAssetMutation.isPending}
+              isPending={createAssetMutation.isPending}
+              actionText="Create Asset"
+            />
           </form>
         </CardContent>
       </Card>
