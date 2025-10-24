@@ -49,9 +49,7 @@ export function useTransactionToasts() {
         case 'error':
           if (status.error && toastConfig.error) {
             const message = toastConfig.error(status.error.message)
-            toast.error(message, {
-              description: status.error.message,
-            })
+            toast.error(message)
           }
           break
       }

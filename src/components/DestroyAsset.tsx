@@ -7,6 +7,7 @@ import {
   AccountDashboard,
   FeatureErrorBoundary,
   FeeDisplay,
+  MutationError,
   TransactionReview,
 } from '@/components'
 import {
@@ -114,11 +115,7 @@ function DestroyAssetInner() {
                 </p>
               </div>
 
-              {destroyAssetMutation.isError && (
-                <div className="text-destructive-foreground bg-destructive/10 border-destructive/20 rounded-md border p-3 text-sm">
-                  {destroyAssetMutation.error?.message}
-                </div>
-              )}
+              <MutationError error={destroyAssetMutation.error} />
 
               <div className="flex gap-2">
                 <Button
@@ -194,11 +191,7 @@ function DestroyAssetInner() {
                   />
                 </div>
 
-                {destroyAssetMutation.isError && (
-                  <div className="text-destructive-foreground bg-destructive/10 border-destructive/20 rounded-md border p-3 text-sm">
-                    {destroyAssetMutation.error?.message}
-                  </div>
-                )}
+                <MutationError error={destroyAssetMutation.error} />
               </div>
 
               {/* Review Column - 1 column */}

@@ -6,6 +6,7 @@ import {
   AccountDashboard,
   FeatureErrorBoundary,
   FeeDisplay,
+  MutationError,
   TransactionReview,
 } from '@/components'
 import { Button, Card, CardContent, Input, Label } from '@/components/ui'
@@ -238,11 +239,7 @@ function CreateAssetInner() {
                   </div>
                 </div>
 
-                {createAssetMutation.isError && (
-                  <div className="text-destructive-foreground bg-destructive/10 border-destructive/20 rounded-md border p-3 text-sm">
-                    {createAssetMutation.error?.message}
-                  </div>
-                )}
+                <MutationError error={createAssetMutation.error} />
               </div>
 
               {/* Review Column - 1 column */}
