@@ -29,13 +29,7 @@ export const useAssetMutation = <TParams>({
   // Build transaction from current params
   const transaction =
     selectedAccount && (!isValid || isValid(params))
-      ? (() => {
-          try {
-            return operationFn(params)
-          } catch {
-            return null
-          }
-        })()
+      ? operationFn(params)
       : null
 
   const mutation = useMutation({

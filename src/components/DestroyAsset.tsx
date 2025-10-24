@@ -47,7 +47,6 @@ function DestroyAssetInner() {
     useAssetMutation<DestroyAssetParams>({
       params: formData,
       operationFn: (params) => {
-        console.log('operationFn')
         return destroyAssetBatch(api, params)
       },
       toastConfig: destroyAssetToasts,
