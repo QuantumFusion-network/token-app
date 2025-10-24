@@ -1,6 +1,3 @@
 export { ConnectionProvider } from './ConnectionContext'
-export {
-  TransactionProvider,
-  useTransactionContext,
-} from './TransactionContext'
+export { TransactionProvider } from './TransactionContext'
 export { WalletProvider } from './WalletContext'

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 
 import { toast } from 'sonner'
 
-import { useTransactionContext } from '@/contexts'
+import { useTransactionContext } from '@/hooks'
 import { TransactionErrorCode } from '@/lib/transactionErrors'
 
 interface TransactionToastIds {
