@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 
-import { useQueryClient } from '@tanstack/react-query'
 import { AlertTriangle, ArrowRight, Trash } from 'lucide-react'
 
 import {
@@ -32,6 +31,7 @@ import {
   invalidateAssetQueries,
   type DestroyAssetParams,
 } from '@/lib'
+import { useQueryClient } from '@tanstack/react-query'
 
 function DestroyAssetInner() {
   const { selectedAccount } = useWalletContext()
@@ -149,7 +149,7 @@ function DestroyAssetInner() {
     <div>
       <AccountDashboard />
       <div className="mb-4 flex items-center gap-4">
-        <Trash className="text-destructive h-5 w-5" />
+        <Trash className="text-foreground h-5 w-5" />
         <h1 className="text-foreground text-2xl leading-tight font-bold">
           Destroy Asset
         </h1>
@@ -161,10 +161,10 @@ function DestroyAssetInner() {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               {/* Form Fields - 2 columns */}
               <div className="space-y-4 lg:col-span-2">
-                <div className="bg-destructive/10 border-destructive/20 rounded-lg border p-4">
+                <div className="bg-muted/50 border-muted/50 rounded-lg border p-4">
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="text-destructive mt-0.5 h-4 w-4 flex-shrink-0" />
-                    <p className="text-destructive text-sm">
+                    <p className="text-muted-foreground text-sm">
                       <strong>Warning:</strong> Asset destruction is permanent
                       and irreversible. The chain will reject the transaction if
                       you don't own the asset.

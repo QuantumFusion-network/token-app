@@ -1,8 +1,13 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 
-import type { TxBroadcastEvent } from 'polkadot-api'
+import { type TxBroadcastEvent } from 'polkadot-api'
 
 import type { ToastConfig } from '@/lib/toastConfigs'
+import type { TransactionError } from '@/lib/transactionErrors'
+import {
+  createDispatchError,
+  createTransactionError,
+} from '@/lib/errorParsing'
 
 interface TransactionObservable {
   subscribe: (handlers: {
@@ -21,7 +26,7 @@ export interface TransactionStatus {
     | 'error'
   txHash?: string
   blockHash?: string
-  error?: Error
+  error?: TransactionError
   events?: unknown[]
 }
 
@@ -110,20 +115,6 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
     })
   }
 
-  const getDispatchError = (dispatchError: {
-    type: string
-    value: unknown
-  }): string => {
-    if (dispatchError?.type === 'Module') {
-      const error = dispatchError.value as {
-        type: string
-        value: { type: string }
-      }
-      return `${error.type}: ${error.value.type}`
-    }
-    return 'Unknown error'
-  }
-
   const trackTransaction = async (
     id: string,
     observable: TransactionObservable
@@ -137,7 +128,6 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
           console.log(`Transaction ${id} status:`, event)
 
           let newStatus: TransactionStatus
-          let dispatchError = 'Unknown error'
 
           switch (event.type) {
             case 'signed':
@@ -149,7 +139,7 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
             case 'txBestBlocksState':
               newStatus = { status: 'inBlock', txHash: event.txHash }
               break
-            case 'finalized':
+            case 'finalized': {
               if (event.ok) {
                 newStatus = {
                   status: 'finalized',
@@ -161,15 +151,22 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
                 resolve()
                 break
               }
-              if (event.dispatchError) {
-                dispatchError = getDispatchError(event.dispatchError)
-              }
+              // Transaction finalized but failed during runtime execution
+              const transaction = transactions[id]
+              const dispatchError = createDispatchError(event.dispatchError, {
+                transactionType: transaction?.type,
+                transactionId: id,
+                details: transaction?.details,
+                txHash: event.txHash,
+                blockHash: event.block.hash,
+              })
               updateTransactionStatus(id, {
                 status: 'error',
-                error: new Error(dispatchError),
+                error: dispatchError,
               })
-              reject(new Error(dispatchError))
+              reject(dispatchError)
               return
+            }
             default:
               return
           }
@@ -177,9 +174,18 @@ export function TransactionProvider({ children }: TransactionProviderProps) {
           updateTransactionStatus(id, newStatus)
         },
         error: (error: Error) => {
-          console.error(`Transaction ${id} error:`, error)
-          updateTransactionStatus(id, { status: 'error', error })
-          reject(error)
+          // Create typed error with transaction context
+          const transaction = transactions[id]
+          const transactionError = createTransactionError(error, {
+            transactionType: transaction?.type,
+            transactionId: id,
+            details: transaction?.details,
+          })
+          updateTransactionStatus(id, {
+            status: 'error',
+            error: transactionError,
+          })
+          reject(transactionError)
         },
       })
 
