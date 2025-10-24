@@ -13,6 +13,15 @@ interface ErrorMessageMap {
  * User-friendly error messages for common pallet errors
  */
 const ERROR_MESSAGES: ErrorMessageMap = {
+  Token: {
+    CannotCreate:
+      "Can't mint to this account - add more balance or use an account with fewer assets",
+    NoFunds: 'Insufficient funds to complete this operation',
+    Frozen: 'Token is frozen and cannot be used',
+    Underflow: 'Operation would result in negative balance',
+    Overflow: 'Operation would exceed maximum token supply',
+    UnknownAsset: 'Token does not exist',
+  },
   Assets: {
     NoPermission: "You don't have permission to perform this operation",
     AssetNotLive:
@@ -25,7 +34,7 @@ const ERROR_MESSAGES: ErrorMessageMap = {
     IncorrectStatus: 'Asset is in an incorrect state for this operation',
     NotFrozen: 'Asset must be frozen before performing this operation',
     CallbackFailed: 'Asset callback operation failed',
-    Unknown: 'Asset already exists with this ID',
+    Unknown: 'Asset with this ID does not exist',
     Frozen: 'Asset or account is frozen',
     WrongOwner: 'You are not the owner of this asset',
     LiveAsset: 'Asset is still active and has accounts or approvals',

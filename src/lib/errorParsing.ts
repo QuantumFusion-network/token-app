@@ -5,6 +5,7 @@
 
 import { InvalidTxError } from 'polkadot-api'
 
+import { getErrorMessage } from './errorMessages'
 import {
   DispatchError,
   InvalidTransactionError,
@@ -13,7 +14,6 @@ import {
   UserRejectionError,
   type TransactionErrorContext,
 } from './transactionErrors'
-import { getErrorMessage } from './errorMessages'
 
 /**
  * Shape of a Module dispatch error from polkadot-api
@@ -25,6 +25,16 @@ interface ModuleDispatchError {
     value: {
       type: string // Error name
     }
+  }
+}
+
+/**
+ * Shape of a Token dispatch error from polkadot-api
+ */
+interface TokenDispatchError {
+  type: 'Token'
+  value: {
+    type: string // Error name
   }
 }
 
@@ -60,20 +70,50 @@ function isModuleDispatchError(error: unknown): error is ModuleDispatchError {
 }
 
 /**
+ * Type guard to check if an error has the Token dispatch error shape
+ */
+function isTokenDispatchError(error: unknown): error is TokenDispatchError {
+  if (typeof error !== 'object' || error === null) return false
+
+  const e = error as Record<string, unknown>
+
+  if (e.type !== 'Token') return false
+
+  if (typeof e.value !== 'object' || e.value === null) return false
+
+  const value = e.value as Record<string, unknown>
+
+  return typeof value.type === 'string'
+}
+
+/**
  * Safely parses a dispatch error to extract pallet and error name
  * Returns null if the error doesn't match the expected shape
  */
 export function parseDispatchError(
   dispatchError: unknown
 ): ParsedDispatchError | null {
-  if (!isModuleDispatchError(dispatchError)) {
-    return null
+  console.log('dispatchError', dispatchError)
+
+  // Handle Module errors (pallet-based)
+  if (isModuleDispatchError(dispatchError)) {
+    return {
+      pallet: dispatchError.value.type,
+      errorName: dispatchError.value.value.type,
+    }
   }
 
-  return {
-    pallet: dispatchError.value.type,
-    errorName: dispatchError.value.value.type,
+  // Handle Token errors (system-level)
+  if (isTokenDispatchError(dispatchError)) {
+    return {
+      pallet: 'Token',
+      errorName: dispatchError.value.type,
+    }
   }
+
+  // Log unknown error structures for future debugging
+  console.warn('Unknown dispatch error structure:', dispatchError)
+  return null
 }
 
 /**
@@ -203,7 +243,11 @@ export function isUserRejection(error: Error): boolean {
 export function createTransactionError(
   error: Error,
   context: TransactionErrorContext = {}
-): InvalidTransactionError | UserRejectionError | NetworkError | UnknownTransactionError {
+):
+  | InvalidTransactionError
+  | UserRejectionError
+  | NetworkError
+  | UnknownTransactionError {
   // Check for user rejection patterns
   if (isUserRejection(error)) {
     return new UserRejectionError(context)
