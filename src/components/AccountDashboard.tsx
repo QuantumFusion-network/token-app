@@ -28,7 +28,7 @@ function AccountDashboardInner() {
   const nativeBalance = accountInfo?.data.free || 0n
   const formattedNativeBalance = formatUnits(nativeBalance, 12) // QF Network uses 12 decimals
 
-  // Truncate balance to 3 decimal places with ellipsis
+  // Truncate balance to 4 decimal places with ellipsis
   const truncatedBalance = (() => {
     const parts = formattedNativeBalance.split('.')
     if (parts.length === 1) return formattedNativeBalance

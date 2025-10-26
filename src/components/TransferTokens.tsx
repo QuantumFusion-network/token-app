@@ -144,7 +144,7 @@ function TransferTokensInner() {
                       }))
                     }
                     required
-                    min="0"
+                    min="0.000000000001"
                     step="0.000000000001"
                     placeholder="0.0"
                     className="h-12"
