@@ -1,0 +1,12 @@
+{
+  "version": 0,
+  "descriptorPath": ".papi/descriptors",
+  "entries": {
+    "qfn": {
+      "wsUrl": "wss://test.qfnetwork.xyz",
+      "metadata": ".papi/metadata/qfn.scale",
+      "genesis": "0xf2741047604399cf783f47197ad06f5d2761e2dab97c405e076af64d60f20faf",
+      "codeHash": "0x99d59c21e2544076a381148377872e2e190bdb0dc01abe5accbe2bebcd640049"
+    }
+  }
+}
