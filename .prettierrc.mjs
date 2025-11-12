@@ -1,0 +1,26 @@
+export default {
+  printWidth: 80,
+  semi: false,
+  singleQuote: true,
+  trailingComma: 'es5',
+  bracketSpacing: true,
+  arrowParens: 'always',
+  plugins: [
+    '@ianvs/prettier-plugin-sort-imports',
+    'prettier-plugin-tailwindcss',
+  ],
+  importOrder: [
+    '^react$',
+    '^react-.*$',
+    '',
+    '^node:.*$',
+    '',
+    '<THIRD_PARTY_MODULES>',
+    '',
+    '^@\\/.*$',
+    '^@[^/]+\\/[^/]+',
+    '',
+    '^[./]',
+  ],
+  importOrderParserPlugins: ['typescript', 'jsx'],
+}
