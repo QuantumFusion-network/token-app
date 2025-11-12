@@ -4,14 +4,14 @@ This is a web application for managing assets on the QF Network, a Polkadot-base
 
 ## Features
 
-- Connect to a Polkadot wallet
+- Connect to a supported wallet
 - Create, mint, transfer, and destroy assets
 
 ## Tech Stack
 
 - React, TypeScript, Vite
-- PAPI
-- Tailwind CSS
+- PAPI (polkadot-api)
+- Tailwind CSS, shadcn/ui
 - TanStack Query
 
 ## Development
