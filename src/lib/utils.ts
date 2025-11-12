@@ -33,10 +33,10 @@ export function parseUnits(value: string, decimals: number): bigint {
 }
 
 /**
- * Format fee amounts for QF Network (12 decimals, max 4 decimal places shown)
+ * Format fee amounts for QF Network (18 decimals, max 4 decimal places shown)
  */
 export function formatFee(fee: bigint): string {
-  const formatted = formatUnits(fee, 12)
+  const formatted = formatUnits(fee, 18)
   const [whole, fraction = ''] = formatted.split('.')
   const trimmed = fraction.slice(0, 4)
   return trimmed ? `${whole}.${trimmed}` : whole

@@ -26,13 +26,14 @@ function AccountDashboardInner() {
   }
 
   const nativeBalance = accountInfo?.data.free || 0n
-  const formattedNativeBalance = formatUnits(nativeBalance, 12) // QF Network uses 12 decimals
+  console.log('nativeBalance', nativeBalance)
+  const formattedNativeBalance = formatUnits(nativeBalance, 18) // QF Network uses 18 decimals
 
   // Truncate balance to 4 decimal places with ellipsis
   const truncatedBalance = (() => {
     const parts = formattedNativeBalance.split('.')
     if (parts.length === 1) return formattedNativeBalance
-    return `${parts[0]}.${parts[1].slice(0, 4)}...`
+    return `${parts[0]}.${parts[1].slice(0, 4)}`
   })()
 
   const faucetUrl = 'https://faucet.qfnetwork.xyz' // Replace with actual testnet faucet URL
