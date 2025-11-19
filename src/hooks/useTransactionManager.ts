@@ -102,8 +102,6 @@ export function useTransactionManager() {
     return new Promise<void>((resolve, reject) => {
       const subscription = observable.subscribe({
         next: (event: TxBroadcastEvent) => {
-          console.log(`Transaction ${id} status:`, event)
-
           let newStatus: TransactionStatus
 
           switch (event.type) {

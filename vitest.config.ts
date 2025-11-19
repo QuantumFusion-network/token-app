@@ -1,7 +1,9 @@
 import { fileURLToPath } from 'node:url'
+
 import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
+
 import tailwindcss from '@tailwindcss/vite'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [
@@ -29,6 +31,9 @@ export default defineConfig({
     clearMocks: true,
     mockReset: true,
     restoreMocks: true,
+
+    // Reporter - tap format has better hierarchy
+    reporters: 'tree',
 
     // Coverage configuration (informational only, not enforced)
     coverage: {

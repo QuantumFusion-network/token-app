@@ -93,8 +93,6 @@ function isTokenDispatchError(error: unknown): error is TokenDispatchError {
 export function parseDispatchError(
   dispatchError: unknown
 ): ParsedDispatchError | null {
-  console.log('dispatchError', dispatchError)
-
   // Handle Module errors (pallet-based)
   if (isModuleDispatchError(dispatchError)) {
     return {
