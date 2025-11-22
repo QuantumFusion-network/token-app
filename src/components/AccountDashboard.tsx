@@ -3,7 +3,7 @@ import { ExternalLink, Wallet } from 'lucide-react'
 import { ComponentErrorBoundary } from '@/components'
 import { Button, Card, CardContent } from '@/components/ui'
 import { useConnectionContext, useWalletContext } from '@/hooks'
-import { formatUnits } from '@/lib'
+import { formatBalance, fromPlanck } from '@/lib/decimal-scaling'
 import { useQuery } from '@tanstack/react-query'
 
 function AccountDashboardInner() {
@@ -27,7 +27,7 @@ function AccountDashboardInner() {
 
   const nativeBalance = accountInfo?.data.free || 0n
   console.log('nativeBalance', nativeBalance)
-  const formattedNativeBalance = formatUnits(nativeBalance, 18) // QF Network uses 18 decimals
+  const formattedNativeBalance = formatBalance(fromPlanck(nativeBalance, 18)) // QF Network uses 18 decimals
 
   // Truncate balance to 4 decimal places with ellipsis
   const truncatedBalance = (() => {

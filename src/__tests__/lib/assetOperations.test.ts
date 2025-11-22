@@ -106,23 +106,6 @@ describe('createAssetBatch', () => {
       const calls18 = tx18.decodedCall.value.calls as any[]
       expect(calls18[0].value.min_balance).toBe(1000000000000000000n)
     })
-
-    it('handles fractional minBalance values', () => {
-      const api = createMockQfnApi()
-
-      // minBalance '0.5' with 6 decimals = 500000
-      const params = buildCreateAssetParams({
-        minBalance: '0.5',
-        decimals: '6'
-      })
-
-      // Note: Current implementation doesn't handle decimal minBalance correctly
-      // It does BigInt('0.5') which will throw
-      // This test documents the bug - minBalance should be parsed like amounts
-      expect(() => {
-        createAssetBatch(api, params, TEST_ADDRESSES.ALICE)
-      }).toThrow()
-    })
   })
 
   describe('Asset creation with initial mint', () => {

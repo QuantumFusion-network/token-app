@@ -2,7 +2,7 @@ import { useDeferredValue, useEffect, useState } from 'react'
 
 import type { Transaction } from 'polkadot-api'
 
-import { formatFee } from '@/lib'
+import { fromPlanck } from '@/lib/decimal-scaling'
 
 export const useFee = (
   transaction: Transaction<object, string, string, unknown> | null,
@@ -31,7 +31,7 @@ export const useFee = (
       .getPaymentInfo(signerAddress, { at: 'best' })
       .then((paymentInfo) => {
         if (!cancelled) {
-          setFee(formatFee(paymentInfo.partial_fee))
+          setFee(fromPlanck(paymentInfo.partial_fee))
           setIsLoading(false)
         }
       })

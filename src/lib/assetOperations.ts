@@ -2,7 +2,7 @@ import { Binary, type TxCallData, type TypedApi } from 'polkadot-api'
 
 import { MultiAddress, type qfn } from '@polkadot-api/descriptors'
 
-import { parseUnits } from './utils'
+import { toPlanck } from './decimal-scaling'
 
 type QfnApi = TypedApi<typeof qfn>
 
@@ -40,7 +40,7 @@ export const createAssetBatch = (
   signerAddress: string
 ) => {
   const assetId = parseInt(params.assetId)
-  const minBalance = BigInt(params.minBalance) * 10n ** BigInt(params.decimals)
+  const minBalance = toPlanck(params.minBalance, parseInt(params.decimals))
 
   const createCall = api.tx.Assets.create({
     id: assetId,
@@ -58,7 +58,7 @@ export const createAssetBatch = (
   const calls: TxCallData[] = [createCall, metadataCall]
 
   if (params.initialMintAmount && parseFloat(params.initialMintAmount) > 0) {
-    const mintAmount = parseUnits(
+    const mintAmount = toPlanck(
       params.initialMintAmount,
       parseInt(params.decimals)
     )
@@ -77,7 +77,7 @@ export const createAssetBatch = (
 
 export const mintTokens = (api: QfnApi, params: MintParams) => {
   const assetId = parseInt(params.assetId)
-  const amount = parseUnits(params.amount, params.decimals)
+  const amount = toPlanck(params.amount, params.decimals)
 
   return api.tx.Assets.mint({
     id: assetId,
@@ -88,7 +88,7 @@ export const mintTokens = (api: QfnApi, params: MintParams) => {
 
 export const transferTokens = (api: QfnApi, params: TransferParams) => {
   const assetId = parseInt(params.assetId)
-  const amount = parseUnits(params.amount, params.decimals)
+  const amount = toPlanck(params.amount, params.decimals)
 
   return api.tx.Assets.transfer({
     id: assetId,

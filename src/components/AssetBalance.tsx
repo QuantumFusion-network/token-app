@@ -1,6 +1,6 @@
 import { ComponentErrorBoundary } from '@/components'
 import { useConnectionContext, useWalletContext } from '@/hooks'
-import { formatUnits } from '@/lib'
+import { fromPlanck } from '@/lib/decimal-scaling'
 import { useQuery } from '@tanstack/react-query'
 
 interface AssetBalanceProps {
@@ -52,7 +52,7 @@ function AssetBalanceInner({ assetId, accountId }: AssetBalanceProps) {
     : `Asset ${assetId}`
 
   const decimals = metadata?.decimals ?? 12
-  const formattedBalance = formatUnits(balance[0]?.balance || 0n, decimals)
+  const formattedBalance = fromPlanck(balance[0]?.balance || 0n, decimals)
 
   return (
     <div className="font-mono">

@@ -178,7 +178,7 @@ function CreateAssetInner() {
                     </Label>
                     <Input
                       id="minBalance"
-                      type="number"
+                      type="text"
                       value={formData.minBalance}
                       onChange={(e) =>
                         setFormData((prev) => ({
@@ -201,7 +201,7 @@ function CreateAssetInner() {
                     </Label>
                     <Input
                       id="initialMint"
-                      type="number"
+                      type="text"
                       value={formData.initialMintAmount}
                       onChange={(e) =>
                         setFormData((prev) => ({
