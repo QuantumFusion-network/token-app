@@ -3,7 +3,7 @@ import { ExternalLink, Wallet } from 'lucide-react'
 import { ComponentErrorBoundary } from '@/components'
 import { Button, Card, CardContent } from '@/components/ui'
 import { useConnectionContext, useWalletContext } from '@/hooks'
-import { formatBalance, fromPlanck } from '@/lib/decimal-scaling'
+import { formatBalance, fromPlanck } from '@/lib'
 import { useQuery } from '@tanstack/react-query'
 
 function AccountDashboardInner() {
@@ -27,14 +27,11 @@ function AccountDashboardInner() {
 
   const nativeBalance = accountInfo?.data.free || 0n
   console.log('nativeBalance', nativeBalance)
-  const formattedNativeBalance = formatBalance(fromPlanck(nativeBalance, 18)) // QF Network uses 18 decimals
-
-  // Truncate balance to 4 decimal places with ellipsis
-  const truncatedBalance = (() => {
-    const parts = formattedNativeBalance.split('.')
-    if (parts.length === 1) return formattedNativeBalance
-    return `${parts[0]}.${parts[1].slice(0, 4)}`
-  })()
+  const formattedNativeBalance = formatBalance(fromPlanck(nativeBalance, 18), {
+    symbol: 'QF',
+    displayDecimals: 2,
+    locale: 'en-US',
+  })
 
   const faucetUrl = 'https://faucet.qfnetwork.xyz' // Replace with actual testnet faucet URL
 
@@ -56,8 +53,7 @@ function AccountDashboardInner() {
                     <div className="bg-primary/20 h-8 w-48 animate-pulse rounded" />
                   ) : (
                     <div className="text-foreground font-mono text-2xl font-bold">
-                      {truncatedBalance}{' '}
-                      <span className="text-primary text-lg">QF</span>
+                      {formattedNativeBalance}{' '}
                     </div>
                   )}
                 </div>

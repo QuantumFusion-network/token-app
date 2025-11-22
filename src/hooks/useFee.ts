@@ -2,7 +2,7 @@ import { useDeferredValue, useEffect, useState } from 'react'
 
 import type { Transaction } from 'polkadot-api'
 
-import { fromPlanck } from '@/lib/decimal-scaling'
+import { fromPlanck } from '@/lib'
 
 export const useFee = (
   transaction: Transaction<object, string, string, unknown> | null,

@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui'
 import { useWalletContext } from '@/hooks'
-import { fromPlanck } from '@/lib/decimal-scaling'
+import { formatBalance, fromPlanck } from '@/lib'
 
 interface AssetCardProps {
   id: number
@@ -44,7 +44,13 @@ interface AssetCardProps {
 
 export function AssetCard({ id, metadata, asset }: AssetCardProps) {
   const { selectedAccount } = useWalletContext()
-  const formattedSupply = fromPlanck(asset.supply, metadata.decimals)
+  const formattedSupply = formatBalance(
+    fromPlanck(asset.supply, metadata.decimals),
+    {
+      symbol: metadata.symbol.asText(),
+      displayDecimals: 4,
+    }
+  )
 
   const isOwner = selectedAccount?.address === asset.owner
   const isAdmin = selectedAccount?.address === asset.admin
@@ -154,7 +160,7 @@ export function AssetCard({ id, metadata, asset }: AssetCardProps) {
               </span>
             </div>
             <div className="text-foreground font-mono text-xl font-bold">
-              {`${formattedSupply} ${metadata.symbol.asText()}`}
+              {`${formattedSupply}`}
             </div>
           </div>
 

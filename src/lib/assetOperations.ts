@@ -2,7 +2,7 @@ import { Binary, type TxCallData, type TypedApi } from 'polkadot-api'
 
 import { MultiAddress, type qfn } from '@polkadot-api/descriptors'
 
-import { toPlanck } from './decimal-scaling'
+import { toPlanck } from './balance'
 
 type QfnApi = TypedApi<typeof qfn>
 

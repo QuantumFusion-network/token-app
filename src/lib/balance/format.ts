@@ -1,5 +1,5 @@
 // format.ts
-import { ERR_EMPTY_INPUT, ERR_DECIMALS_RANGE } from './config'
+import { ERR_DECIMALS_RANGE, ERR_EMPTY_INPUT } from './config'
 
 /**
  * Rounding mode for display formatting
@@ -59,11 +59,7 @@ export function formatTokenDisplay(
   amount: string,
   options: FormatOptions = {}
 ): string {
-  const {
-    displayDecimals,
-    mode = 'floor',
-    useGrouping = false,
-  } = options
+  const { displayDecimals, mode = 'floor', useGrouping = false } = options
 
   // Normalize input: trim whitespace
   const normalized = amount.trim()
@@ -127,8 +123,7 @@ export function formatTokenDisplay(
   const intStr = finalInt.toString()
   const fracStr = finalFrac.toString().padStart(displayDecimals, '0')
 
-  const result =
-    displayDecimals === 0 ? intStr : `${intStr}.${fracStr}`
+  const result = displayDecimals === 0 ? intStr : `${intStr}.${fracStr}`
 
   // Apply grouping if requested
   if (useGrouping) {
@@ -160,7 +155,7 @@ export interface FormatBalanceOptions {
   locale?: string
 
   /**
-   * Symbol to display (e.g., 'ETH', 'USDC', '$', '€')
+   * Symbol to display (e.g., 'QF', 'USDC', '$', '€')
    * If not provided, no symbol is shown
    */
   symbol?: string
@@ -168,7 +163,7 @@ export interface FormatBalanceOptions {
   /**
    * Where to place the symbol relative to the amount
    * - 'prefix': Symbol before amount ($1.23)
-   * - 'suffix': Symbol after amount (1.23 ETH)
+   * - 'suffix': Symbol after amount (1.23 QF)
    * Default: 'suffix'
    */
   symbolPosition?: 'prefix' | 'suffix'
@@ -203,8 +198,8 @@ export interface FormatBalanceOptions {
  * // Token balance (suffix by default)
  * formatBalance('123.456789', {
  *   displayDecimals: 4,
- *   symbol: 'ETH'
- * })  // "123.4567 ETH"
+ *   symbol: 'QF'
+ * })  // "123.4567 QF"
  *
  * @param amount - Decimal string to format (e.g., from fromPlanck)
  * @param options - Formatting options
@@ -247,7 +242,7 @@ export function formatBalance(
     // Format the number with locale-specific separators
     if (typeof Intl !== 'undefined' && Intl.NumberFormat) {
       const numberFormatter = new Intl.NumberFormat(locale, {
-        minimumFractionDigits: displayDecimals ?? 0,
+        minimumFractionDigits: 0, // Always remove trailing zeros
         maximumFractionDigits: displayDecimals ?? 20,
         useGrouping: true,
       })

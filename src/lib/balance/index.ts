@@ -2,9 +2,7 @@
 export { toPlanck } from './toPlanck'
 export { fromPlanck } from './fromPlanck'
 export {
-  formatTokenDisplay,
   formatBalance,
-  type FormatOptions,
   type FormatBalanceOptions,
   type RoundingMode,
 } from './format'

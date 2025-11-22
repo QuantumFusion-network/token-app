@@ -29,7 +29,7 @@ describe('toPlanck', () => {
   })
 
   it('handles fractions shorter than decimals (right-padding)', () => {
-    expect(P('0.000000000000000001')).toBe(1n) // Smallest unit (1 wei-style)
+    expect(P('0.000000000000000001')).toBe(1n) // Smallest unit (1 planck)
     expect(P('.5')).toBe(5n * ONE / 10n) // 0.5 = 5/10
     expect(P('5.')).toBe(5n * ONE) // 5.0 = 5 * 10^18
   })

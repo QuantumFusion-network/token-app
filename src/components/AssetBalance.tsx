@@ -1,6 +1,6 @@
 import { ComponentErrorBoundary } from '@/components'
 import { useConnectionContext, useWalletContext } from '@/hooks'
-import { fromPlanck } from '@/lib/decimal-scaling'
+import { formatBalance, fromPlanck } from '@/lib'
 import { useQuery } from '@tanstack/react-query'
 
 interface AssetBalanceProps {
@@ -47,18 +47,18 @@ function AssetBalanceInner({ assetId, accountId }: AssetBalanceProps) {
     return <div className="text-gray-500">0.000</div>
   }
 
-  const symbol = metadata
-    ? new TextDecoder().decode(metadata.symbol.asBytes())
-    : `Asset ${assetId}`
+  const symbol = metadata ? metadata.symbol.asText() : `Asset ${assetId}`
 
   const decimals = metadata?.decimals ?? 12
-  const formattedBalance = fromPlanck(balance[0]?.balance || 0n, decimals)
-
-  return (
-    <div className="font-mono">
-      {formattedBalance} {symbol}
-    </div>
+  const formattedBalance = formatBalance(
+    fromPlanck(balance[0]?.balance || 0n, decimals),
+    {
+      symbol,
+      displayDecimals: decimals,
+    }
   )
+
+  return <div className="font-mono">{formattedBalance}</div>
 }
 
 export function AssetBalance(props: AssetBalanceProps) {
