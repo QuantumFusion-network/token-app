@@ -64,6 +64,7 @@ jobs:
 
       - name: Start qf-node
         run: |
+          chmod +x ./qf-node
           ./qf-node --dev &
           echo "QF_NODE_PID=$!" >> $GITHUB_ENV
 
