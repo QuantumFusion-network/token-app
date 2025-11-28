@@ -63,26 +63,27 @@ describe('createAssetBatch', () => {
       const tx = createAssetBatch(api, params, signer)
 
       // Should return Utility.batch_all transaction
-      expect(tx.decodedCall.pallet).toBe('Utility')
-      expect(tx.decodedCall.type).toBe('batch_all')
+      // Structure: { type: "Utility", value: { type: "batch_all", value: { calls: [...] } } }
+      expect(tx.decodedCall.type).toBe('Utility')
+      expect(tx.decodedCall.value.type).toBe('batch_all')
 
       // Should contain exactly 2 calls (create + metadata, no mint)
-      const calls = tx.decodedCall.value.calls as any[]
+      const calls = tx.decodedCall.value.value.calls as any[]
       expect(calls).toHaveLength(2)
 
       // First call: Assets.create
-      expect(calls[0].pallet).toBe('Assets')
-      expect(calls[0].type).toBe('create')
-      expect(calls[0].value.id).toBe(1000) // Parsed from '1000'
-      expect(calls[0].value.admin).toEqual({ type: 'Id', value: signer })
+      expect(calls[0].type).toBe('Assets')
+      expect(calls[0].value.type).toBe('create')
+      expect(calls[0].value.value.id).toBe(1000) // Parsed from '1000'
+      expect(calls[0].value.value.admin).toEqual({ type: 'Id', value: signer })
 
       // Second call: Assets.set_metadata
-      expect(calls[1].pallet).toBe('Assets')
-      expect(calls[1].type).toBe('set_metadata')
-      expect(calls[1].value.id).toBe(1000)
-      expect(calls[1].value.name).toBe('Binary(Test USD Coin)')
-      expect(calls[1].value.symbol).toBe('Binary(USDC)')
-      expect(calls[1].value.decimals).toBe(6)
+      expect(calls[1].type).toBe('Assets')
+      expect(calls[1].value.type).toBe('set_metadata')
+      expect(calls[1].value.value.id).toBe(1000)
+      expect(calls[1].value.value.name).toBe('Binary(Test USD Coin)')
+      expect(calls[1].value.value.symbol).toBe('Binary(USDC)')
+      expect(calls[1].value.value.decimals).toBe(6)
     })
 
     it('calculates minBalance correctly with decimals', () => {
@@ -94,8 +95,8 @@ describe('createAssetBatch', () => {
         decimals: '6'
       })
       const tx6 = createAssetBatch(api, params6, TEST_ADDRESSES.ALICE)
-      const calls6 = tx6.decodedCall.value.calls as any[]
-      expect(calls6[0].value.min_balance).toBe(1000000n)
+      const calls6 = tx6.decodedCall.value.value.calls as any[]
+      expect(calls6[0].value.value.min_balance).toBe(1000000n)
 
       // 18 decimals: minBalance '1' = 1 * 10^18
       const params18 = buildCreateAssetParams({
@@ -103,8 +104,8 @@ describe('createAssetBatch', () => {
         decimals: '18'
       })
       const tx18 = createAssetBatch(api, params18, TEST_ADDRESSES.ALICE)
-      const calls18 = tx18.decodedCall.value.calls as any[]
-      expect(calls18[0].value.min_balance).toBe(1000000000000000000n)
+      const calls18 = tx18.decodedCall.value.value.calls as any[]
+      expect(calls18[0].value.value.min_balance).toBe(1000000000000000000n)
     })
   })
 
@@ -117,21 +118,21 @@ describe('createAssetBatch', () => {
       })
 
       const tx = createAssetBatch(api, params, TEST_ADDRESSES.ALICE)
-      const calls = tx.decodedCall.value.calls as any[]
+      const calls = tx.decodedCall.value.value.calls as any[]
 
       // Should have 3 calls (create + metadata + mint)
       expect(calls).toHaveLength(3)
 
       // Third call: Assets.mint
-      expect(calls[2].pallet).toBe('Assets')
-      expect(calls[2].type).toBe('mint')
-      expect(calls[2].value.id).toBe(1000)
-      expect(calls[2].value.beneficiary).toEqual({
+      expect(calls[2].type).toBe('Assets')
+      expect(calls[2].value.type).toBe('mint')
+      expect(calls[2].value.value.id).toBe(1000)
+      expect(calls[2].value.value.beneficiary).toEqual({
         type: 'Id',
         value: TEST_ADDRESSES.ALICE,
       })
       // 1000 * 10^6 (6 decimals) = 1000000000
-      expect(calls[2].value.amount).toBe(1000000000n)
+      expect(calls[2].value.value.amount).toBe(1000000000n)
     })
 
     it('calculates initial mint amount with correct decimals', () => {
@@ -145,10 +146,10 @@ describe('createAssetBatch', () => {
       })
 
       const tx = createAssetBatch(api, params, TEST_ADDRESSES.ALICE)
-      const calls = tx.decodedCall.value.calls as any[]
+      const calls = tx.decodedCall.value.value.calls as any[]
 
       // 1000000 * 10^18
-      expect(calls[2].value.amount).toBe(1000000000000000000000000n)
+      expect(calls[2].value.value.amount).toBe(1000000000000000000000000n)
     })
 
     it('omits mint call when initialMintAmount is empty string', () => {
@@ -159,7 +160,7 @@ describe('createAssetBatch', () => {
       })
 
       const tx = createAssetBatch(api, params, TEST_ADDRESSES.ALICE)
-      const calls = tx.decodedCall.value.calls as any[]
+      const calls = tx.decodedCall.value.value.calls as any[]
 
       // Only 2 calls (no mint)
       expect(calls).toHaveLength(2)
@@ -173,7 +174,7 @@ describe('createAssetBatch', () => {
       })
 
       const tx = createAssetBatch(api, params, TEST_ADDRESSES.ALICE)
-      const calls = tx.decodedCall.value.calls as any[]
+      const calls = tx.decodedCall.value.value.calls as any[]
 
       expect(calls).toHaveLength(2)
     })
@@ -187,11 +188,11 @@ describe('createAssetBatch', () => {
       })
 
       const tx = createAssetBatch(api, params, TEST_ADDRESSES.ALICE)
-      const calls = tx.decodedCall.value.calls as any[]
+      const calls = tx.decodedCall.value.value.calls as any[]
 
       expect(calls).toHaveLength(3)
       // 0.123456 * 10^6 = 123456
-      expect(calls[2].value.amount).toBe(123456n)
+      expect(calls[2].value.value.amount).toBe(123456n)
     })
   })
 
@@ -199,19 +200,19 @@ describe('createAssetBatch', () => {
     it('creates high-precision token correctly', () => {
       const api = createMockQfnApi()
       const tx = createAssetBatch(api, HIGH_PRECISION_ASSET, TEST_ADDRESSES.ALICE)
-      const calls = tx.decodedCall.value.calls as any[]
+      const calls = tx.decodedCall.value.value.calls as any[]
 
-      expect(calls[1].value.decimals).toBe(18)
-      expect(calls[1].value.symbol).toBe('Binary(HPT)')
+      expect(calls[1].value.value.decimals).toBe(18)
+      expect(calls[1].value.value.symbol).toBe('Binary(HPT)')
     })
 
     it('creates token with initial mint correctly', () => {
       const api = createMockQfnApi()
       const tx = createAssetBatch(api, ASSET_WITH_INITIAL_MINT, TEST_ADDRESSES.ALICE)
-      const calls = tx.decodedCall.value.calls as any[]
+      const calls = tx.decodedCall.value.value.calls as any[]
 
       expect(calls).toHaveLength(3) // Has mint call
-      expect(calls[2].value.amount).toBe(1000000000000000000n) // 1000000 * 10^12
+      expect(calls[2].value.value.amount).toBe(1000000000000000000n) // 1000000 * 10^12
     })
   })
 })
@@ -223,10 +224,10 @@ describe('mintTokens', () => {
 
     const tx = mintTokens(api, params)
 
-    expect(tx.decodedCall.pallet).toBe('Assets')
-    expect(tx.decodedCall.type).toBe('mint')
-    expect(tx.decodedCall.value.id).toBe(1000)
-    expect(tx.decodedCall.value.beneficiary).toEqual({
+    expect(tx.decodedCall.type).toBe('Assets')
+    expect(tx.decodedCall.value.type).toBe('mint')
+    expect(tx.decodedCall.value.value.id).toBe(1000)
+    expect(tx.decodedCall.value.value.beneficiary).toEqual({
       type: 'Id',
       value: TEST_ADDRESSES.BOB,
     })
@@ -242,7 +243,7 @@ describe('mintTokens', () => {
     const tx = mintTokens(api, params)
 
     // 1000 * 10^6 = 1000000000
-    expect(tx.decodedCall.value.amount).toBe(1000000000n)
+    expect(tx.decodedCall.value.value.amount).toBe(1000000000n)
   })
 
   it('calculates amount correctly with 18 decimals', () => {
@@ -257,7 +258,7 @@ describe('mintTokens', () => {
     // Note: parseUnits pads to 18 decimals, so '123.456789012345678' becomes
     // '123456789012345678' + '000' (padded to 18 total)
     // = 123.456789012345678000 * 10^18
-    expect(tx.decodedCall.value.amount).toBe(123456789012345678000n)
+    expect(tx.decodedCall.value.value.amount).toBe(123456789012345678000n)
   })
 
   it('handles fractional amounts correctly', () => {
@@ -270,7 +271,7 @@ describe('mintTokens', () => {
     const tx = mintTokens(api, params)
 
     // 0.5 * 10^6 = 500000
-    expect(tx.decodedCall.value.amount).toBe(500000n)
+    expect(tx.decodedCall.value.value.amount).toBe(500000n)
   })
 
   it('handles very small amounts', () => {
@@ -282,7 +283,7 @@ describe('mintTokens', () => {
 
     const tx = mintTokens(api, params)
 
-    expect(tx.decodedCall.value.amount).toBe(1n)
+    expect(tx.decodedCall.value.value.amount).toBe(1n)
   })
 
   it('handles large amounts without overflow', () => {
@@ -295,7 +296,7 @@ describe('mintTokens', () => {
     const tx = mintTokens(api, params)
 
     // 1000000000 * 10^18
-    expect(tx.decodedCall.value.amount).toBe(1000000000000000000000000000n)
+    expect(tx.decodedCall.value.value.amount).toBe(1000000000000000000000000000n)
   })
 })
 
@@ -306,10 +307,10 @@ describe('transferTokens', () => {
 
     const tx = transferTokens(api, params)
 
-    expect(tx.decodedCall.pallet).toBe('Assets')
-    expect(tx.decodedCall.type).toBe('transfer')
-    expect(tx.decodedCall.value.id).toBe(1000)
-    expect(tx.decodedCall.value.target).toEqual({
+    expect(tx.decodedCall.type).toBe('Assets')
+    expect(tx.decodedCall.value.type).toBe('transfer')
+    expect(tx.decodedCall.value.value.id).toBe(1000)
+    expect(tx.decodedCall.value.value.target).toEqual({
       type: 'Id',
       value: TEST_ADDRESSES.BOB,
     })
@@ -325,7 +326,7 @@ describe('transferTokens', () => {
     const tx = transferTokens(api, params)
 
     // 50.25 * 10^6 = 50250000
-    expect(tx.decodedCall.value.amount).toBe(50250000n)
+    expect(tx.decodedCall.value.value.amount).toBe(50250000n)
   })
 
   it('handles transfer to different recipient', () => {
@@ -336,7 +337,7 @@ describe('transferTokens', () => {
 
     const tx = transferTokens(api, params)
 
-    expect(tx.decodedCall.value.target).toEqual({
+    expect(tx.decodedCall.value.value.target).toEqual({
       type: 'Id',
       value: TEST_ADDRESSES.CHARLIE,
     })
@@ -351,7 +352,7 @@ describe('transferTokens', () => {
 
     const tx = transferTokens(api, params)
 
-    expect(tx.decodedCall.value.amount).toBe(10000n)
+    expect(tx.decodedCall.value.value.amount).toBe(10000n)
   })
 })
 
@@ -363,11 +364,11 @@ describe('destroyAssetBatch', () => {
     const tx = destroyAssetBatch(api, params)
 
     // Should return Utility.batch_all transaction
-    expect(tx.decodedCall.pallet).toBe('Utility')
-    expect(tx.decodedCall.type).toBe('batch_all')
+    expect(tx.decodedCall.type).toBe('Utility')
+    expect(tx.decodedCall.value.type).toBe('batch_all')
 
     // Should contain exactly 5 calls in correct order
-    const calls = tx.decodedCall.value.calls as any[]
+    const calls = tx.decodedCall.value.value.calls as any[]
     expect(calls).toHaveLength(5)
   })
 
@@ -376,44 +377,44 @@ describe('destroyAssetBatch', () => {
     const params = buildDestroyAssetParams({ assetId: '1000' })
 
     const tx = destroyAssetBatch(api, params)
-    const calls = tx.decodedCall.value.calls as any[]
+    const calls = tx.decodedCall.value.value.calls as any[]
 
     // Step 1: freeze_asset
-    expect(calls[0].pallet).toBe('Assets')
-    expect(calls[0].type).toBe('freeze_asset')
-    expect(calls[0].value.id).toBe(1000)
+    expect(calls[0].type).toBe('Assets')
+    expect(calls[0].value.type).toBe('freeze_asset')
+    expect(calls[0].value.value.id).toBe(1000)
 
     // Step 2: start_destroy
-    expect(calls[1].pallet).toBe('Assets')
-    expect(calls[1].type).toBe('start_destroy')
-    expect(calls[1].value.id).toBe(1000)
+    expect(calls[1].type).toBe('Assets')
+    expect(calls[1].value.type).toBe('start_destroy')
+    expect(calls[1].value.value.id).toBe(1000)
 
     // Step 3: destroy_approvals
-    expect(calls[2].pallet).toBe('Assets')
-    expect(calls[2].type).toBe('destroy_approvals')
-    expect(calls[2].value.id).toBe(1000)
+    expect(calls[2].type).toBe('Assets')
+    expect(calls[2].value.type).toBe('destroy_approvals')
+    expect(calls[2].value.value.id).toBe(1000)
 
     // Step 4: destroy_accounts
-    expect(calls[3].pallet).toBe('Assets')
-    expect(calls[3].type).toBe('destroy_accounts')
-    expect(calls[3].value.id).toBe(1000)
+    expect(calls[3].type).toBe('Assets')
+    expect(calls[3].value.type).toBe('destroy_accounts')
+    expect(calls[3].value.value.id).toBe(1000)
 
     // Step 5: finish_destroy
-    expect(calls[4].pallet).toBe('Assets')
-    expect(calls[4].type).toBe('finish_destroy')
-    expect(calls[4].value.id).toBe(1000)
+    expect(calls[4].type).toBe('Assets')
+    expect(calls[4].value.type).toBe('finish_destroy')
+    expect(calls[4].value.value.id).toBe(1000)
   })
 
   it('parses assetId correctly for different values', () => {
     const api = createMockQfnApi()
 
     const tx1 = destroyAssetBatch(api, buildDestroyAssetParams({ assetId: '999' }))
-    const calls1 = tx1.decodedCall.value.calls as any[]
-    expect(calls1[0].value.id).toBe(999)
+    const calls1 = tx1.decodedCall.value.value.calls as any[]
+    expect(calls1[0].value.value.id).toBe(999)
 
     const tx2 = destroyAssetBatch(api, buildDestroyAssetParams({ assetId: '5000' }))
-    const calls2 = tx2.decodedCall.value.calls as any[]
-    expect(calls2[0].value.id).toBe(5000)
+    const calls2 = tx2.decodedCall.value.value.calls as any[]
+    expect(calls2[0].value.value.id).toBe(5000)
   })
 })
 
@@ -425,9 +426,9 @@ describe('Edge cases and error scenarios', () => {
 
       // parseInt('') returns NaN
       const tx = createAssetBatch(api, params, TEST_ADDRESSES.ALICE)
-      const calls = tx.decodedCall.value.calls as any[]
+      const calls = tx.decodedCall.value.value.calls as any[]
 
-      expect(isNaN(calls[0].value.id)).toBe(true)
+      expect(isNaN(calls[0].value.value.id)).toBe(true)
     })
 
     it('handles non-numeric assetId', () => {
@@ -436,7 +437,7 @@ describe('Edge cases and error scenarios', () => {
 
       const tx = mintTokens(api, params)
 
-      expect(isNaN(tx.decodedCall.value.id)).toBe(true)
+      expect(isNaN(tx.decodedCall.value.value.id)).toBe(true)
     })
   })
 
@@ -450,7 +451,7 @@ describe('Edge cases and error scenarios', () => {
 
       const tx = mintTokens(api, params)
 
-      expect(tx.decodedCall.value.amount).toBe(9007199254740991n)
+      expect(tx.decodedCall.value.value.amount).toBe(9007199254740991n)
     })
 
     it('handles amounts beyond JavaScript number precision', () => {
@@ -463,7 +464,7 @@ describe('Edge cases and error scenarios', () => {
       const tx = mintTokens(api, params)
 
       // BigInt handles this correctly
-      expect(tx.decodedCall.value.amount).toBe(999999999999999999999999000000000000000000n)
+      expect(tx.decodedCall.value.value.amount).toBe(999999999999999999999999000000000000000000n)
     })
   })
 })

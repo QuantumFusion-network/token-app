@@ -14,20 +14,28 @@
  */
 
 import { vi } from 'vitest'
-import type { TxCallData } from 'polkadot-api'
+import type { TxCallData, TypedApi } from 'polkadot-api'
+import type { qfn } from '@polkadot-api/descriptors'
+
+// Define QfnApi type the same way assetOperations.ts does
+type QfnApi = TypedApi<typeof qfn>
 
 /**
  * Creates a mock transaction call data object
+ * Structure matches polkadot-api's TxCallData:
+ * { type: "PalletName", value: { type: "call_name", value: { ...params } } }
  */
 export const createMockCallData = (
   pallet: string,
   method: string,
   value: Record<string, unknown> = {}
 ): TxCallData => ({
-  type: method as TxCallData['type'],
-  value,
-  pallet,
-})
+  type: pallet,
+  value: {
+    type: method,
+    value,
+  },
+} as TxCallData)
 
 /**
  * Creates a mock transaction builder
@@ -44,8 +52,10 @@ export const createMockTxBuilder = (callData: TxCallData) => ({
  * This mock focuses on transaction builders (api.tx.*) since that's what
  * assetOperations.ts uses. Each method returns a mock tx builder with
  * the decodedCall captured for assertions.
+ *
+ * Note: Returns QfnApi type via cast since we only mock the parts we need
  */
-export const createMockQfnApi = () => {
+export const createMockQfnApi = (): QfnApi => {
   const api = {
     tx: {
       Assets: {
@@ -85,5 +95,5 @@ export const createMockQfnApi = () => {
     },
   }
 
-  return api as unknown as ReturnType<typeof createMockQfnApi>
+  return api as unknown as QfnApi
 }

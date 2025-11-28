@@ -22,6 +22,7 @@ export default defineConfig([
       'node_modules',
       '*.config.{js,mjs,cjs}',
       '.prettierrc.*',
+      'src/__tests__',
     ],
   },
 

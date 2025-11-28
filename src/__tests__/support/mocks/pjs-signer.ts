@@ -39,6 +39,12 @@ export const createMockExtension = (
   name,
   getAccounts: vi.fn(() => accounts),
   disconnect: vi.fn(),
+  subscribe: vi.fn((callback) => {
+    // Call immediately with current accounts
+    callback(accounts)
+    // Return unsubscribe function
+    return () => {}
+  }),
 })
 
 /**
