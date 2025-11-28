@@ -24,7 +24,7 @@ export const NETWORKS: Record<NetworkId, NetworkConfig> = {
   },
 }
 
-export const DEFAULT_NETWORK: NetworkId = 'testnet'
+export const DEFAULT_NETWORK: NetworkId = 'local'
 
 // Network selection
 export function saveNetwork(networkId: NetworkId): void {
