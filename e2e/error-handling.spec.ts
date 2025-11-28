@@ -1,131 +1,118 @@
-import { expect, test } from '@playwright/test'
+import { test } from '@playwright/test'
 
 import {
-  goToCreateAsset,
-  goToDestroyAsset,
-  goToMintTokens,
-  goToTransfer,
-} from './helpers/navigation'
-import { waitForConnection } from './helpers/wait'
+  CreateAssetPage,
+  DestroyAssetPage,
+  MintTokensPage,
+  TransferPage,
+} from './pages'
 
 test.describe('Error Handling', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/')
-    await waitForConnection(page)
-
-    // Close TanStack Query devtools if open
-    const devtoolsClose = page.locator(
-      'button[aria-label="Close tanstack query devtools"]'
-    )
-    if (await devtoolsClose.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await devtoolsClose.click()
-    }
-  })
-
   test.describe('Form Input Validation', () => {
     test('create asset form accepts valid input', async ({ page }) => {
-      await goToCreateAsset(page)
+      const createAssetPage = new CreateAssetPage(page)
+      await createAssetPage.goto()
+      await createAssetPage.navigate()
 
       // Fill form with valid data
-      await page.locator('#name').fill('Valid Token')
-      await page.locator('#symbol').fill('VLD')
-      await page.locator('#decimals').clear()
-      await page.locator('#decimals').fill('12')
+      await createAssetPage.fillForm({
+        name: 'Valid Token',
+        symbol: 'VLD',
+        decimals: '12',
+      })
 
       // Button should be visible and enabled
-      const submitBtn = page
-        .getByRole('main')
-        .getByRole('button', { name: 'Create Asset' })
-      await expect(submitBtn).toBeVisible()
-      await expect(submitBtn).toBeEnabled()
+      await createAssetPage.expectSubmitEnabled()
     })
 
     test('mint form accepts valid input', async ({ page }) => {
-      await goToMintTokens(page)
+      const mintPage = new MintTokensPage(page)
+      await mintPage.goto()
+      await mintPage.navigate()
 
-      await page.locator('#assetId').fill('1')
-      await page
-        .locator('#recipient')
-        .fill('5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY')
-      await page.locator('#amount').fill('100')
+      await mintPage.fillForm({
+        assetId: '1',
+        recipient: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
+        amount: '100',
+      })
 
-      const submitBtn = page
-        .getByRole('main')
-        .getByRole('button', { name: 'Mint Tokens' })
-      await expect(submitBtn).toBeEnabled()
+      await mintPage.expectSubmitEnabled()
     })
 
     test('transfer form accepts valid input', async ({ page }) => {
-      await goToTransfer(page)
+      const transferPage = new TransferPage(page)
+      await transferPage.goto()
+      await transferPage.navigate()
 
-      await page.locator('#assetId').fill('1')
-      await page
-        .locator('#recipient')
-        .fill('5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty')
-      await page.locator('#amount').fill('10')
+      await transferPage.fillForm({
+        assetId: '1',
+        recipient: '5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty',
+        amount: '10',
+      })
 
-      const submitBtn = page
-        .getByRole('main')
-        .getByRole('button', { name: 'Transfer Tokens' })
-      await expect(submitBtn).toBeEnabled()
+      await transferPage.expectSubmitEnabled()
     })
 
     test('destroy asset button disabled without asset ID', async ({ page }) => {
-      await goToDestroyAsset(page)
+      const destroyPage = new DestroyAssetPage(page)
+      await destroyPage.goto()
+      await destroyPage.navigate()
 
-      const destroyBtn = page
-        .getByRole('main')
-        .getByRole('button', { name: 'Destroy Asset' })
-      await expect(destroyBtn).toBeDisabled()
+      await destroyPage.expectSubmitDisabled()
     })
 
     test('destroy asset button enables with asset ID', async ({ page }) => {
-      await goToDestroyAsset(page)
+      const destroyPage = new DestroyAssetPage(page)
+      await destroyPage.goto()
+      await destroyPage.navigate()
 
-      await page.locator('#assetId').fill('999')
+      await destroyPage.fillForm({ assetId: '999' })
 
-      const destroyBtn = page
-        .getByRole('main')
-        .getByRole('button', { name: 'Destroy Asset' })
-      await expect(destroyBtn).toBeEnabled()
+      await destroyPage.expectSubmitEnabled()
     })
   })
 
   test.describe('Transaction Preview', () => {
     test('shows transaction details before submission', async ({ page }) => {
-      await goToCreateAsset(page)
+      const createAssetPage = new CreateAssetPage(page)
+      await createAssetPage.goto()
+      await createAssetPage.navigate()
 
       // Fill form
-      await page.locator('#name').fill('Preview Test')
-      await page.locator('#symbol').fill('PVT')
-      await page.locator('#decimals').clear()
-      await page.locator('#decimals').fill('10')
+      await createAssetPage.fillForm({
+        name: 'Preview Test',
+        symbol: 'PVT',
+        decimals: '10',
+      })
 
       // Should show transaction preview with details
-      await expect(page.getByText(/Transaction Details/i)).toBeVisible()
-      await expect(page.getByText(/"decimals":\s*"10"/)).toBeVisible()
+      await createAssetPage.expectTransactionPreviewVisible()
+      await createAssetPage.expectDecimalsInPreview('10')
     })
 
     test('shows estimated fee', async ({ page }) => {
-      await goToCreateAsset(page)
+      const createAssetPage = new CreateAssetPage(page)
+      await createAssetPage.goto()
+      await createAssetPage.navigate()
 
       // Fill form to enable fee calculation
-      await page.locator('#name').fill('Fee Test')
-      await page.locator('#symbol').fill('FEE')
+      await createAssetPage.fillForm({
+        name: 'Fee Test',
+        symbol: 'FEE',
+      })
 
       // Should show estimated fee
-      await expect(page.getByText(/Estimated Fee/i)).toBeVisible({
-        timeout: 10_000,
-      })
+      await createAssetPage.expectEstimatedFeeVisible(10_000)
     })
   })
 
   test.describe('Warning Messages', () => {
     test('destroy asset shows warning', async ({ page }) => {
-      await goToDestroyAsset(page)
+      const destroyPage = new DestroyAssetPage(page)
+      await destroyPage.goto()
+      await destroyPage.navigate()
 
-      await expect(page.getByText(/Warning/)).toBeVisible()
-      await expect(page.getByText(/permanent and irreversible/)).toBeVisible()
+      await destroyPage.expectWarningVisible()
     })
   })
 })

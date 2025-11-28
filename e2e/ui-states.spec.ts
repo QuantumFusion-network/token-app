@@ -1,155 +1,155 @@
 import { expect, test } from '@playwright/test'
 
 import {
-  goToCreateAsset,
-  goToMintTokens,
-  goToPortfolio,
-  goToTransfer,
-} from './helpers/navigation'
-import { waitForConnection } from './helpers/wait'
+  CreateAssetPage,
+  MintTokensPage,
+  PortfolioPage,
+  TransferPage,
+} from './pages'
 
 test.describe('UI States & Feedback', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/')
-    await waitForConnection(page)
-
-    // Close TanStack Query devtools if open
-    const devtoolsClose = page.locator(
-      'button[aria-label="Close tanstack query devtools"]'
-    )
-    if (await devtoolsClose.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await devtoolsClose.click()
-    }
-  })
-
   test.describe('Navigation States', () => {
     test('portfolio nav button is active by default', async ({ page }) => {
-      const nav = page.getByRole('navigation')
-      const portfolioBtn = nav.getByRole('button', { name: 'Portfolio' })
+      const portfolioPage = new PortfolioPage(page)
+      await portfolioPage.goto()
 
-      await expect(portfolioBtn).toHaveClass(/bg-primary/)
+      await portfolioPage.navigation.expectButtonActive(
+        portfolioPage.navigation.portfolioButton
+      )
     })
 
     test('nav button becomes active when clicked', async ({ page }) => {
-      const nav = page.getByRole('navigation')
+      const portfolioPage = new PortfolioPage(page)
+      await portfolioPage.goto()
+
+      const { navigation } = portfolioPage
 
       // Click Create Asset
-      const createBtn = nav.getByRole('button', { name: 'Create Asset' })
-      await createBtn.click()
+      await navigation.createAssetButton.click()
 
       // Create Asset should now be active
-      await expect(createBtn).toHaveClass(/bg-primary/)
+      await navigation.expectButtonActive(navigation.createAssetButton)
 
       // Portfolio should no longer be active
-      const portfolioBtn = nav.getByRole('button', { name: 'Portfolio' })
-      await expect(portfolioBtn).not.toHaveClass(/bg-primary/)
+      await navigation.expectButtonInactive(navigation.portfolioButton)
     })
 
     test('all nav buttons are visible', async ({ page }) => {
-      const nav = page.getByRole('navigation')
+      const portfolioPage = new PortfolioPage(page)
+      await portfolioPage.goto()
 
-      await expect(nav.getByRole('button', { name: 'Portfolio' })).toBeVisible()
-      await expect(
-        nav.getByRole('button', { name: 'Create Asset' })
-      ).toBeVisible()
-      await expect(
-        nav.getByRole('button', { name: 'Mint Tokens' })
-      ).toBeVisible()
-      await expect(nav.getByRole('button', { name: 'Transfer' })).toBeVisible()
-      await expect(
-        nav.getByRole('button', { name: 'Destroy Asset' })
-      ).toBeVisible()
+      const { navigation } = portfolioPage
+
+      await expect(navigation.portfolioButton).toBeVisible()
+      await expect(navigation.createAssetButton).toBeVisible()
+      await expect(navigation.mintTokensButton).toBeVisible()
+      await expect(navigation.transferButton).toBeVisible()
+      await expect(navigation.destroyAssetButton).toBeVisible()
     })
   })
 
   test.describe('Account Display', () => {
     test('shows connected account name', async ({ page }) => {
-      await expect(page.getByText(/Alice/)).toBeVisible()
+      const portfolioPage = new PortfolioPage(page)
+      await portfolioPage.goto()
+
+      await portfolioPage.accountDisplay.expectConnectedAccount()
     })
 
     test('shows QF Balance', async ({ page }) => {
-      await expect(page.getByText('QF Balance')).toBeVisible()
+      const portfolioPage = new PortfolioPage(page)
+      await portfolioPage.goto()
+
+      await portfolioPage.accountDisplay.expectQfBalanceVisible()
     })
 
     test('account info is displayed', async ({ page }) => {
+      const portfolioPage = new PortfolioPage(page)
+      await portfolioPage.goto()
+
       // Account name should be visible somewhere on the page
-      await expect(page.getByText(/Alice/)).toBeVisible()
+      await portfolioPage.accountDisplay.expectConnectedAccount()
     })
   })
 
   test.describe('Page Headers', () => {
     test('portfolio shows Assets heading', async ({ page }) => {
-      await goToPortfolio(page)
-      await expect(page.getByRole('heading', { name: /Assets/ })).toBeVisible()
+      const portfolioPage = new PortfolioPage(page)
+      await portfolioPage.goto()
+      await portfolioPage.navigate()
+
+      await portfolioPage.expectHeadingVisible()
     })
 
     test('create asset shows correct heading', async ({ page }) => {
-      await goToCreateAsset(page)
-      await expect(
-        page.getByRole('heading', { name: 'Create New Asset' })
-      ).toBeVisible()
+      const createAssetPage = new CreateAssetPage(page)
+      await createAssetPage.goto()
+      await createAssetPage.navigate()
+
+      await createAssetPage.expectHeadingVisible()
     })
 
     test('mint tokens shows correct heading', async ({ page }) => {
-      await goToMintTokens(page)
-      await expect(
-        page.getByRole('heading', { name: 'Mint Tokens' })
-      ).toBeVisible()
+      const mintPage = new MintTokensPage(page)
+      await mintPage.goto()
+      await mintPage.navigate()
+
+      await mintPage.expectHeadingVisible()
     })
 
     test('transfer shows correct heading', async ({ page }) => {
-      await goToTransfer(page)
-      await expect(
-        page.getByRole('heading', { name: 'Transfer Tokens' })
-      ).toBeVisible()
+      const transferPage = new TransferPage(page)
+      await transferPage.goto()
+      await transferPage.navigate()
+
+      await transferPage.expectHeadingVisible()
     })
   })
 
   test.describe('Form Inputs', () => {
     test('create asset form has all inputs', async ({ page }) => {
-      await goToCreateAsset(page)
+      const createAssetPage = new CreateAssetPage(page)
+      await createAssetPage.goto()
+      await createAssetPage.navigate()
 
-      // Check for form inputs by their IDs
-      await expect(page.locator('#name')).toBeVisible()
-      await expect(page.locator('#symbol')).toBeVisible()
-      await expect(page.locator('#decimals')).toBeVisible()
-      await expect(page.locator('#minBalance')).toBeVisible()
+      await createAssetPage.expectAllInputsVisible()
     })
 
     test('mint form has all inputs', async ({ page }) => {
-      await goToMintTokens(page)
+      const mintPage = new MintTokensPage(page)
+      await mintPage.goto()
+      await mintPage.navigate()
 
-      await expect(page.locator('#assetId')).toBeVisible()
-      await expect(page.locator('#recipient')).toBeVisible()
-      await expect(page.locator('#amount')).toBeVisible()
+      await mintPage.expectAllInputsVisible()
     })
 
     test('transfer form has all inputs', async ({ page }) => {
-      await goToTransfer(page)
+      const transferPage = new TransferPage(page)
+      await transferPage.goto()
+      await transferPage.navigate()
 
-      await expect(page.locator('#assetId')).toBeVisible()
-      await expect(page.locator('#recipient')).toBeVisible()
-      await expect(page.locator('#amount')).toBeVisible()
+      await transferPage.expectAllInputsVisible()
     })
   })
 
   test.describe('Portfolio Filters', () => {
     test('filter buttons are visible', async ({ page }) => {
-      await goToPortfolio(page)
+      const portfolioPage = new PortfolioPage(page)
+      await portfolioPage.goto()
+      await portfolioPage.navigate()
 
-      await expect(page.getByRole('button', { name: /All Assets/ })).toBeVisible()
-      await expect(page.getByRole('button', { name: /My Assets/ })).toBeVisible()
-      await expect(
-        page.getByRole('button', { name: /Assets I Hold/ })
-      ).toBeVisible()
+      await portfolioPage.filters.expectAllFiltersVisible()
     })
 
     test('filter buttons show counts', async ({ page }) => {
-      await goToPortfolio(page)
+      const portfolioPage = new PortfolioPage(page)
+      await portfolioPage.goto()
+      await portfolioPage.navigate()
 
       // Each filter button should show a count in parentheses
-      const allBtn = page.getByRole('button', { name: /All Assets/ })
-      await expect(allBtn).toContainText(/\d+/)
+      await portfolioPage.filters.expectFilterShowsCount(
+        portfolioPage.filters.allAssetsButton
+      )
     })
   })
 })

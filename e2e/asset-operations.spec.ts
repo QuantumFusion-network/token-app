@@ -2,43 +2,25 @@ import { expect, test } from '@playwright/test'
 
 import { DEV_ACCOUNTS } from './fixtures/accounts'
 import {
-  fillCreateAssetForm,
-  fillDestroyForm,
-  fillMintForm,
-  fillTransferForm,
-} from './helpers/forms'
-import {
-  goToCreateAsset,
-  goToDestroyAsset,
-  goToMintTokens,
-  goToPortfolio,
-  goToTransfer,
-} from './helpers/navigation'
-import {
-  waitForConnection,
-  waitForSigningToast,
-  waitForTransactionSuccess,
-} from './helpers/wait'
+  CreateAssetPage,
+  DestroyAssetPage,
+  MintTokensPage,
+  PortfolioPage,
+  TransferPage,
+} from './pages'
 
 test.describe('Asset Operations', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/')
-    await waitForConnection(page)
-
-    // Close TanStack Query devtools if open
-    const devtoolsClose = page.locator(
-      'button[aria-label="Close tanstack query devtools"]'
-    )
-    if (await devtoolsClose.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await devtoolsClose.click()
-    }
-  })
-
   test.describe('Create Asset', () => {
-    test('creates asset with name, symbol, decimals', async ({ page }) => {
-      await goToCreateAsset(page)
+    let createAssetPage: CreateAssetPage
 
-      await fillCreateAssetForm(page, {
+    test.beforeEach(async ({ page }) => {
+      createAssetPage = new CreateAssetPage(page)
+      await createAssetPage.goto()
+      await createAssetPage.navigate()
+    })
+
+    test('creates asset with name, symbol, decimals', async () => {
+      await createAssetPage.fillForm({
         name: 'Test Token',
         symbol: 'TST',
         decimals: '8',
@@ -46,40 +28,35 @@ test.describe('Asset Operations', () => {
       })
 
       // Transaction details preview should show decimals
-      await expect(page.getByText(/"decimals":\s*"8"/)).toBeVisible()
+      await createAssetPage.expectDecimalsInPreview('8')
 
-      // Submit form (use main region to avoid nav button)
-      await page
-        .getByRole('main')
-        .getByRole('button', { name: 'Create Asset' })
-        .click()
+      // Submit form
+      await createAssetPage.submit()
 
       // Wait for transaction to complete
-      await waitForTransactionSuccess(page, 45_000)
+      await createAssetPage.waitForTransactionSuccess(45_000)
     })
 
-    test.skip('new asset appears in Portfolio after creation', async ({ page }) => {
+    test.skip('new asset appears in Portfolio after creation', async ({
+      page,
+    }) => {
       const assetName = `Test${Date.now() % 10000}`
       const symbol = 'UNQ'
 
-      await goToCreateAsset(page)
-
-      await fillCreateAssetForm(page, {
+      await createAssetPage.fillForm({
         name: assetName,
         symbol: symbol,
         decimals: '12',
         minBalance: '1',
       })
 
-      await page
-        .getByRole('main')
-        .getByRole('button', { name: 'Create Asset' })
-        .click()
-      await waitForTransactionSuccess(page, 45_000)
+      await createAssetPage.submit()
+      await createAssetPage.waitForTransactionSuccess(45_000)
 
       // Navigate to Portfolio and click My Assets filter to show owned assets
-      await goToPortfolio(page)
-      await page.getByRole('button', { name: /My Assets/ }).click()
+      const portfolioPage = new PortfolioPage(page)
+      await portfolioPage.navigate()
+      await portfolioPage.filters.clickMyAssets()
 
       // Wait for the new asset name to appear (h3 title in asset card)
       await expect(page.getByText(assetName)).toBeVisible({
@@ -87,135 +64,125 @@ test.describe('Asset Operations', () => {
       })
     })
 
-    test('shows signing toast during creation', async ({ page }) => {
-      await goToCreateAsset(page)
-
-      await fillCreateAssetForm(page, {
+    test('shows signing toast during creation', async () => {
+      await createAssetPage.fillForm({
         name: 'Toast Test',
         symbol: 'TST',
       })
 
-      await page
-        .getByRole('main')
-        .getByRole('button', { name: 'Create Asset' })
-        .click()
+      await createAssetPage.submit()
 
       // Should show signing toast
-      await waitForSigningToast(page, 5_000)
+      await createAssetPage.waitForSigningToast(5_000)
     })
   })
 
   test.describe('Mint Tokens', () => {
     // Use existing asset ID #2 for mint tests
     const EXISTING_ASSET_ID = '2'
+    let mintPage: MintTokensPage
+    let portfolioPage: PortfolioPage
 
-    test('mints tokens to existing asset', async ({ page }) => {
-      await goToMintTokens(page)
+    test.beforeEach(async ({ page }) => {
+      mintPage = new MintTokensPage(page)
+      portfolioPage = new PortfolioPage(page)
+      await mintPage.goto()
+      await mintPage.navigate()
+    })
 
-      await fillMintForm(page, {
+    test('mints tokens to existing asset', async () => {
+      await mintPage.fillForm({
         assetId: EXISTING_ASSET_ID,
         recipient: DEV_ACCOUNTS.ALICE,
         amount: '10',
       })
 
-      await page
-        .getByRole('main')
-        .getByRole('button', { name: 'Mint Tokens' })
-        .click()
-      await waitForTransactionSuccess(page, 45_000)
+      await mintPage.submit()
+      await mintPage.waitForTransactionSuccess(45_000)
     })
 
-    test('portfolio shows balance after minting', async ({ page }) => {
+    test('portfolio shows balance after minting', async () => {
       // Mint tokens
-      await goToMintTokens(page)
-      await fillMintForm(page, {
+      await mintPage.fillForm({
         assetId: EXISTING_ASSET_ID,
         recipient: DEV_ACCOUNTS.ALICE,
         amount: '5',
       })
 
-      await page
-        .getByRole('main')
-        .getByRole('button', { name: 'Mint Tokens' })
-        .click()
-      await waitForTransactionSuccess(page, 45_000)
+      await mintPage.submit()
+      await mintPage.waitForTransactionSuccess(45_000)
 
       // Go to portfolio and verify balance section exists
-      await goToPortfolio(page)
-      await expect(page.getByText('Your Balance').first()).toBeVisible()
-      await expect(page.getByText('Total Supply').first()).toBeVisible()
+      await portfolioPage.navigate()
+      await portfolioPage.assetList.expectYourBalanceVisible()
+      await expect(portfolioPage.assetList.totalSupplyLabel).toBeVisible()
     })
   })
 
   test.describe('Transfer Tokens', () => {
     const EXISTING_ASSET_ID = '2'
+    let transferPage: TransferPage
+    let portfolioPage: PortfolioPage
 
-    test('transfers tokens to another account', async ({ page }) => {
-      await goToTransfer(page)
+    test.beforeEach(async ({ page }) => {
+      transferPage = new TransferPage(page)
+      portfolioPage = new PortfolioPage(page)
+      await transferPage.goto()
+      await transferPage.navigate()
+    })
 
-      await fillTransferForm(page, {
+    test('transfers tokens to another account', async () => {
+      await transferPage.fillForm({
         assetId: EXISTING_ASSET_ID,
         recipient: DEV_ACCOUNTS.BOB,
         amount: '1',
       })
 
-      await page
-        .getByRole('main')
-        .getByRole('button', { name: 'Transfer Tokens' })
-        .click()
-      await waitForTransactionSuccess(page, 45_000)
+      await transferPage.submit()
+      await transferPage.waitForTransactionSuccess(45_000)
     })
 
-    test('portfolio updates after transfer', async ({ page }) => {
+    test('portfolio updates after transfer', async () => {
       // Transfer some tokens
-      await goToTransfer(page)
-      await fillTransferForm(page, {
+      await transferPage.fillForm({
         assetId: EXISTING_ASSET_ID,
         recipient: DEV_ACCOUNTS.BOB,
         amount: '0.5',
       })
 
-      await page
-        .getByRole('main')
-        .getByRole('button', { name: 'Transfer Tokens' })
-        .click()
-      await waitForTransactionSuccess(page, 45_000)
+      await transferPage.submit()
+      await transferPage.waitForTransactionSuccess(45_000)
 
       // Verify portfolio still shows data (confirms queries refreshed)
-      await goToPortfolio(page)
-      await expect(page.getByText('Your Balance').first()).toBeVisible()
+      await portfolioPage.navigate()
+      await portfolioPage.assetList.expectYourBalanceVisible()
     })
   })
 
   test.describe('Destroy Asset', () => {
-    test('shows warning message', async ({ page }) => {
-      await goToDestroyAsset(page)
+    let destroyPage: DestroyAssetPage
 
-      await expect(page.getByText(/Warning/)).toBeVisible()
-      await expect(page.getByText(/permanent and irreversible/)).toBeVisible()
+    test.beforeEach(async ({ page }) => {
+      destroyPage = new DestroyAssetPage(page)
+      await destroyPage.goto()
+      await destroyPage.navigate()
     })
 
-    test('destroy button is disabled without asset ID', async ({ page }) => {
-      await goToDestroyAsset(page)
-
-      const destroyBtn = page.getByRole('main').getByRole('button', {
-        name: 'Destroy Asset',
-      })
-      await expect(destroyBtn).toBeDisabled()
+    test('shows warning message', async () => {
+      await destroyPage.expectWarningVisible()
     })
 
-    test('destroy button enables with asset ID', async ({ page }) => {
-      await goToDestroyAsset(page)
+    test('destroy button is disabled without asset ID', async () => {
+      await destroyPage.expectSubmitDisabled()
+    })
 
-      await fillDestroyForm(page, {
+    test('destroy button enables with asset ID', async () => {
+      await destroyPage.fillForm({
         assetId: '999999',
       })
 
       // Button should be enabled once asset ID is entered
-      const destroyBtn = page.getByRole('main').getByRole('button', {
-        name: 'Destroy Asset',
-      })
-      await expect(destroyBtn).toBeEnabled()
+      await destroyPage.expectSubmitEnabled()
     })
   })
 })
