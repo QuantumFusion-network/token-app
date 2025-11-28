@@ -85,13 +85,12 @@ export function useConnectionStatus() {
       hasConnectedOnceRef
     )
 
+    // Clear all cached data so components show loading state and refetch
+    queryClient.clear()
+
     setConnection(newConnection)
     setNetworkId(newNetworkId)
     setCurrentUrl(newUrl)
-
-    queryClient.invalidateQueries().catch((e: Error) => {
-      console.error('Failed to invalidate queries:', e)
-    })
   }
 
   const isConnected = status?.type === WsEvent.CONNECTED
