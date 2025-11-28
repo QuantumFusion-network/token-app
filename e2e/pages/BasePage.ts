@@ -48,7 +48,7 @@ export abstract class BasePage {
    */
   async waitForTransactionSuccess(timeout = 30_000): Promise<void> {
     await this.page.waitForSelector(
-      'text=/successfully|created|minted|transferred|destroyed/i',
+      'text=/created|minted|transferred|destroyed/i',
       { timeout }
     )
   }

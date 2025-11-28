@@ -28,7 +28,7 @@ createRoot(document.getElementById('root')!).render(
           <TransactionProvider>
             <QueryClientProvider client={queryClient}>
               <App />
-              <ReactQueryDevtools initialIsOpen={true} />
+              <ReactQueryDevtools initialIsOpen={false} />
             </QueryClientProvider>
           </TransactionProvider>
         </WalletProviderWithNetwork>

@@ -3,6 +3,9 @@ import type { QueryClient } from '@tanstack/react-query'
 export const invalidateAssetQueries = async (queryClient: QueryClient) => {
   await queryClient.invalidateQueries({ queryKey: ['assets'] })
   await queryClient.invalidateQueries({ queryKey: ['assetMetadata'] })
+  // Use refetchQueries for nextAssetId to wait for fresh value before continuing.
+  // This prevents race conditions where the next asset creation uses a stale ID.
+  await queryClient.refetchQueries({ queryKey: ['nextAssetId'] })
 }
 
 export const invalidateBalanceQueries = (

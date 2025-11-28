@@ -12,14 +12,13 @@ import {
 test.describe('Asset Operations', () => {
   test.describe('Create Asset', () => {
     let createAssetPage: CreateAssetPage
-
     test.beforeEach(async ({ page }) => {
       createAssetPage = new CreateAssetPage(page)
       await createAssetPage.goto()
       await createAssetPage.navigate()
     })
 
-    test('creates asset with name, symbol, decimals', async () => {
+    test('creates asset with name, symbol, decimals', async ({ page }) => {
       await createAssetPage.fillForm({
         name: 'Test Token',
         symbol: 'TST',
@@ -35,11 +34,12 @@ test.describe('Asset Operations', () => {
 
       // Wait for transaction to complete
       await createAssetPage.waitForTransactionSuccess(45_000)
+
+      // Wait for form reset (indicates onSuccess callback completed and nextAssetId refreshed)
+      await expect(page.locator('#name')).toHaveValue('', { timeout: 5_000 })
     })
 
-    test.skip('new asset appears in Portfolio after creation', async ({
-      page,
-    }) => {
+    test('new asset appears in Portfolio after creation', async ({ page }) => {
       const assetName = `Test${Date.now() % 10000}`
       const symbol = 'UNQ'
 

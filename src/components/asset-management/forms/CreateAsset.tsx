@@ -56,6 +56,8 @@ function CreateAssetInner() {
       toastConfig: createAssetToasts,
       transactionKey: 'createAsset',
       isValid: (params) =>
+        params.assetId !== '' &&
+        !isNaN(parseInt(params.assetId)) &&
         params.name !== '' &&
         params.symbol !== '' &&
         params.decimals !== '' &&
@@ -247,7 +249,9 @@ function CreateAssetInner() {
             {/* Fee + CTA Section */}
             <TransactionFormFooter
               feeState={feeState}
-              isDisabled={!isConnected || createAssetMutation.isPending}
+              isDisabled={
+                !isConnected || !transaction || createAssetMutation.isPending
+              }
               isPending={createAssetMutation.isPending}
               actionText="Create Asset"
             />

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useConnectionContext } from '../contexts/useConnectionContext'
 
 export function useNextAssetId() {
-  const { api } = useConnectionContext()
+  const { api, isConnected } = useConnectionContext()
 
   const { data, isLoading } = useQuery({
     queryKey: ['nextAssetId'],
@@ -16,12 +16,13 @@ export function useNextAssetId() {
       }
       return result
     },
+    enabled: isConnected,
     staleTime: 0,
     gcTime: 0,
   })
 
   return {
     nextAssetId: data?.toString() ?? '',
-    isLoading,
+    isLoading: isLoading || !isConnected,
   }
 }
