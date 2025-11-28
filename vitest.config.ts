@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
@@ -31,6 +31,7 @@ export default defineConfig({
     clearMocks: true,
     mockReset: true,
     restoreMocks: true,
+    exclude: [...configDefaults.exclude, 'e2e/**'],
 
     // Reporter - tap format has better hierarchy
     reporters: 'tree',
@@ -42,6 +43,7 @@ export default defineConfig({
       exclude: [
         'node_modules/',
         'src/__tests__/',
+        'e2e/',
         '**/*.d.ts',
         '**/*.config.*',
         'src/components/ui/', // shadcn/ui primitives (pre-tested)
