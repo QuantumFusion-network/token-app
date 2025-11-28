@@ -18,8 +18,9 @@ import {
   mintTokens,
   type MintParams,
 } from '@/lib'
-import { mintTokensToasts } from '../toastConfigs'
 import { useQueryClient } from '@tanstack/react-query'
+
+import { mintTokensToasts } from '../toastConfigs'
 
 const initialFormData = {
   assetId: '',

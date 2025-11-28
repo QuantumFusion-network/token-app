@@ -24,13 +24,13 @@ describe('toPlanck', () => {
   it('converts basic fractions with exact precision', () => {
     expect(P('0.1')).toBe(ONE / 10n) // 0.1 = 1/10
     expect(P('0.01')).toBe(ONE / 100n) // 0.01 = 1/100
-    expect(P('1.23')).toBe(123n * ONE / 100n) // 1.23 = 123/100
-    expect(P('0001.2300')).toBe(123n * ONE / 100n) // Normalized: 1.23 = 123/100
+    expect(P('1.23')).toBe((123n * ONE) / 100n) // 1.23 = 123/100
+    expect(P('0001.2300')).toBe((123n * ONE) / 100n) // Normalized: 1.23 = 123/100
   })
 
   it('handles fractions shorter than decimals (right-padding)', () => {
     expect(P('0.000000000000000001')).toBe(1n) // Smallest unit (1 planck)
-    expect(P('.5')).toBe(5n * ONE / 10n) // 0.5 = 5/10
+    expect(P('.5')).toBe((5n * ONE) / 10n) // 0.5 = 5/10
     expect(P('5.')).toBe(5n * ONE) // 5.0 = 5 * 10^18
   })
 
@@ -45,7 +45,7 @@ describe('toPlanck', () => {
 
   it('supports numeric separators with underscores', () => {
     expect(P('1_000')).toBe(1000n * ONE) // 1,000.0 = 1000 * 10^18
-    expect(P('1_000.5')).toBe(10005n * ONE / 10n) // 1,000.5 = 10005/10
+    expect(P('1_000.5')).toBe((10005n * ONE) / 10n) // 1,000.5 = 10005/10
     expect(P('0.000_001')).toBe(ONE / 1_000_000n) // 0.000001 = 1/1,000,000
   })
 
@@ -58,7 +58,7 @@ describe('toPlanck', () => {
 
   it('trims whitespace', () => {
     expect(P('  1  ')).toBe(ONE)
-    expect(P('  01.230  ')).toBe(123n * ONE / 100n) // 1.23 = 123/100
+    expect(P('  01.230  ')).toBe((123n * ONE) / 100n) // 1.23 = 123/100
   })
 
   it.each([

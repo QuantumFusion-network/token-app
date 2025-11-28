@@ -14,10 +14,8 @@ const derive = sr25519CreateDerive(miniSecret)
 
 export const getDevSigner = (uri: string) => {
   const keypair = derive(uri)
-  return getPolkadotSigner(
-    keypair.publicKey,
-    'Sr25519',
-    (input) => keypair.sign(input)
+  return getPolkadotSigner(keypair.publicKey, 'Sr25519', (input) =>
+    keypair.sign(input)
   )
 }
 
@@ -47,10 +45,8 @@ export const DEV_ACCOUNT_NAMES: DevAccountName[] = [
 
 export function getDevAccount(name: DevAccountName): DevAccount {
   const keypair = derive(`//${name}`)
-  const signer = getPolkadotSigner(
-    keypair.publicKey,
-    'Sr25519',
-    (input) => keypair.sign(input)
+  const signer = getPolkadotSigner(keypair.publicKey, 'Sr25519', (input) =>
+    keypair.sign(input)
   )
   return {
     name,

@@ -7,9 +7,9 @@
 
 import type {
   CreateAssetParams,
+  DestroyAssetParams,
   MintParams,
   TransferParams,
-  DestroyAssetParams,
 } from '@/lib/assetOperations'
 
 /**

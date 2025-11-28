@@ -1,9 +1,9 @@
 import type { Transaction } from 'polkadot-api'
 
 import type { ToastConfig } from '@/components/asset-management/toastConfigs'
+import { useWalletContext } from '@/contexts'
 import { useMutation } from '@tanstack/react-query'
 
-import { useWalletContext } from '@/contexts'
 import { useTransaction } from './useTransaction'
 
 interface AssetMutationConfig<TParams> {

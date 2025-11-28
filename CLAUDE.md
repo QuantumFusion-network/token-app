@@ -5,17 +5,20 @@ QF Network asset management app - React 19 + TypeScript + polkadot-api
 ## CODE QUALITY RULES (Apply to Every Change)
 
 **State Management:**
+
 - NEVER use `useReducer` - use `useState` or context
 - Component state with `useState`, shared state via Context
 - Server state via TanStack Query only
 
 **TypeScript:**
+
 - NEVER use `any` - use `unknown` and narrow types
 - NEVER use type assertions (`as`) - let types prove correctness
 - NEVER create redundant type definitions - leverage inference
 - Prefer narrow types (literals, discriminated unions) over broad types
 
 **Architecture:**
+
 - Components are presentational - minimal logic
 - Business logic in `lib/` folder and custom hooks
 - Pure functions, immutability, early returns
@@ -24,28 +27,33 @@ QF Network asset management app - React 19 + TypeScript + polkadot-api
 ## STATE MANAGEMENT ARCHITECTURE
 
 **Wallet State:** `WalletContext` + `useWallet` hook
+
 - Extension connection, account selection, auto-reconnect
 - Persists to localStorage via `walletStorage.ts`
 - Access via `useWalletContext()`
 
 **Connection State:** `ConnectionContext` + `useConnectionStatus` hook
+
 - Creates polkadot-api client (NO separate chain.ts file)
 - Connection status, auto-reconnect with query invalidation
 - Access via `useConnectionContext()`
 
 **Transaction State:** `TransactionContext` + `useTransactionManager` hook
+
 - Tracks lifecycle: idle → signing → broadcasting → inBlock → finalized/error
 - `useTransaction` hook for executing transactions
 - `useTransactionToasts` observes state and displays notifications
 - Access via `useTransactionContext()`
 
 **Server State:** TanStack Query (30s stale, 5min GC)
+
 - Asset data, balances, metadata
 - Auto-invalidation on connection changes
 
 ## KEY FILE LOCATIONS
 
 **lib/** - Business logic and utilities (all exported via `lib/index.ts`)
+
 - `assetOperations.ts` - createAssetBatch, mintTokens, transferTokens, destroyAssetBatch
 - `balance/` - Balance formatting and conversion utilities
   - `toPlanck.ts` - Convert human-readable to Planck units (bigint)
@@ -66,6 +74,7 @@ QF Network asset management app - React 19 + TypeScript + polkadot-api
 - `utils.ts` - cn() for Tailwind class merging
 
 **hooks/** - Custom React hooks (all exported via `hooks/index.ts`)
+
 - `useConnectionStatus.ts` - Creates polkadot-api client, manages connection
 - `useConnectionContext.ts` - Access connection state and API client
 - `useWallet.ts` - Core wallet connection logic
@@ -79,11 +88,13 @@ QF Network asset management app - React 19 + TypeScript + polkadot-api
 - `useNextAssetId.ts` - Get next available asset ID
 
 **contexts/** - React Context providers (exported via `contexts/index.ts`)
+
 - `WalletContext.tsx` - Wallet state provider (uses `useWallet`)
 - `ConnectionContext.tsx` - Connection state provider (uses `useConnectionStatus`)
 - `TransactionContext.tsx` - Transaction state provider (uses `useTransactionManager`)
 
 **components/** - UI components (all exported via `components/index.ts`)
+
 - `account/` - Wallet and account management UI
   - `WalletConnector.tsx` - Wallet connection UI
   - `AccountSelector.tsx` - Account selection dropdown
@@ -122,10 +133,12 @@ QF Network asset management app - React 19 + TypeScript + polkadot-api
 ## BALANCE UTILITIES
 
 **Conversion:**
+
 - `toPlanck(value: string, decimals: number): bigint` - Convert "1.5" to 1500000000000000000n
 - `fromPlanck(value: bigint, decimals?: number): string` - Convert 1500000000000000000n to "1.5"
 
 **Formatting:**
+
 - `formatBalance(value: string, options?: FormatBalanceOptions): string`
   - Options: `symbol`, `displayDecimals`, `locale`, `roundingMode`
   - Handles locale-specific formatting (commas, periods)
@@ -133,8 +146,9 @@ QF Network asset management app - React 19 + TypeScript + polkadot-api
   - Example: `formatBalance("1234.5678", { symbol: "QF", displayDecimals: 2 })` → "1,234.57 QF"
 
 **Import from main barrel:**
+
 ```ts
-import { toPlanck, fromPlanck, formatBalance } from '@/lib'
+import { formatBalance, fromPlanck, toPlanck } from '@/lib'
 ```
 
 ## BLOCKCHAIN SPECIFICS
@@ -143,11 +157,13 @@ import { toPlanck, fromPlanck, formatBalance } from '@/lib'
 **Native Token:** QF (18 decimals)
 
 **Asset Operations:**
+
 - Create: Assets.create + set_metadata + optional mint
 - Destroy: freeze_asset → start_destroy → destroy_approvals → destroy_accounts → finish_destroy
 - All batch operations use `Utility.batch_all` pallet for atomicity
 
 **polkadot-api:**
+
 - Descriptors in `.papi/descriptors` (auto-generated via `papi` command)
 - Metadata in `.papi/metadata/*.scale` files
 - Client created in `useConnectionStatus` hook and provided via ConnectionContext
@@ -168,21 +184,25 @@ import { toPlanck, fromPlanck, formatBalance } from '@/lib'
 The codebase follows type-based organization with clear separation of concerns:
 
 **contexts/** - State management providers and their access hooks
+
 - `*Context.tsx` - React Context providers (wrap app in main.tsx)
 - `use*Context.ts` - Consumer hooks for accessing context state
 - `internal/` - Implementation hooks used only by providers (not exported)
 
 **hooks/** - Composition hooks that combine contexts with business logic
+
 - `useTransaction` - Composes TransactionContext for easy TX execution
 - `useAssetMutation` - Composes wallet + transaction + TanStack Query
 - These are "how to do things," contexts are "what state exists"
 
 **lib/** - Pure functions with zero React dependencies
+
 - `assetOperations.ts` - polkadot-api transaction builders
 - `balance/` - Number conversion and formatting
 - Error handling utilities
 
 **components/** - UI components organized by domain
+
 - `ui/` - Design system primitives (shadcn)
 - `error-boundaries/` - Error boundary hierarchy
 - Feature components grouped by purpose (account/, asset-management/, transaction-ui/)

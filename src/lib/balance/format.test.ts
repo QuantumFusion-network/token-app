@@ -12,7 +12,9 @@ describe('formatBalance', () => {
     })
 
     it('should apply displayDecimals', () => {
-      expect(formatBalance('1234.5678', { displayDecimals: 2 })).toBe('1,234.56')
+      expect(formatBalance('1234.5678', { displayDecimals: 2 })).toBe(
+        '1,234.56'
+      )
       // Default mode is floor, so 1234.5678 → 1234
       expect(formatBalance('1234.5678', { displayDecimals: 0 })).toBe('1,234')
     })

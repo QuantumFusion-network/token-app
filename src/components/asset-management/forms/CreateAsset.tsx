@@ -17,8 +17,9 @@ import {
   invalidateAssetQueries,
   type CreateAssetParams,
 } from '@/lib'
-import { createAssetToasts } from '../toastConfigs'
 import { useQueryClient } from '@tanstack/react-query'
+
+import { createAssetToasts } from '../toastConfigs'
 
 const initialFormData = {
   minBalance: '1',

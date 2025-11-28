@@ -26,8 +26,9 @@ import {
   invalidateAssetQueries,
   type DestroyAssetParams,
 } from '@/lib'
-import { destroyAssetToasts } from '../toastConfigs'
 import { useQueryClient } from '@tanstack/react-query'
+
+import { destroyAssetToasts } from '../toastConfigs'
 
 function DestroyAssetInner() {
   const { selectedAccount } = useWalletContext()

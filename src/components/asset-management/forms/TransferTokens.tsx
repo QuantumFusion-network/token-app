@@ -17,8 +17,9 @@ import {
   transferTokens,
   type TransferParams,
 } from '@/lib'
-import { transferTokensToasts } from '../toastConfigs'
 import { useQueryClient } from '@tanstack/react-query'
+
+import { transferTokensToasts } from '../toastConfigs'
 
 const initialFormData = {
   assetId: '',

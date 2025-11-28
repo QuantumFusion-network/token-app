@@ -13,8 +13,9 @@
  * ```
  */
 
-import { vi } from 'vitest'
 import type { TxCallData, TypedApi } from 'polkadot-api'
+import { vi } from 'vitest'
+
 import type { qfn } from '@polkadot-api/descriptors'
 
 // Define QfnApi type the same way assetOperations.ts does
@@ -29,13 +30,14 @@ export const createMockCallData = (
   pallet: string,
   method: string,
   value: Record<string, unknown> = {}
-): TxCallData => ({
-  type: pallet,
-  value: {
-    type: method,
-    value,
-  },
-} as TxCallData)
+): TxCallData =>
+  ({
+    type: pallet,
+    value: {
+      type: method,
+      value,
+    },
+  }) as TxCallData
 
 /**
  * Creates a mock transaction builder
@@ -69,27 +71,41 @@ export const createMockQfnApi = (): QfnApi => {
           createMockTxBuilder(createMockCallData('Assets', 'transfer', params))
         ),
         set_metadata: vi.fn((params) =>
-          createMockTxBuilder(createMockCallData('Assets', 'set_metadata', params))
+          createMockTxBuilder(
+            createMockCallData('Assets', 'set_metadata', params)
+          )
         ),
         freeze_asset: vi.fn((params) =>
-          createMockTxBuilder(createMockCallData('Assets', 'freeze_asset', params))
+          createMockTxBuilder(
+            createMockCallData('Assets', 'freeze_asset', params)
+          )
         ),
         start_destroy: vi.fn((params) =>
-          createMockTxBuilder(createMockCallData('Assets', 'start_destroy', params))
+          createMockTxBuilder(
+            createMockCallData('Assets', 'start_destroy', params)
+          )
         ),
         destroy_accounts: vi.fn((params) =>
-          createMockTxBuilder(createMockCallData('Assets', 'destroy_accounts', params))
+          createMockTxBuilder(
+            createMockCallData('Assets', 'destroy_accounts', params)
+          )
         ),
         destroy_approvals: vi.fn((params) =>
-          createMockTxBuilder(createMockCallData('Assets', 'destroy_approvals', params))
+          createMockTxBuilder(
+            createMockCallData('Assets', 'destroy_approvals', params)
+          )
         ),
         finish_destroy: vi.fn((params) =>
-          createMockTxBuilder(createMockCallData('Assets', 'finish_destroy', params))
+          createMockTxBuilder(
+            createMockCallData('Assets', 'finish_destroy', params)
+          )
         ),
       },
       Utility: {
         batch_all: vi.fn((params) =>
-          createMockTxBuilder(createMockCallData('Utility', 'batch_all', params))
+          createMockTxBuilder(
+            createMockCallData('Utility', 'batch_all', params)
+          )
         ),
       },
     },

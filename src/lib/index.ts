@@ -42,7 +42,11 @@ export {
 } from './errors'
 
 // Query utilities
-export { queryClient, invalidateAssetQueries, invalidateBalanceQueries } from './query'
+export {
+  queryClient,
+  invalidateAssetQueries,
+  invalidateBalanceQueries,
+} from './query'
 
 // Storage utilities
 export {
@@ -58,7 +62,6 @@ export {
   saveLocalUrl,
   saveNetwork,
 } from './storage'
-
 
 // Dev utilities
 export {
@@ -79,5 +82,9 @@ export type {
 } from './assetOperations'
 export type { FormatBalanceOptions, RoundingMode } from './balance'
 export type { TransactionErrorContext } from './errors'
-export type { StoredWalletConnection, NetworkConfig, NetworkId } from './storage'
+export type {
+  StoredWalletConnection,
+  NetworkConfig,
+  NetworkId,
+} from './storage'
 export type { DevAccount, DevAccountName } from './devSigner'

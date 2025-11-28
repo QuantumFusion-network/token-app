@@ -57,7 +57,7 @@ export function useTransactionManager() {
     string | undefined
   >()
 
-  const startTransaction = <T = unknown,>(
+  const startTransaction = <T = unknown>(
     type: string,
     toastConfig?: ToastConfig<T>
   ): string => {
@@ -176,7 +176,7 @@ export function useTransactionManager() {
     })
   }
 
-  const setTransactionDetails = <T = unknown,>(id: string, details: T) => {
+  const setTransactionDetails = <T = unknown>(id: string, details: T) => {
     setTransactions((prev) => {
       const transaction = prev[id]
       if (!transaction) return prev

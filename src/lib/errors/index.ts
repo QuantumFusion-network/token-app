@@ -1,4 +1,8 @@
-export { getErrorMessage, hasErrorMessage, getMappedPallets } from './errorMessages'
+export {
+  getErrorMessage,
+  hasErrorMessage,
+  getMappedPallets,
+} from './errorMessages'
 export {
   parseDispatchError,
   createDispatchError,

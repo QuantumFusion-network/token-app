@@ -12,11 +12,11 @@
  * ```
  */
 
-import { vi } from 'vitest'
 import type {
   InjectedExtension,
   InjectedPolkadotAccount,
 } from 'polkadot-api/pjs-signer'
+import { vi } from 'vitest'
 
 /**
  * Creates a mock InjectedPolkadotAccount

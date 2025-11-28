@@ -126,7 +126,10 @@ export const createFailedObservable = (dispatchError: unknown) => {
  */
 export const createErrorObservable = (error: Error) => {
   return createMockObservableWithError(
-    [{ type: 'signed' }, { type: 'broadcasted', txHash: '0xabort' }] as TxBroadcastEvent[],
+    [
+      { type: 'signed' },
+      { type: 'broadcasted', txHash: '0xabort' },
+    ] as TxBroadcastEvent[],
     error
   )
 }

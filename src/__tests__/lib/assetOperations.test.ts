@@ -16,24 +16,26 @@
  * Priority: TIER 1 - Must test before any financial operations go to production
  */
 
-import { describe, expect, it, vi } from 'vitest'
 import { Binary } from 'polkadot-api'
+import { describe, expect, it, vi } from 'vitest'
+
 import {
   createAssetBatch,
+  destroyAssetBatch,
   mintTokens,
   transferTokens,
-  destroyAssetBatch,
 } from '@/lib/assetOperations'
-import { createMockQfnApi } from '../support/mocks/polkadot-api'
+
 import {
+  ASSET_WITH_INITIAL_MINT,
   buildCreateAssetParams,
+  buildDestroyAssetParams,
   buildMintParams,
   buildTransferParams,
-  buildDestroyAssetParams,
-  TEST_ADDRESSES,
   HIGH_PRECISION_ASSET,
-  ASSET_WITH_INITIAL_MINT,
+  TEST_ADDRESSES,
 } from '../support/factories/asset-params'
+import { createMockQfnApi } from '../support/mocks/polkadot-api'
 
 // Mock Binary.fromText since it's from polkadot-api
 vi.mock('polkadot-api', async () => {
@@ -92,7 +94,7 @@ describe('createAssetBatch', () => {
       // 6 decimals: minBalance '1' = 1 * 10^6 = 1000000
       const params6 = buildCreateAssetParams({
         minBalance: '1',
-        decimals: '6'
+        decimals: '6',
       })
       const tx6 = createAssetBatch(api, params6, TEST_ADDRESSES.ALICE)
       const calls6 = tx6.decodedCall.value.value.calls as any[]
@@ -101,7 +103,7 @@ describe('createAssetBatch', () => {
       // 18 decimals: minBalance '1' = 1 * 10^18
       const params18 = buildCreateAssetParams({
         minBalance: '1',
-        decimals: '18'
+        decimals: '18',
       })
       const tx18 = createAssetBatch(api, params18, TEST_ADDRESSES.ALICE)
       const calls18 = tx18.decodedCall.value.value.calls as any[]
@@ -199,7 +201,11 @@ describe('createAssetBatch', () => {
   describe('Preset scenarios', () => {
     it('creates high-precision token correctly', () => {
       const api = createMockQfnApi()
-      const tx = createAssetBatch(api, HIGH_PRECISION_ASSET, TEST_ADDRESSES.ALICE)
+      const tx = createAssetBatch(
+        api,
+        HIGH_PRECISION_ASSET,
+        TEST_ADDRESSES.ALICE
+      )
       const calls = tx.decodedCall.value.value.calls as any[]
 
       expect(calls[1].value.value.decimals).toBe(18)
@@ -208,7 +214,11 @@ describe('createAssetBatch', () => {
 
     it('creates token with initial mint correctly', () => {
       const api = createMockQfnApi()
-      const tx = createAssetBatch(api, ASSET_WITH_INITIAL_MINT, TEST_ADDRESSES.ALICE)
+      const tx = createAssetBatch(
+        api,
+        ASSET_WITH_INITIAL_MINT,
+        TEST_ADDRESSES.ALICE
+      )
       const calls = tx.decodedCall.value.value.calls as any[]
 
       expect(calls).toHaveLength(3) // Has mint call
@@ -296,7 +306,9 @@ describe('mintTokens', () => {
     const tx = mintTokens(api, params)
 
     // 1000000000 * 10^18
-    expect(tx.decodedCall.value.value.amount).toBe(1000000000000000000000000000n)
+    expect(tx.decodedCall.value.value.amount).toBe(
+      1000000000000000000000000000n
+    )
   })
 })
 
@@ -408,11 +420,17 @@ describe('destroyAssetBatch', () => {
   it('parses assetId correctly for different values', () => {
     const api = createMockQfnApi()
 
-    const tx1 = destroyAssetBatch(api, buildDestroyAssetParams({ assetId: '999' }))
+    const tx1 = destroyAssetBatch(
+      api,
+      buildDestroyAssetParams({ assetId: '999' })
+    )
     const calls1 = tx1.decodedCall.value.value.calls as any[]
     expect(calls1[0].value.value.id).toBe(999)
 
-    const tx2 = destroyAssetBatch(api, buildDestroyAssetParams({ assetId: '5000' }))
+    const tx2 = destroyAssetBatch(
+      api,
+      buildDestroyAssetParams({ assetId: '5000' })
+    )
     const calls2 = tx2.decodedCall.value.value.calls as any[]
     expect(calls2[0].value.value.id).toBe(5000)
   })
@@ -464,7 +482,9 @@ describe('Edge cases and error scenarios', () => {
       const tx = mintTokens(api, params)
 
       // BigInt handles this correctly
-      expect(tx.decodedCall.value.value.amount).toBe(999999999999999999999999000000000000000000n)
+      expect(tx.decodedCall.value.value.amount).toBe(
+        999999999999999999999999000000000000000000n
+      )
     })
   })
 })

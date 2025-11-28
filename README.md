@@ -91,19 +91,19 @@ src/
 The app includes robust utilities for working with blockchain token amounts:
 
 ```ts
-import { toPlanck, fromPlanck, formatBalance } from '@/lib'
+import { formatBalance, fromPlanck, toPlanck } from '@/lib'
 
 // Convert user input to Planck units (smallest denomination)
-const amount = toPlanck("1.5", 18) // 1500000000000000000n
+const amount = toPlanck('1.5', 18) // 1500000000000000000n
 
 // Convert Planck units to human-readable
 const readable = fromPlanck(1500000000000000000n, 18) // "1.5"
 
 // Format with localization and symbols
-const formatted = formatBalance("1234.5678", {
-  symbol: "QF",
+const formatted = formatBalance('1234.5678', {
+  symbol: 'QF',
   displayDecimals: 2,
-  locale: "en-US"
+  locale: 'en-US',
 }) // "1,234.57 QF"
 ```
 
