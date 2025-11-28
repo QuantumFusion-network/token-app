@@ -75,23 +75,24 @@ QF Network asset management app - React 19 + TypeScript + polkadot-api
 
 **hooks/** - Custom React hooks (all exported via `hooks/index.ts`)
 
-- `useConnectionStatus.ts` - Creates polkadot-api client, manages connection
-- `useConnectionContext.ts` - Access connection state and API client
-- `useWallet.ts` - Core wallet connection logic
-- `useWalletContext.ts` - Access wallet state
-- `useTransactionManager.ts` - Internal transaction lifecycle manager (used by TransactionProvider)
 - `useTransaction.ts` - Execute transactions with lifecycle tracking
-- `useTransactionContext.ts` - Access transaction state
 - `useTransactionToasts.ts` - Display transaction notifications
 - `useAssetMutation.ts` - Wrapper for asset mutations with TanStack Query
 - `useFee.ts` - Calculate transaction fees
-- `useNextAssetId.ts` - Get next available asset ID
+- `useNextAssetId.ts` - Get next available asset ID (waits for connection)
 
-**contexts/** - React Context providers (exported via `contexts/index.ts`)
+**contexts/** - React Context providers and access hooks (exported via `contexts/index.ts`)
 
-- `WalletContext.tsx` - Wallet state provider (uses `useWallet`)
-- `ConnectionContext.tsx` - Connection state provider (uses `useConnectionStatus`)
-- `TransactionContext.tsx` - Transaction state provider (uses `useTransactionManager`)
+- `WalletContext.tsx` - Wallet state provider
+- `ConnectionContext.tsx` - Connection state provider
+- `TransactionContext.tsx` - Transaction state provider
+- `useWalletContext.ts` - Access wallet state
+- `useConnectionContext.ts` - Access connection state and API client
+- `useTransactionContext.ts` - Access transaction state
+- `internal/` - Implementation hooks (NOT exported, used only by providers)
+  - `useWallet.ts` - Core wallet connection logic
+  - `useConnectionStatus.ts` - Creates polkadot-api client, manages connection
+  - `useTransactionManager.ts` - Transaction lifecycle manager
 
 **components/** - UI components (all exported via `components/index.ts`)
 
@@ -187,18 +188,20 @@ The codebase follows type-based organization with clear separation of concerns:
 
 - `*Context.tsx` - React Context providers (wrap app in main.tsx)
 - `use*Context.ts` - Consumer hooks for accessing context state
-- `internal/` - Implementation hooks used only by providers (not exported)
+- `internal/` - Implementation hooks used only by providers (NOT exported)
 
 **hooks/** - Composition hooks that combine contexts with business logic
 
 - `useTransaction` - Composes TransactionContext for easy TX execution
 - `useAssetMutation` - Composes wallet + transaction + TanStack Query
+- `useNextAssetId` - Queries chain for next asset ID (enabled only when connected)
 - These are "how to do things," contexts are "what state exists"
 
 **lib/** - Pure functions with zero React dependencies
 
 - `assetOperations.ts` - polkadot-api transaction builders
 - `balance/` - Number conversion and formatting
+- `query/queryHelpers.ts` - Query invalidation (uses refetchQueries for nextAssetId)
 - Error handling utilities
 
 **components/** - UI components organized by domain
@@ -206,3 +209,4 @@ The codebase follows type-based organization with clear separation of concerns:
 - `ui/` - Design system primitives (shadcn)
 - `error-boundaries/` - Error boundary hierarchy
 - Feature components grouped by purpose (account/, asset-management/, transaction-ui/)
+- Forms disable submit button until transaction is ready (!transaction check)
