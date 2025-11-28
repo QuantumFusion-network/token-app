@@ -14,6 +14,12 @@ importers:
       '@polkadot-api/utils':
         specifier: ^0.2.0
         version: 0.2.0
+      '@polkadot-labs/hdkd':
+        specifier: ^0.0.25
+        version: 0.0.25
+      '@polkadot-labs/hdkd-helpers':
+        specifier: ^0.0.26
+        version: 0.0.26
       '@radix-ui/react-collapsible':
         specifier: ^1.1.12
         version: 1.1.12(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -948,6 +954,10 @@ packages:
     resolution: {integrity: sha512-EFd6cVbHsgLa6wa4RljGj6Wk75qoHxUSyc5asLyyPSyuhIcdS2Q3Phw6ImS1q+CkALthJRShiYfKANcQMuMqsQ==}
     engines: {node: '>=18'}
 
+  '@noble/curves@2.0.1':
+    resolution: {integrity: sha512-vs1Az2OOTBiP4q0pwjW5aF0xp9n4MxVrmkFBxc6EKZc6ddYx5gaZiAsZoq0uRRXWbi3AT/sBqn05eRPtn1JCPw==}
+    engines: {node: '>= 20.19.0'}
+
   '@noble/hashes@2.0.1':
     resolution: {integrity: sha512-XlOlEbQcE9fmuXxrVTXCTlG2nlRXa9Rj3rr5Ue/+tX+nmkgbX720YHh0VR3hBF9xDvwnb8D2shVGOwNx+ulArw==}
     engines: {node: '>= 20.19.0'}
@@ -1066,6 +1076,12 @@ packages:
 
   '@polkadot-api/ws-provider@0.7.0':
     resolution: {integrity: sha512-x/ulbwhvWlCyqxwtEfpVqPYArIuoo3g+defPcpZX5iJ1E6/+SYsGChDmgzM5Zbb0wDJMEn+p4us5P1Ll127cUA==}
+
+  '@polkadot-labs/hdkd-helpers@0.0.26':
+    resolution: {integrity: sha512-mp3GCSiOQeh4aPt+DYBQq6UnX/tKgYUH5F75knjW3ATSA90ifEEWWjRan0Bddt4QKYKamaDGadK9GbVREgzQFw==}
+
+  '@polkadot-labs/hdkd@0.0.25':
+    resolution: {integrity: sha512-+yZJC1TE4ZKdfoILw8nGxu3H/klrYXm9GdVB0kcyQDecq320ThUmM1M4l8d1F/3QD0Nez9NwHi9t5B++OgJU5A==}
 
   '@poppinss/colors@4.1.5':
     resolution: {integrity: sha512-FvdDqtcRCtz6hThExcFOgW0cWX+xwSMWcRuQe5ZEb2m7cVQOAVZOIMt+/v9RxGiD9/OY16qJBXK4CVKWAPalBw==}
@@ -1526,6 +1542,10 @@ packages:
 
   '@scure/base@2.0.0':
     resolution: {integrity: sha512-3E1kpuZginKkek01ovG8krQ0Z44E3DHPjc5S2rjJw9lZn3KSQOs8S7wqikF/AH7iRanHypj85uGyxk0XAyC37w==}
+
+  '@scure/sr25519@0.3.0':
+    resolution: {integrity: sha512-SKsinX2sImunfcsH3seGrwH/OayBwwaJqVN8J1cJBNRCfbBq5q0jyTKGa9PcW1HWv9vXT6Yuq41JsxFLvF59ew==}
+    engines: {node: '>= 20.19.0'}
 
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
@@ -4341,6 +4361,10 @@ snapshots:
       outvariant: 1.4.3
       strict-event-emitter: 0.5.1
 
+  '@noble/curves@2.0.1':
+    dependencies:
+      '@noble/hashes': 2.0.1
+
   '@noble/hashes@2.0.1': {}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -4543,6 +4567,18 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+
+  '@polkadot-labs/hdkd-helpers@0.0.26':
+    dependencies:
+      '@noble/curves': 2.0.1
+      '@noble/hashes': 2.0.1
+      '@scure/base': 2.0.0
+      '@scure/sr25519': 0.3.0
+      scale-ts: 1.6.1
+
+  '@polkadot-labs/hdkd@0.0.25':
+    dependencies:
+      '@polkadot-labs/hdkd-helpers': 0.0.26
 
   '@poppinss/colors@4.1.5':
     dependencies:
@@ -4940,6 +4976,11 @@ snapshots:
       rxjs: 7.8.2
 
   '@scure/base@2.0.0': {}
+
+  '@scure/sr25519@0.3.0':
+    dependencies:
+      '@noble/curves': 2.0.1
+      '@noble/hashes': 2.0.1
 
   '@sec-ant/readable-stream@0.4.1': {}
 

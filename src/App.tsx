@@ -6,19 +6,15 @@ import QfLogo from '@/assets/qf-logo.svg'
 import {
   AccountSelector,
   AssetList,
-  ConnectionBanner,
   CreateAsset,
   DestroyAsset,
   MintTokens,
+  NetworkSelector,
   TransferTokens,
   WalletConnector,
 } from '@/components'
 import { Button, Toaster } from '@/components/ui'
-import {
-  useConnectionContext,
-  useTransactionToasts,
-  useWalletContext,
-} from '@/hooks'
+import { useTransactionToasts, useWalletContext } from '@/hooks'
 
 import './App.css'
 
@@ -26,7 +22,6 @@ type Tab = 'assets' | 'create' | 'mint' | 'transfer' | 'destroy'
 
 export default function App() {
   const { isConnected: isWalletConnected } = useWalletContext()
-  const { isConnected: isChainConnected } = useConnectionContext()
   const [activeTab, setActiveTab] = useState<Tab>('assets')
 
   // Initialize transaction toasts
@@ -124,24 +119,10 @@ export default function App() {
 
       {/* Main content */}
       <div className="flex flex-1 flex-col">
-        {/* Connection status banner */}
-        <ConnectionBanner />
-
-        {/* Header with account selector */}
+        {/* Header with network and account selectors */}
         <header className="border-border bg-background/80 border-b backdrop-blur-sm">
           <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-2">
-              <div
-                className={`h-2 w-2 rounded-full ${
-                  isChainConnected ? 'bg-green-500' : 'bg-destructive'
-                }`}
-              ></div>
-              <span className="text-muted-foreground text-sm font-medium">
-                {isChainConnected
-                  ? 'Connected to QF Network'
-                  : 'Disconnected from QF Network'}
-              </span>
-            </div>
+            <NetworkSelector />
             <AccountSelector />
           </div>
         </header>
