@@ -19,12 +19,14 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
-import { useTransactionManager } from '@/hooks/useTransactionManager'
+
+import { useTransactionManager } from '@/contexts/internal/useTransactionManager'
+import { act, renderHook } from '@testing-library/react'
+
 import {
-  createSuccessfulObservable,
-  createFailedObservable,
   createErrorObservable,
+  createFailedObservable,
+  createSuccessfulObservable,
   MOCK_DISPATCH_ERRORS,
 } from '../support/mocks/transaction-observable'
 
@@ -200,7 +202,9 @@ describe('useTransactionManager', () => {
     it('creates typed DispatchError with transaction context', async () => {
       const { result } = renderHook(() => useTransactionManager())
 
-      const observable = createFailedObservable(MOCK_DISPATCH_ERRORS.NoPermission)
+      const observable = createFailedObservable(
+        MOCK_DISPATCH_ERRORS.NoPermission
+      )
 
       let txId!: string
       act(() => {
@@ -295,7 +299,10 @@ describe('useTransactionManager', () => {
 
       const txError = result.current.transactions[txId].status.error
       expect(txError?.context.transactionType).toBe('createAsset')
-      expect(txError?.context.details).toEqual({ name: 'Test Token', symbol: 'TST' })
+      expect(txError?.context.details).toEqual({
+        name: 'Test Token',
+        symbol: 'TST',
+      })
     })
   })
 

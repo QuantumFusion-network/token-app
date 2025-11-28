@@ -1,42 +1,12 @@
+// Asset operations
 export {
   createAssetBatch,
   destroyAssetBatch,
   mintTokens,
   transferTokens,
 } from './assetOperations'
-export {
-  invalidateAssetQueries,
-  invalidateBalanceQueries,
-} from './queryHelpers'
-export { queryClient } from './queryClient'
-export {
-  createAssetToasts,
-  destroyAssetToasts,
-  mintTokensToasts,
-  transferTokensToasts,
-} from './toastConfigs'
-export { cn } from './utils'
-export {
-  clearWalletConnection,
-  loadWalletConnection,
-  saveWalletConnection,
-} from './walletStorage'
-export {
-  DEFAULT_LOCAL_URL,
-  DEFAULT_NETWORK,
-  getNetworkUrl,
-  loadLocalUrl,
-  loadNetwork,
-  NETWORKS,
-  saveLocalUrl,
-  saveNetwork,
-} from './networkStorage'
-export {
-  DEV_ACCOUNT_NAMES,
-  getAllDevAccounts,
-  getDevAccount,
-} from './devSigner'
 
+// Balance utilities
 export {
   toPlanck,
   fromPlanck,
@@ -51,14 +21,63 @@ export {
   MAX_DECIMALS,
 } from './balance'
 
+// Error handling
+export {
+  getErrorMessage,
+  hasErrorMessage,
+  getMappedPallets,
+  parseDispatchError,
+  createDispatchError,
+  parseInvalidTxError,
+  createInvalidTransactionError,
+  isUserRejection,
+  createTransactionError,
+  TransactionErrorCode,
+  TransactionError,
+  DispatchError,
+  InvalidTransactionError,
+  UserRejectionError,
+  NetworkError,
+  UnknownTransactionError,
+} from './errors'
+
+// Query utilities
+export { queryClient, invalidateAssetQueries, invalidateBalanceQueries } from './query'
+
+// Storage utilities
+export {
+  clearWalletConnection,
+  loadWalletConnection,
+  saveWalletConnection,
+  DEFAULT_LOCAL_URL,
+  DEFAULT_NETWORK,
+  getNetworkUrl,
+  loadLocalUrl,
+  loadNetwork,
+  NETWORKS,
+  saveLocalUrl,
+  saveNetwork,
+} from './storage'
+
+
+// Dev utilities
+export {
+  DEV_ACCOUNT_NAMES,
+  getAllDevAccounts,
+  getDevAccount,
+} from './devSigner'
+
+// General utilities
+export { cn } from './utils'
+
+// Types
 export type {
   CreateAssetParams,
   DestroyAssetParams,
   MintParams,
   TransferParams,
 } from './assetOperations'
-export type { ToastConfig } from './toastConfigs'
-export type { StoredWalletConnection } from './walletStorage'
-export type { NetworkConfig, NetworkId } from './networkStorage'
-export type { DevAccount, DevAccountName } from './devSigner'
 export type { FormatBalanceOptions, RoundingMode } from './balance'
+export type { TransactionErrorContext } from './errors'
+export type { StoredWalletConnection, NetworkConfig, NetworkId } from './storage'
+export type { DevAccount, DevAccountName } from './devSigner'

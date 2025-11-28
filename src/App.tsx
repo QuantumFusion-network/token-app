@@ -14,7 +14,8 @@ import {
   WalletConnector,
 } from '@/components'
 import { Button, Toaster } from '@/components/ui'
-import { useTransactionToasts, useWalletContext } from '@/hooks'
+import { useWalletContext } from '@/contexts'
+import { useTransactionToasts } from '@/hooks'
 
 import './App.css'
 
@@ -83,7 +84,11 @@ export default function App() {
       <div className="bg-card border-border flex w-64 flex-col border-r shadow-lg">
         {/* Header */}
         <div className="text-foreground border-border from-muted/20 to-muted/40 flex items-center gap-3 border-b bg-gradient-to-br p-4">
-          <img src={QfLogo} alt="QF Network" className="h-9 w-9 lg:h-10 lg:w-10" />
+          <img
+            src={QfLogo}
+            alt="QF Network"
+            className="h-9 w-9 lg:h-10 lg:w-10"
+          />
           <div className="text-left">
             <h1 className="text-foreground mt-1.5 text-xl leading-4 font-bold">
               QF Network

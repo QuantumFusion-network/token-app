@@ -19,18 +19,14 @@ import {
   Input,
   Label,
 } from '@/components/ui'
-import {
-  useAssetMutation,
-  useConnectionContext,
-  useFee,
-  useWalletContext,
-} from '@/hooks'
+import { useConnectionContext, useWalletContext } from '@/contexts'
+import { useAssetMutation, useFee } from '@/hooks'
 import {
   destroyAssetBatch,
-  destroyAssetToasts,
   invalidateAssetQueries,
   type DestroyAssetParams,
 } from '@/lib'
+import { destroyAssetToasts } from '../toastConfigs'
 import { useQueryClient } from '@tanstack/react-query'
 
 function DestroyAssetInner() {

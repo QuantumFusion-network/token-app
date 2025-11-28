@@ -1,6 +1,12 @@
-import type { ReactNode } from 'react'
+import { createContext, type ReactNode } from 'react'
 
-import { ConnectionContext, useConnectionStatus } from '@/hooks'
+import { useConnectionStatus } from './internal/useConnectionStatus'
+
+type ConnectionContextType = ReturnType<typeof useConnectionStatus>
+
+export const ConnectionContext = createContext<
+  ConnectionContextType | undefined
+>(undefined)
 
 export function ConnectionProvider({ children }: { children: ReactNode }) {
   const connection = useConnectionStatus()

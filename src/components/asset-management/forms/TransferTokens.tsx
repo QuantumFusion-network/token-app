@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from 'react'
 
-import { useQueryClient } from '@tanstack/react-query'
-import { Coins } from 'lucide-react'
+import { Send } from 'lucide-react'
 
 import {
   AccountDashboard,
@@ -11,19 +10,15 @@ import {
   TransactionReview,
 } from '@/components'
 import { Card, CardContent, Input, Label } from '@/components/ui'
+import { useConnectionContext, useWalletContext } from '@/contexts'
+import { useAssetMutation, useFee } from '@/hooks'
 import {
-  useAssetMutation,
-  useConnectionContext,
-  useFee,
-  useWalletContext,
-} from '@/hooks'
-import {
-  invalidateAssetQueries,
   invalidateBalanceQueries,
-  mintTokens,
-  mintTokensToasts,
-  type MintParams,
+  transferTokens,
+  type TransferParams,
 } from '@/lib'
+import { transferTokensToasts } from '../toastConfigs'
+import { useQueryClient } from '@tanstack/react-query'
 
 const initialFormData = {
   assetId: '',
@@ -32,49 +27,50 @@ const initialFormData = {
   decimals: 12,
 }
 
-function MintTokensInner() {
+function TransferTokensInner() {
   const { selectedAccount } = useWalletContext()
   const { isConnected, api } = useConnectionContext()
   const queryClient = useQueryClient()
+  const [formData, setFormData] = useState<TransferParams>(initialFormData)
 
-  const [formData, setFormData] = useState<MintParams>(initialFormData)
+  const { mutation: transferMutation, transaction } =
+    useAssetMutation<TransferParams>({
+      params: formData,
+      operationFn: (params) => transferTokens(api, params),
+      toastConfig: transferTokensToasts,
+      transactionKey: 'transferTokens',
+      isValid: (params) =>
+        params.assetId !== '' &&
+        !isNaN(parseInt(params.assetId)) &&
+        params.recipient !== '' &&
+        params.amount !== '' &&
+        parseFloat(params.amount) > 0,
+      onSuccess: () => {
+        // Invalidate balances for both sender and recipient
+        invalidateBalanceQueries(queryClient, parseInt(formData.assetId), [
+          selectedAccount?.address,
+          formData.recipient,
+        ])
 
-  const { mutation: mintMutation, transaction } = useAssetMutation<MintParams>({
-    params: formData,
-    operationFn: (params) => mintTokens(api, params),
-    toastConfig: mintTokensToasts,
-    transactionKey: 'mintTokens',
-    isValid: (params) =>
-      params.assetId !== '' &&
-      !isNaN(parseInt(params.assetId)) &&
-      params.recipient !== '' &&
-      params.amount !== '' &&
-      parseFloat(params.amount) > 0,
-    onSuccess: async () => {
-      invalidateBalanceQueries(queryClient, parseInt(formData.assetId), [
-        formData.recipient,
-      ])
-      await invalidateAssetQueries(queryClient)
-
-      // Reset form
-      setFormData({ ...initialFormData })
-    },
-  })
+        setFormData({ ...initialFormData })
+      },
+    })
 
   const feeState = useFee(transaction, selectedAccount?.address)
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    mintMutation.mutate()
+    transferMutation.mutate()
   }
 
   if (!selectedAccount) {
-    return <div>Please connect your wallet to mint tokens</div>
+    return <div>Please connect your wallet to transfer tokens</div>
   }
 
   const reviewData = {
     assetId: formData.assetId,
-    recipient: formData.recipient,
+    from: selectedAccount.address,
+    to: formData.recipient,
     amount: formData.amount,
   }
 
@@ -82,9 +78,9 @@ function MintTokensInner() {
     <div>
       <AccountDashboard />
       <div className="mb-4 flex items-center gap-4">
-        <Coins className="text-primary h-5 w-5" />
+        <Send className="text-primary h-5 w-5" />
         <h1 className="text-foreground text-2xl leading-tight font-bold">
-          Mint Tokens
+          Transfer Tokens
         </h1>
       </div>
       <Card className="gap-8 shadow-lg">
@@ -132,7 +128,7 @@ function MintTokensInner() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="amount">Amount to Mint</Label>
+                  <Label htmlFor="amount">Amount to Transfer</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -151,7 +147,7 @@ function MintTokensInner() {
                   />
                 </div>
 
-                <MutationError error={mintMutation.error} />
+                <MutationError error={transferMutation.error} />
               </div>
 
               {/* Review Column - 1 column */}
@@ -163,9 +159,9 @@ function MintTokensInner() {
             {/* Fee + CTA Section */}
             <TransactionFormFooter
               feeState={feeState}
-              isDisabled={!isConnected || mintMutation.isPending}
-              isPending={mintMutation.isPending}
-              actionText="Mint Tokens"
+              isDisabled={!isConnected || transferMutation.isPending}
+              isPending={transferMutation.isPending}
+              actionText="Transfer Tokens"
             />
           </form>
         </CardContent>
@@ -174,10 +170,10 @@ function MintTokensInner() {
   )
 }
 
-export function MintTokens() {
+export function TransferTokens() {
   return (
-    <FeatureErrorBoundary featureName="Mint Tokens">
-      <MintTokensInner />
+    <FeatureErrorBoundary featureName="Transfer Tokens">
+      <TransferTokensInner />
     </FeatureErrorBoundary>
   )
 }

@@ -1,7 +1,12 @@
-import type { ReactNode } from 'react'
+import { createContext, type ReactNode } from 'react'
 
-import { TransactionContext } from '@/hooks'
-import { useTransactionManager } from '@/hooks/useTransactionManager'
+import { useTransactionManager } from './internal/useTransactionManager'
+
+type TransactionContextType = ReturnType<typeof useTransactionManager>
+
+export const TransactionContext = createContext<
+  TransactionContextType | undefined
+>(undefined)
 
 export function TransactionProvider({ children }: { children: ReactNode }) {
   const transaction = useTransactionManager()

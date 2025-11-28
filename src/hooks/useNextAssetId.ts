@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { useConnectionContext } from './useConnectionContext'
+import { useConnectionContext } from '../contexts/useConnectionContext'
 
 export function useNextAssetId() {
   const { api } = useConnectionContext()

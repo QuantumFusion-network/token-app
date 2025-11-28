@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui'
-import { useWalletContext } from '@/hooks'
+import { useWalletContext } from '@/contexts'
 
 export function AccountSelector() {
   const { accounts, selectedAccount, setSelectedAccount, disconnect } =

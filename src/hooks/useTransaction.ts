@@ -1,7 +1,7 @@
 import type { TxBroadcastEvent } from 'polkadot-api'
 
-import { useTransactionContext } from '@/hooks'
-import type { ToastConfig } from '@/lib'
+import type { ToastConfig } from '@/components/asset-management/toastConfigs'
+import { useTransactionContext } from '@/contexts'
 
 interface TransactionObservable {
   subscribe: (handlers: {

@@ -19,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { useWalletContext } from '@/hooks'
+import { useWalletContext } from '@/contexts'
 import { formatBalance, fromPlanck } from '@/lib'
 
 interface AssetCardProps {

@@ -5,9 +5,9 @@ import { AppErrorBoundary } from '@/components'
 import {
   ConnectionProvider,
   TransactionProvider,
+  useConnectionContext,
   WalletProvider,
 } from '@/contexts'
-import { useConnectionContext } from '@/hooks'
 import { queryClient } from '@/lib'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'

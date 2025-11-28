@@ -1,3 +1,7 @@
 export { ConnectionProvider } from './ConnectionContext'
+export { ConnectionContext } from './ConnectionContext'
 export { TransactionProvider } from './TransactionContext'
 export { WalletProvider } from './WalletContext'
+export { useConnectionContext } from './useConnectionContext'
+export { useTransactionContext } from './useTransactionContext'
+export { useWalletContext } from './useWalletContext'

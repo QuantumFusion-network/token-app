@@ -1,19 +1,27 @@
-export { AccountDashboard } from './AccountDashboard'
-export { AccountSelector } from './AccountSelector'
-export { AssetBalance } from './AssetBalance'
-export { AssetCard } from './AssetCard'
-export { AssetList } from './AssetList'
-export { NetworkSelector } from './NetworkSelector'
-export { CreateAsset } from './CreateAsset'
-export { DestroyAsset } from './DestroyAsset'
-export { FeeDisplay } from './FeeDisplay'
-export { MintTokens } from './MintTokens'
-export { MutationError } from './MutationError'
-export { TransactionFormFooter } from './TransactionFormFooter'
-export { TransactionReview } from './TransactionReview'
-export { TransferTokens } from './TransferTokens'
-export { WalletConnector } from './WalletConnector'
+// Account components
+export { AccountDashboard } from './account/AccountDashboard'
+export { AccountSelector } from './account/AccountSelector'
+export { NetworkSelector } from './account/NetworkSelector'
+export { WalletConnector } from './account/WalletConnector'
 
+// Asset display components
+export { AssetBalance } from './asset-management/display/AssetBalance'
+export { AssetCard } from './asset-management/display/AssetCard'
+export { AssetList } from './asset-management/display/AssetList'
+
+// Asset form components
+export { CreateAsset } from './asset-management/forms/CreateAsset'
+export { DestroyAsset } from './asset-management/forms/DestroyAsset'
+export { MintTokens } from './asset-management/forms/MintTokens'
+export { TransferTokens } from './asset-management/forms/TransferTokens'
+
+// Transaction UI components
+export { FeeDisplay } from './transaction-ui/FeeDisplay'
+export { MutationError } from './transaction-ui/MutationError'
+export { TransactionFormFooter } from './transaction-ui/TransactionFormFooter'
+export { TransactionReview } from './transaction-ui/TransactionReview'
+
+// Error boundaries
 export {
   AppErrorBoundary,
   ComponentErrorBoundary,

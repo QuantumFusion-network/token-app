@@ -67,52 +67,9 @@ export function useWallet(networkId: NetworkId) {
       setSelectedAccount(alice ?? devAccounts[0])
       setIsAutoConnecting(false)
     }
-  }, []) // Only run on mount
+  }, [networkId])
 
-  // Auto-reconnect on mount if we have saved connection data (only for non-local networks)
-  useEffect(() => {
-    if (networkId === 'local') {
-      setIsAutoConnecting(false)
-      return
-    }
-
-    const attemptAutoReconnect = async () => {
-      const saved = loadWalletConnection()
-      if (!saved) {
-        setIsAutoConnecting(false)
-        return
-      }
-
-      const { extensionName, selectedAccountAddress } = saved
-
-      // Check if the saved extension is still available
-      if (!availableExtensions.includes(extensionName)) {
-        console.log(`Saved extension '${extensionName}' is no longer available`)
-        clearWalletConnection()
-        setIsAutoConnecting(false)
-        return
-      }
-
-      console.log(`Auto-reconnecting to ${extensionName}...`)
-      try {
-        await connectWallet(extensionName, selectedAccountAddress)
-        console.log('Auto-reconnection successful')
-      } catch (error) {
-        console.log('Auto-reconnection failed:', error)
-        clearWalletConnection()
-      } finally {
-        setIsAutoConnecting(false)
-      }
-    }
-
-    // Only attempt auto-reconnect if we're not already connected
-    if (!extension) {
-      attemptAutoReconnect().catch(console.error)
-    } else {
-      setIsAutoConnecting(false)
-    }
-  }, [availableExtensions, extension, networkId])
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const connectWallet = async (
     extensionName: string,
     selectedAccountAddress?: string
@@ -171,6 +128,50 @@ export function useWallet(networkId: NetworkId) {
       setIsConnecting(false)
     }
   }
+
+  // Auto-reconnect on mount if we have saved connection data (only for non-local networks)
+  useEffect(() => {
+    if (networkId === 'local') {
+      setIsAutoConnecting(false)
+      return
+    }
+
+    const attemptAutoReconnect = async () => {
+      const saved = loadWalletConnection()
+      if (!saved) {
+        setIsAutoConnecting(false)
+        return
+      }
+
+      const { extensionName, selectedAccountAddress } = saved
+
+      // Check if the saved extension is still available
+      if (!availableExtensions.includes(extensionName)) {
+        console.log(`Saved extension '${extensionName}' is no longer available`)
+        clearWalletConnection()
+        setIsAutoConnecting(false)
+        return
+      }
+
+      console.log(`Auto-reconnecting to ${extensionName}...`)
+      try {
+        await connectWallet(extensionName, selectedAccountAddress)
+        console.log('Auto-reconnection successful')
+      } catch (error) {
+        console.log('Auto-reconnection failed:', error)
+        clearWalletConnection()
+      } finally {
+        setIsAutoConnecting(false)
+      }
+    }
+
+    // Only attempt auto-reconnect if we're not already connected
+    if (!extension) {
+      attemptAutoReconnect().catch(console.error)
+    } else {
+      setIsAutoConnecting(false)
+    }
+  }, [availableExtensions, connectWallet, extension, networkId])
 
   const disconnect = () => {
     // For dev accounts, just reset selection

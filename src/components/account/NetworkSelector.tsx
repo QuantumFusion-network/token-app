@@ -2,13 +2,25 @@ import { useState } from 'react'
 
 import { Globe } from 'lucide-react'
 
-import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui'
-import { useConnectionContext } from '@/hooks'
+import {
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui'
+import { useConnectionContext } from '@/contexts'
 import { loadLocalUrl, type NetworkId } from '@/lib'
 
 export function NetworkSelector() {
-  const { networkId, currentUrl, availableNetworks, switchNetwork, isConnected } =
-    useConnectionContext()
+  const {
+    networkId,
+    currentUrl,
+    availableNetworks,
+    switchNetwork,
+    isConnected,
+  } = useConnectionContext()
 
   const [localUrlInput, setLocalUrlInput] = useState(() => loadLocalUrl())
 

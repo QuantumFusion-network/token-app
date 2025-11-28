@@ -52,11 +52,18 @@ QF Network asset management app - React 19 + TypeScript + polkadot-api
   - `fromPlanck.ts` - Convert Planck units to human-readable string
   - `format.ts` - formatBalance with locale, rounding, symbol support
   - `config.ts` - Balance constants and error codes
+- `errors/` - Error handling utilities
+  - `transactionErrors.ts` - Error type system and classes
+  - `errorParsing.ts` - Type guards and safe parsers
+  - `errorMessages.ts` - User-friendly error message mappings
+- `query/` - TanStack Query setup
+  - `queryClient.ts` - Query client configuration
+  - `queryHelpers.ts` - Query invalidation helpers
+- `storage/` - localStorage persistence
+  - `walletStorage.ts` - Wallet connection persistence
+  - `networkStorage.ts` - Network selection persistence
+- `devSigner.ts` - Dev account utilities
 - `utils.ts` - cn() for Tailwind class merging
-- `walletStorage.ts` - localStorage persistence for wallet connection
-- `toastConfigs.ts` - Transaction toast configurations
-- `queryClient.ts` / `queryHelpers.ts` - TanStack Query setup and helpers
-- `errorParsing.ts` / `errorMessages.ts` / `transactionErrors.ts` - Error handling
 
 **hooks/** - Custom React hooks (all exported via `hooks/index.ts`)
 - `useConnectionStatus.ts` - Creates polkadot-api client, manages connection
@@ -77,25 +84,32 @@ QF Network asset management app - React 19 + TypeScript + polkadot-api
 - `TransactionContext.tsx` - Transaction state provider (uses `useTransactionManager`)
 
 **components/** - UI components (all exported via `components/index.ts`)
-- `WalletConnector.tsx` - Wallet connection UI
-- `AccountSelector.tsx` - Account selection dropdown
-- `AccountDashboard.tsx` - Account balance and info
-- `AssetList.tsx` - List of assets
-- `AssetCard.tsx` - Individual asset card
-- `AssetBalance.tsx` - Display asset balance for account
-- `CreateAsset.tsx` - Create asset form
-- `MintTokens.tsx` - Mint tokens form
-- `TransferTokens.tsx` - Transfer tokens form
-- `DestroyAsset.tsx` - Destroy asset form
-- `TransactionReview.tsx` - Review transaction before signing
-- `TransactionFormFooter.tsx` - Common form footer with fee display
-- `FeeDisplay.tsx` - Display transaction fee
-- `ConnectionBanner.tsx` - Connection status banner
-- `MutationError.tsx` - Display mutation errors
+- `account/` - Wallet and account management UI
+  - `WalletConnector.tsx` - Wallet connection UI
+  - `AccountSelector.tsx` - Account selection dropdown
+  - `AccountDashboard.tsx` - Account balance and info
+  - `NetworkSelector.tsx` - Network selection dropdown
+- `asset-management/` - Asset-related components (scales to future features like multisig/, governance/)
+  - `display/` - Read-only asset viewing
+    - `AssetList.tsx` - List of assets with filters
+    - `AssetCard.tsx` - Individual asset card
+    - `AssetBalance.tsx` - Display asset balance for account
+  - `forms/` - Asset mutation forms
+    - `CreateAsset.tsx` - Create asset form
+    - `MintTokens.tsx` - Mint tokens form
+    - `TransferTokens.tsx` - Transfer tokens form
+    - `DestroyAsset.tsx` - Destroy asset form
+  - `toastConfigs.ts` - Toast messages for asset operations
+- `transaction-ui/` - Shared transaction presentation
+  - `TransactionReview.tsx` - Review transaction before signing
+  - `TransactionFormFooter.tsx` - Common form footer with fee display
+  - `FeeDisplay.tsx` - Display transaction fee
+  - `MutationError.tsx` - Display mutation errors
 - `error-boundaries/` - Error boundary components
   - `AppErrorBoundary.tsx` - Top-level error boundary
   - `FeatureErrorBoundary.tsx` - Feature-level error boundary
   - `ComponentErrorBoundary.tsx` - Component-level error boundary
+- `ui/` - Design system primitives (shadcn/ui)
 
 ## TRANSACTION FLOW
 
@@ -148,3 +162,27 @@ import { toPlanck, fromPlanck, formatBalance } from '@/lib'
 - All exports through barrel files for clean imports
 - Balance decimals: Default 12, QF native is 18
 - Query refetch: 10s for balances, 5min stale time for metadata
+
+## ARCHITECTURE LAYERS
+
+The codebase follows type-based organization with clear separation of concerns:
+
+**contexts/** - State management providers and their access hooks
+- `*Context.tsx` - React Context providers (wrap app in main.tsx)
+- `use*Context.ts` - Consumer hooks for accessing context state
+- `internal/` - Implementation hooks used only by providers (not exported)
+
+**hooks/** - Composition hooks that combine contexts with business logic
+- `useTransaction` - Composes TransactionContext for easy TX execution
+- `useAssetMutation` - Composes wallet + transaction + TanStack Query
+- These are "how to do things," contexts are "what state exists"
+
+**lib/** - Pure functions with zero React dependencies
+- `assetOperations.ts` - polkadot-api transaction builders
+- `balance/` - Number conversion and formatting
+- Error handling utilities
+
+**components/** - UI components organized by domain
+- `ui/` - Design system primitives (shadcn)
+- `error-boundaries/` - Error boundary hierarchy
+- Feature components grouped by purpose (account/, asset-management/, transaction-ui/)

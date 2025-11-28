@@ -1,5 +1,5 @@
 import { ComponentErrorBoundary } from '@/components'
-import { useConnectionContext, useWalletContext } from '@/hooks'
+import { useConnectionContext, useWalletContext } from '@/contexts'
 import { formatBalance, fromPlanck } from '@/lib'
 import { useQuery } from '@tanstack/react-query'
 

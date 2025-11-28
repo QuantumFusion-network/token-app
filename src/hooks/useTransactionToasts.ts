@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react'
 
 import { toast } from 'sonner'
 
-import { useTransactionContext } from '@/hooks'
-import { TransactionErrorCode } from '@/lib/transactionErrors'
+import { useTransactionContext } from '@/contexts'
+import { TransactionErrorCode } from '@/lib'
 
 interface TransactionToastIds {
   signing?: string | number

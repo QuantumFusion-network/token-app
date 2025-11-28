@@ -2,7 +2,7 @@ import { ExternalLink, Wallet } from 'lucide-react'
 
 import { ComponentErrorBoundary } from '@/components'
 import { Button, Card, CardContent } from '@/components/ui'
-import { useConnectionContext, useWalletContext } from '@/hooks'
+import { useConnectionContext, useWalletContext } from '@/contexts'
 import { formatBalance, fromPlanck } from '@/lib'
 import { useQuery } from '@tanstack/react-query'
 

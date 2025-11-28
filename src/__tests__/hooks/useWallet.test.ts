@@ -22,8 +22,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Now import the hook
-import { useWallet } from '@/hooks/useWallet'
-import { loadWalletConnection, saveWalletConnection } from '@/lib/walletStorage'
+import { useWallet } from '@/contexts/internal/useWallet'
+import { loadWalletConnection, saveWalletConnection } from '@/lib/storage'
 import { act, renderHook, waitFor } from '@testing-library/react'
 
 // Import mock utilities

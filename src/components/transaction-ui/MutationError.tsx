@@ -7,7 +7,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui'
-import type { TransactionError } from '@/lib/transactionErrors'
+import type { TransactionError } from '@/lib'
 
 interface MutationErrorProps {
   error?: Error | null

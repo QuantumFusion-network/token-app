@@ -1,12 +1,6 @@
-import { createContext, useContext } from 'react'
+import { useContext } from 'react'
 
-import type { useTransactionManager } from './useTransactionManager'
-
-type TransactionContextType = ReturnType<typeof useTransactionManager>
-
-export const TransactionContext = createContext<
-  TransactionContextType | undefined
->(undefined)
+import { TransactionContext } from './TransactionContext'
 
 /**
  * Access transaction state directly.

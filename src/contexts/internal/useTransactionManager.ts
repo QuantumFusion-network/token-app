@@ -2,12 +2,12 @@ import { useState } from 'react'
 
 import { type TxBroadcastEvent } from 'polkadot-api'
 
-import type { ToastConfig } from '@/lib/toastConfigs'
-import type { TransactionError } from '@/lib/transactionErrors'
+import type { ToastConfig } from '@/components/asset-management/toastConfigs'
 import {
   createDispatchError,
   createTransactionError,
-} from '@/lib/errorParsing'
+  type TransactionError,
+} from '@/lib'
 
 interface TransactionObservable {
   subscribe: (handlers: {

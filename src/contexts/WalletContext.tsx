@@ -1,7 +1,14 @@
-import type { ReactNode } from 'react'
+import { createContext, type ReactNode } from 'react'
 
-import { useWallet, WalletContext } from '@/hooks'
 import type { NetworkId } from '@/lib'
+
+import { useWallet } from './internal/useWallet'
+
+type WalletContextType = ReturnType<typeof useWallet>
+
+export const WalletContext = createContext<WalletContextType | undefined>(
+  undefined
+)
 
 interface WalletProviderProps {
   networkId: NetworkId

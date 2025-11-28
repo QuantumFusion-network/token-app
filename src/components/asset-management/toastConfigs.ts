@@ -3,7 +3,7 @@ import type {
   DestroyAssetParams,
   MintParams,
   TransferParams,
-} from './assetOperations'
+} from '@/lib'
 
 export interface ToastConfig<T> {
   signing: string
