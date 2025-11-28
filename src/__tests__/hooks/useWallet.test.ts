@@ -92,7 +92,7 @@ describe('useWallet', () => {
   describe('Initial state', () => {
     it('starts with no connection', () => {
       setupExtension('polkadot-js', ALICE)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
 
       expect(result.current.extension).toBeNull()
       expect(result.current.accounts).toEqual([])
@@ -105,7 +105,7 @@ describe('useWallet', () => {
       setupExtension('polkadot-js', ALICE)
       setupExtension('talisman', BOB)
 
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
 
       expect(result.current.availableExtensions).toEqual(
         expect.arrayContaining(['polkadot-js', 'talisman'])
@@ -116,7 +116,7 @@ describe('useWallet', () => {
   describe('Auto-reconnect on mount', () => {
     it('auto-reconnects with saved connection data', async () => {
       setupAutoReconnect(ALICE, ALICE, BOB)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
 
       // Initially shows auto-connecting state
       expect(result.current.isConnecting).toBe(true)
@@ -132,7 +132,7 @@ describe('useWallet', () => {
 
     it('auto-reconnects and restores previously selected account', async () => {
       setupAutoReconnect(CHARLIE, ALICE, BOB, CHARLIE)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
 
       await waitForReady(result)
 
@@ -144,7 +144,7 @@ describe('useWallet', () => {
       const DELETED = '5DTestAccountDoesNotExist'
       setupAutoReconnect(DELETED, ALICE, BOB)
 
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       // Should connect but use first available account
@@ -161,7 +161,7 @@ describe('useWallet', () => {
         selectedAccountAddress: BOB,
       })
 
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       expect(result.current.isConnected).toBe(false)
@@ -179,7 +179,7 @@ describe('useWallet', () => {
         selectedAccountAddress: ALICE,
       })
 
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       expect(result.current.isConnected).toBe(false)
@@ -188,7 +188,7 @@ describe('useWallet', () => {
 
     it('does not auto-reconnect when no saved data', async () => {
       setupExtension('polkadot-js', ALICE)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
 
       await waitForReady(result)
 
@@ -200,7 +200,7 @@ describe('useWallet', () => {
   describe('Manual wallet connection', () => {
     it('connects to extension and selects first account', async () => {
       setupExtension('polkadot-js', ALICE, BOB)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       await act(async () => {
@@ -216,7 +216,7 @@ describe('useWallet', () => {
 
     it('persists connection to localStorage', async () => {
       setupExtension('polkadot-js', ALICE)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       await act(async () => {
@@ -232,7 +232,7 @@ describe('useWallet', () => {
 
     it('restores specific account when provided', async () => {
       setupExtension('polkadot-js', ALICE, BOB, CHARLIE)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       await act(async () => {
@@ -249,7 +249,7 @@ describe('useWallet', () => {
         new Error('User rejected authorization')
       )
 
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
 
       // Wait for auto-connect to finish
       await waitFor(() => expect(result.current.isConnecting).toBe(false), {
@@ -280,7 +280,7 @@ describe('useWallet', () => {
         new Error('First attempt failed')
       )
 
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
 
       // Wait for auto-connect to finish
       await waitFor(() => expect(result.current.isConnecting).toBe(false), {
@@ -318,7 +318,7 @@ describe('useWallet', () => {
   describe('Account switching', () => {
     it('switches selected account', async () => {
       setupExtension('polkadot-js', ALICE, BOB)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       await act(async () => {
@@ -341,7 +341,7 @@ describe('useWallet', () => {
 
     it('persists account switch to localStorage', async () => {
       setupExtension('polkadot-js', ALICE, BOB)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       await act(async () => {
@@ -363,7 +363,7 @@ describe('useWallet', () => {
   describe('Disconnect', () => {
     it('clears all state on disconnect', async () => {
       setupExtension('polkadot-js', ALICE)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       await act(async () => {
@@ -386,7 +386,7 @@ describe('useWallet', () => {
 
     it('clears localStorage on disconnect', async () => {
       setupExtension('polkadot-js', ALICE)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       await act(async () => {
@@ -404,7 +404,7 @@ describe('useWallet', () => {
 
     it('calls extension.disconnect()', async () => {
       setupExtension('polkadot-js', ALICE)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       await act(async () => {
@@ -425,7 +425,7 @@ describe('useWallet', () => {
   describe('Edge cases', () => {
     it('handles extension with no accounts', async () => {
       pjsSignerMock.registerMockExtension('polkadot-js', [])
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       await act(async () => {
@@ -441,7 +441,7 @@ describe('useWallet', () => {
     })
 
     it('handles non-existent extension gracefully', async () => {
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       await act(async () => {
@@ -457,7 +457,7 @@ describe('useWallet', () => {
 
     it('does not auto-reconnect if already connected', async () => {
       setupAutoReconnect(ALICE, ALICE)
-      const { result, rerender } = renderHook(() => useWallet())
+      const { result, rerender } = renderHook(() => useWallet('testnet'))
 
       // Wait for initial auto-reconnect
       await waitFor(() => expect(result.current.isConnected).toBe(true), {
@@ -481,7 +481,7 @@ describe('useWallet', () => {
       const ALICE_ALT = '5DTestAnotherAliceAccount'
 
       setupExtension('polkadot-js', ALICE, ALICE_ALT)
-      const { result } = renderHook(() => useWallet())
+      const { result } = renderHook(() => useWallet('testnet'))
       await waitForReady(result)
 
       await act(async () => {

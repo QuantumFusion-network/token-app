@@ -10,4 +10,5 @@ export {
 } from './useTransactionContext'
 export { useTransactionToasts } from './useTransactionToasts'
 export { useWallet } from './useWallet'
+export type { Account } from './useWallet'
 export { WalletContext, useWalletContext } from './useWalletContext'

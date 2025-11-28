@@ -31,6 +31,11 @@ export {
   saveLocalUrl,
   saveNetwork,
 } from './networkStorage'
+export {
+  DEV_ACCOUNT_NAMES,
+  getAllDevAccounts,
+  getDevAccount,
+} from './devSigner'
 
 export {
   toPlanck,
@@ -55,4 +60,5 @@ export type {
 export type { ToastConfig } from './toastConfigs'
 export type { StoredWalletConnection } from './walletStorage'
 export type { NetworkConfig, NetworkId } from './networkStorage'
+export type { DevAccount, DevAccountName } from './devSigner'
 export type { FormatBalanceOptions, RoundingMode } from './balance'

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   connectInjectedExtension,
@@ -9,15 +9,20 @@ import {
 
 import {
   clearWalletConnection,
+  getAllDevAccounts,
   loadWalletConnection,
   saveWalletConnection,
+  type DevAccount,
+  type NetworkId,
 } from '@/lib'
 
-export function useWallet() {
+// Unified account type that works for both injected and dev accounts
+export type Account = InjectedPolkadotAccount | DevAccount
+
+export function useWallet(networkId: NetworkId) {
   const [extension, setExtension] = useState<InjectedExtension | null>(null)
-  const [accounts, setAccounts] = useState<InjectedPolkadotAccount[]>([])
-  const [selectedAccount, setSelectedAccount] =
-    useState<InjectedPolkadotAccount | null>(null)
+  const [accounts, setAccounts] = useState<Account[]>([])
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null)
   const [isConnecting, setIsConnecting] = useState(false)
   const [isAutoConnecting, setIsAutoConnecting] = useState(true)
   const [connectedExtensionName, setConnectedExtensionName] = useState<
@@ -26,9 +31,51 @@ export function useWallet() {
   const [connectionError, setConnectionError] = useState<string | null>(null)
 
   const availableExtensions = getInjectedExtensions()
+  const prevNetworkIdRef = useRef(networkId)
 
-  // Auto-reconnect on mount if we have saved connection data
+  // Handle network changes
   useEffect(() => {
+    const prevNetworkId = prevNetworkIdRef.current
+    prevNetworkIdRef.current = networkId
+
+    if (prevNetworkId === networkId) return
+
+    // Network changed
+    if (networkId === 'local') {
+      // Switching to local: use dev accounts
+      const devAccounts = getAllDevAccounts()
+      setAccounts(devAccounts)
+      const alice = devAccounts.find((a) => a.name === 'Alice')
+      setSelectedAccount(alice ?? devAccounts[0])
+      // Clear extension state but don't disconnect (we may switch back)
+      setConnectedExtensionName(null)
+      setConnectionError(null)
+    } else {
+      // Switching from local to testnet: need to reconnect wallet
+      setAccounts([])
+      setSelectedAccount(null)
+      setIsAutoConnecting(true)
+    }
+  }, [networkId])
+
+  // Initialize dev accounts on mount if on local network
+  useEffect(() => {
+    if (networkId === 'local') {
+      const devAccounts = getAllDevAccounts()
+      setAccounts(devAccounts)
+      const alice = devAccounts.find((a) => a.name === 'Alice')
+      setSelectedAccount(alice ?? devAccounts[0])
+      setIsAutoConnecting(false)
+    }
+  }, []) // Only run on mount
+
+  // Auto-reconnect on mount if we have saved connection data (only for non-local networks)
+  useEffect(() => {
+    if (networkId === 'local') {
+      setIsAutoConnecting(false)
+      return
+    }
+
     const attemptAutoReconnect = async () => {
       const saved = loadWalletConnection()
       if (!saved) {
@@ -64,15 +111,18 @@ export function useWallet() {
     } else {
       setIsAutoConnecting(false)
     }
-  }, [availableExtensions, extension]) // Re-run if available extensions change or connection status changes
+  }, [availableExtensions, extension, networkId])
 
   const connectWallet = async (
     extensionName: string,
     selectedAccountAddress?: string
   ) => {
+    // Dev accounts don't use wallet extensions
+    if (networkId === 'local') return
+
     try {
       setIsConnecting(true)
-      setConnectionError(null) // Clear any previous errors
+      setConnectionError(null)
       console.log('Connecting to extension:', extensionName)
       const ext = await connectInjectedExtension(extensionName)
       console.log('Extension connected:', ext)
@@ -105,7 +155,6 @@ export function useWallet() {
       if (accountToSelect) {
         setSelectedAccount(accountToSelect)
         setConnectedExtensionName(extensionName)
-        // Save the connection to localStorage
         saveWalletConnection({
           extensionName,
           selectedAccountAddress: accountToSelect.address,
@@ -124,6 +173,14 @@ export function useWallet() {
   }
 
   const disconnect = () => {
+    // For dev accounts, just reset selection
+    if (networkId === 'local') {
+      const devAccounts = getAllDevAccounts()
+      const alice = devAccounts.find((a) => a.name === 'Alice')
+      setSelectedAccount(alice ?? devAccounts[0])
+      return
+    }
+
     extension?.disconnect()
     setExtension(null)
     setAccounts([])
@@ -132,11 +189,12 @@ export function useWallet() {
     clearWalletConnection()
   }
 
-  // Custom setSelectedAccount that also persists to localStorage
-  const updateSelectedAccount = (account: InjectedPolkadotAccount | null) => {
+  // Custom setSelectedAccount that also persists to localStorage (only for injected accounts)
+  const updateSelectedAccount = (account: Account | null) => {
     setSelectedAccount(account)
 
-    if (account && connectedExtensionName) {
+    // Only persist injected account selection
+    if (account && connectedExtensionName && networkId !== 'local') {
       saveWalletConnection({
         extensionName: connectedExtensionName,
         selectedAccountAddress: account.address,
@@ -144,8 +202,8 @@ export function useWallet() {
     }
   }
 
-  const isConnected = !!extension
-  console.log('useWallet - extension:', extension, 'isConnected:', isConnected)
+  // isConnected: true if on local (dev accounts always available) or has extension
+  const isConnected = networkId === 'local' || !!extension
 
   return {
     extension,
@@ -158,5 +216,6 @@ export function useWallet() {
     disconnect,
     isConnected,
     connectionError,
+    isDevMode: networkId === 'local',
   }
 }
