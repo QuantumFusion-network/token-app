@@ -22,6 +22,7 @@ A modern React 19 application for managing assets on the QF Network testnet. Bui
 ## Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ and pnpm
 - Browser wallet extension (Talisman or SubWallet)
 
@@ -34,8 +35,8 @@ pnpm dev      # Start development server at http://localhost:5173
 
 ## Documentation
 
-- **[Architecture Guide](docs/ARCHITECTURE.md)**: State management, transaction flows, and code structure.
-- **[Development Guide](docs/DEVELOPMENT.md)**: Setup, coding standards, and testing details.
+- **[Development Guide](docs/DEVELOPMENT.md)**: Coding standards, detailed scripts, and testing guide.
+- **[Architecture Guide](docs/ARCHITECTURE.md)**: State management, transaction flows, and system design.
 
 ## Network Information
 

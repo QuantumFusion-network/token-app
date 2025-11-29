@@ -31,11 +31,11 @@ Located in `src/lib/`. Pure functions with **zero React dependencies**.
 ### 4. Presentation (Components)
 Located in `src/components/`. UI components organized by domain.
 
-- **ui/**: Reusable design system primitives (shadcn/ui)
-- **account/**: Wallet connection and account management
-- **asset-management/**: Asset creation, minting, transfer, and destruction forms
-- **transaction-ui/**: Shared transaction feedback components
-- **error-boundaries/**: Hierarchical error handling (App → Feature → Component)
+- **ui/**: Reusable design system primitives (shadcn/ui).
+- **account/**: Wallet connection and account management.
+- **asset-management/**: Asset creation, minting, transfer, and destruction forms.
+- **transaction-ui/**: Shared transaction feedback components.
+- **error-boundaries/**: Hierarchical error handling (App → Feature → Component).
 
 ## State Management Strategy
 
@@ -61,8 +61,8 @@ The application implements a robust transaction lifecycle manager:
    - `Broadcasting`: Submitted to network.
    - `InBlock`: Included in a block (temporary success).
    - `Finalized`: Irreversible success (triggers query invalidation).
-4. **Feedback**: `useTransactionToasts` observes state changes and displays distinct toast notifications for each stage (30s duration)
-5. **Cleanup**: State resets after a delay or on dismissal
+4. **Feedback**: `useTransactionToasts` observes state changes and displays distinct toast notifications for each stage (30s duration).
+5. **Cleanup**: State resets after a delay or on dismissal.
 
 ## Key Directories
 
@@ -74,8 +74,7 @@ src/
 ├── components/            # UI components
 │   ├── account/           # Wallet connection UI
 │   ├── asset-management/  # Asset forms and displays
-│   ├── transaction-ui/   # Transaction feedback components
+│   ├── transaction-ui/    # Transaction feedback components
 │   └── ui/                # Design system primitives (shadcn/ui)
-└── __tests__/             # Unit tests
+└── __tests__/             # Unit tests (Vitest)
 ```
-

@@ -1,54 +1,36 @@
 # CLAUDE.md
 
-QF Network Asset Manager - Context & Rules
+AI context file for QF Network Asset Manager. See full docs in [README](README.md), [Architecture](docs/ARCHITECTURE.md), and [Development](docs/DEVELOPMENT.md).
 
-## Documentation References
-- **[Architecture](docs/ARCHITECTURE.md)**: State management, providers, transaction lifecycle.
-- **[Development](docs/DEVELOPMENT.md)**: Setup, testing, balance utilities API.
-
-## Code Quality Rules (Apply to Every Change)
+## Code Quality Rules
 
 **TypeScript:**
-- **Strict**: No `any`, no `as` assertions. Use `unknown` and narrowing.
-- **Inference**: Avoid redundant type definitions.
-- **Types**: Prefer discriminated unions for state.
+- No `any`, no `as` assertions. Use `unknown` and narrowing.
+- Let TypeScript infer types; avoid redundant annotations.
+- Prefer discriminated unions for state.
 
 **State Management:**
-- **UI**: `useState` only. NEVER `useReducer`.
-- **Shared**: Context API (`src/contexts/`).
-- **Server**: TanStack Query (`src/lib/query/`).
-- **Logic**: Keep components presentational; use hooks (`src/hooks/`) and pure functions (`src/lib/`).
+- **UI state**: `useState` only. NEVER `useReducer`.
+- **Shared state**: Context API (`src/contexts/`).
+- **Server state**: TanStack Query (`src/lib/query/`).
+- Keep components presentational; logic goes in hooks or pure functions.
 
 **Architecture:**
-- **Exports**: Use barrel files (`index.ts`). Import from `@/lib`, `@/components`. Avoid `*` exports
-- **Logic**: Business logic belongs in `lib/` (pure) or `hooks/` (React)
+- Use barrel files (`index.ts`). Import from `@/lib`, `@/components`.
+- Business logic: `lib/` (pure) or `hooks/` (React).
+- Balance conversions: always use `toPlanck`/`fromPlanck` from `@/lib`.
 
-## Key Commands
+## Quick Reference
 
-```bash
-pnpm dev          # Start development server
-pnpm test         # Run unit tests (Vitest)
-pnpm test:e2e     # Run E2E tests (Playwright)
-pnpm lint         # Fix linting issues
-pnpm typecheck    # Type check
-```
-
-Note: Polkadot API descriptors are automatically generated on `pnpm install` via postinstall hook.
+See [Development Guide](docs/DEVELOPMENT.md#available-scripts) for all available commands.
 
 ## Project Structure
 
-- `src/contexts/`: Global state providers (Wallet, Connection, Transaction)
-- `src/hooks/`: Capability composition (useTransaction, useAssetMutation)
-- `src/lib/`: Pure business logic (PAPI builders, balance utils, storage)
-- `src/components/`:
-  - `account/`: Wallet connection UI
-  - `asset-management/`: Asset forms (Create/Mint/Transfer/Destroy)
-  - `transaction-ui/`: Transaction feedback components
+See [Architecture Guide](docs/ARCHITECTURE.md#key-directories) for detailed structure.
 
 ## Key Conventions
 
-- **Network**: QF Network Testnet (`wss://test.qfnetwork.xyz`).
 - **Decimals**: Native QF is 18. UI defaults created assets to 12.
-- **Balance**: Use `toPlanck`/`fromPlanck` (import from `@/lib`) for all conversions
+- **Balance**: Use `toPlanck`/`fromPlanck` (import from `@/lib`) for all conversions.
 - **Toasts**: 30s duration (Sonner).
 - **Queries**: 30s stale time, 5min GC.
