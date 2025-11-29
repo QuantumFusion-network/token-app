@@ -31,9 +31,11 @@ Located in `src/lib/`. Pure functions with **zero React dependencies**.
 ### 4. Presentation (Components)
 Located in `src/components/`. UI components organized by domain.
 
-- **ui/**: Reusable design system primitives (shadcn/ui).
-- **feature/**: Domain-specific components (`account/`, `asset-management/`).
-- **error-boundaries/**: Hierarchical error handling (App → Feature → Component).
+- **ui/**: Reusable design system primitives (shadcn/ui)
+- **account/**: Wallet connection and account management
+- **asset-management/**: Asset creation, minting, transfer, and destruction forms
+- **transaction-ui/**: Shared transaction feedback components
+- **error-boundaries/**: Hierarchical error handling (App → Feature → Component)
 
 ## State Management Strategy
 
@@ -45,7 +47,7 @@ Located in `src/components/`. UI components organized by domain.
 | **Server Data** | TanStack Query | Stale: 30s, GC: 5min; auto-invalidates on mutations |
 | **UI State** | `useState` | Local to components; avoided for shared state |
 
-**Rule**: Never use `useReducer`. Use `useState` for local logic or Context for shared state.
+**Rule**: Never use `useReducer`. Use `useState` for local component state or Context for shared state.
 
 ## Transaction Flow
 
@@ -59,20 +61,21 @@ The application implements a robust transaction lifecycle manager:
    - `Broadcasting`: Submitted to network.
    - `InBlock`: Included in a block (temporary success).
    - `Finalized`: Irreversible success (triggers query invalidation).
-4. **Feedback**: `useTransactionToasts` observes state changes and displays distinct notifications for each stage.
-5. **Cleanup**: State resets after a delay or on dismissal.
+4. **Feedback**: `useTransactionToasts` observes state changes and displays distinct toast notifications for each stage (30s duration)
+5. **Cleanup**: State resets after a delay or on dismissal
 
 ## Key Directories
 
 ```
 src/
-├── contexts/        # State providers
-├── hooks/           # logic composition
-├── lib/             # Pure business logic
-├── components/      # UI components
-│   ├── account/     # Wallet UI
-│   ├── asset-management/ # Asset forms/displays
-│   └── transaction-ui/   # Shared transaction feedback
-└── __tests__/       # Tests
+├── contexts/              # State providers (Wallet, Connection, Transaction)
+├── hooks/                 # Capability composition (useTransaction, useAssetMutation)
+├── lib/                   # Pure business logic (assetOperations, balance utils)
+├── components/            # UI components
+│   ├── account/           # Wallet connection UI
+│   ├── asset-management/  # Asset forms and displays
+│   ├── transaction-ui/   # Transaction feedback components
+│   └── ui/                # Design system primitives (shadcn/ui)
+└── __tests__/             # Unit tests
 ```
 

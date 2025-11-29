@@ -23,17 +23,14 @@ A modern React 19 application for managing assets on the QF Network testnet. Bui
 
 ### Prerequisites
 - Node.js 18+ and pnpm
-- Browser wallet extension
+- Browser wallet extension (Talisman or SubWallet)
 
 ### Installation
 
 ```bash
-pnpm install
-pnpm papi    # Generate chain descriptors
-pnpm dev     # Start local server
+pnpm install  # Automatically generates Polkadot API descriptors via postinstall
+pnpm dev      # Start development server at http://localhost:5173
 ```
-
-The app will run at `http://localhost:5173`.
 
 ## Documentation
 
@@ -42,7 +39,8 @@ The app will run at `http://localhost:5173`.
 
 ## Network Information
 
-- **Network**: QF Network Testnet (`wss://test.qfnetwork.xyz`)
+- **Network**: QF Network Testnet
+- **Endpoint**: `wss://test.qfnetwork.xyz`
 - **Faucet**: [faucet.qfnetwork.xyz](https://faucet.qfnetwork.xyz)
 - **Native Token**: QF (18 decimals)
 

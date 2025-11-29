@@ -20,33 +20,35 @@ QF Network Asset Manager - Context & Rules
 - **Logic**: Keep components presentational; use hooks (`src/hooks/`) and pure functions (`src/lib/`).
 
 **Architecture:**
-- **Exports**: Use barrel files (`index.ts`). Import from `@/lib`, `@/components`;avoid * exports
-- **Logic**: Business logic belongs in `lib/` (pure) or `hooks/` (React).
+- **Exports**: Use barrel files (`index.ts`). Import from `@/lib`, `@/components`. Avoid `*` exports
+- **Logic**: Business logic belongs in `lib/` (pure) or `hooks/` (React)
 
 ## Key Commands
 
 ```bash
-pnpm dev          # Start server
-pnpm papi         # Generate Polkadot API descriptors
-pnpm test         # Unit tests (Vitest)
-pnpm test:e2e     # E2E tests (Playwright)
-pnpm lint         # Lint check
+pnpm dev          # Start development server
+pnpm test         # Run unit tests (Vitest)
+pnpm test:e2e     # Run E2E tests (Playwright)
+pnpm lint         # Fix linting issues
+pnpm typecheck    # Type check
 ```
+
+Note: Polkadot API descriptors are automatically generated on `pnpm install` via postinstall hook.
 
 ## Project Structure
 
-- `src/contexts/`: Global state (Wallet, Connection, Transaction).
-- `src/hooks/`: Capabilities (Transactions, Asset Mutations).
-- `src/lib/`: Pure logic (PAPI builders, Balance utils, Storage).
+- `src/contexts/`: Global state providers (Wallet, Connection, Transaction)
+- `src/hooks/`: Capability composition (useTransaction, useAssetMutation)
+- `src/lib/`: Pure business logic (PAPI builders, balance utils, storage)
 - `src/components/`:
-  - `account/`: Wallet connection.
-  - `asset-management/`: Create/Mint/Burn forms.
-  - `transaction-ui/`: Transaction feedback.
+  - `account/`: Wallet connection UI
+  - `asset-management/`: Asset forms (Create/Mint/Transfer/Destroy)
+  - `transaction-ui/`: Transaction feedback components
 
 ## Key Conventions
 
 - **Network**: QF Network Testnet (`wss://test.qfnetwork.xyz`).
 - **Decimals**: Native QF is 18. UI defaults created assets to 12.
-- **Balance**: Use `toPlanck`/`fromPlanck` (in `@/lib`) for all conversions.
+- **Balance**: Use `toPlanck`/`fromPlanck` (import from `@/lib`) for all conversions
 - **Toasts**: 30s duration (Sonner).
 - **Queries**: 30s stale time, 5min GC.

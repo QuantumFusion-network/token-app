@@ -14,24 +14,30 @@
 git clone <repo-url>
 
 # 2. Install dependencies
+# This automatically generates Polkadot API descriptors via postinstall hook
 pnpm install
-
-# 3. Generate Polkadot API descriptors
-# This fetches chain metadata and generates type-safe bindings
-pnpm papi
 ```
 
 ## Available Scripts
 
 | Command | Description |
 |---------|-------------|
-| `pnpm dev` | Start the development server (Vite) |
+| `pnpm dev` | Start development server (Vite) |
 | `pnpm build` | Build for production |
-| `pnpm preview` | Preview the production build locally |
+| `pnpm preview` | Preview production build locally |
 | `pnpm lint` | Fix linting issues (ESLint) |
+| `pnpm lint:check` | Check for linting issues without fixing |
+| `pnpm format` | Format code with Prettier |
+| `pnpm format:check` | Check code formatting without fixing |
 | `pnpm typecheck` | Run TypeScript type checking |
 | `pnpm test` | Run unit tests (Vitest) |
+| `pnpm test:watch` | Run unit tests in watch mode |
+| `pnpm test:ui` | Run unit tests with UI |
+| `pnpm test:coverage` | Run unit tests with coverage report |
 | `pnpm test:e2e` | Run end-to-end tests (Playwright) |
+| `pnpm test:e2e:ui` | Run E2E tests with interactive UI |
+| `pnpm test:e2e:headed` | Run E2E tests in headed mode |
+| `pnpm deploy` | Build and deploy to Cloudflare Workers |
 
 ## Coding Standards
 
@@ -55,19 +61,19 @@ pnpm papi
 - **Decimals**: 18 (Native QF). Note that created assets default to 12 decimals in the UI, but the system supports arbitrary precision.
 
 ### Polkadot API (PAPI)
-- **Descriptors**: Located in `.papi/descriptors`.
-- **Metadata**: Stored in `.papi/metadata`.
-- **Regeneration**: Run `pnpm papi` if chain metadata changes.
+- **Descriptors**: Located in `.papi/descriptors`
+- **Metadata**: Stored in `.papi/metadata`
+- **Regeneration**: Descriptors are automatically generated on `pnpm install`. To regenerate manually, run `pnpm exec papi` or delete `.papi/` and reinstall.
 
 ## Utility Guides
 
 ### Balance Handling
 The app uses `bigint` for all chain values (Planck) and `string` for UI inputs to avoid floating-point errors.
 
-**Key Functions (`src/lib/balance/`):**
+**Key Functions** (import from `@/lib`):
 
 - **`toPlanck(value: string, decimals: number = 18): bigint`**
-  Converts user input ("1.5") to chain units (1500000000000n).
+  Converts user input ("1.5") to chain units (1500000000000n)
 
 - **`fromPlanck(value: bigint, decimals: number = 18, options?): string`**
   Converts chain units back to a human-readable string.
@@ -75,24 +81,26 @@ The app uses `bigint` for all chain values (Planck) and `string` for UI inputs t
 
 - **`formatBalance(value: string, options?: FormatBalanceOptions): string`**
   Formats a string number for display (e.g., "1,234.56 QF").
-  Options: `locale`, `symbol`, `displayDecimals`, `mode` ('floor'|'round'|'ceil').
+  Options: `locale`, `symbol`, `displayDecimals`, `mode` ('floor'|'round'|'ceil')
 
 ## Testing
 
 ### Unit Tests (Vitest)
-Located in `__tests__/`. Focus on business logic (`lib/`) and hooks.
+Located in `src/__tests__/`. Focus on business logic (`lib/`) and hooks.
 
 ```bash
-pnpm test          # Run all
+pnpm test          # Run all tests
 pnpm test:watch    # Watch mode
+pnpm test:ui       # Interactive UI
 pnpm test:coverage # Coverage report
 ```
 
 ### E2E Tests (Playwright)
-Located in `e2e/`. Tests full user flows against the testnet (or mock).
+Located in `e2e/`. Tests full user flows against the testnet.
 
 ```bash
-pnpm test:e2e      # Run headless
-pnpm test:e2e:ui   # Open interactive UI
+pnpm test:e2e         # Run headless
+pnpm test:e2e:ui      # Interactive UI
+pnpm test:e2e:headed  # Run with browser visible
 ```
 
